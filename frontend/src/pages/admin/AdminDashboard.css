@@ -1,0 +1,50 @@
+.admin-container {
+    padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.admin-actions {
+    margin-top: var(--spacing-2xl);
+}
+
+.admin-actions h2 {
+    margin-bottom: var(--spacing-lg);
+}
+
+.action-grid {
+    gap: var(--spacing-lg);
+}
+
+.admin-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--spacing-2xl);
+    text-decoration: none;
+    transition: all var(--transition-base);
+}
+
+.admin-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.admin-action-card .action-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-action-card h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.admin-action-card p {
+    color: var(--text-muted);
+    margin: 0;
+}
