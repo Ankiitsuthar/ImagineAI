@@ -29,10 +29,25 @@ const app = express();
 connectDB();
 
 // CORS configuration
+// app.use(cors({
+//     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+//     credentials: true
+// }));
+
+const allowedOrigins = [
+    "https://imagineai-three.vercel.app",
+    "http://localhost:5173"
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Authorization"]
 }));
+
+
 
 // Use raw body parser for Stripe webhook route so signature verification gets the raw payload
 app.use('/api/orders/webhook', bodyParser.raw({ type: 'application/json' }));
@@ -89,9 +104,17 @@ app.use((err, req, res, next) => {
 });
 
 // 404 handler
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+// app.use((req, res) => {
+//     res.status(404).json({ message: 'Route not found' });
+// });
+
+// Serve frontend build (SPA Support)
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
+
 
 const PORT = process.env.PORT || 5000;
 

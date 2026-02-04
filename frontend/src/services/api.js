@@ -7,12 +7,19 @@ const RAW_API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const base = RAW_API.replace(/\/$/, '');
 const API_URL = base.endsWith('/api') ? base : `${base}/api`;
 
+// const api = axios.create({
+//     baseURL: API_URL,
+//     headers: {
+//         'Content-Type': 'application/json'
+//     }
+// });
+
 const api = axios.create({
     baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json'
-    }
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true  // FIXED (THIS IS THE MISSING PART)
 });
+
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
