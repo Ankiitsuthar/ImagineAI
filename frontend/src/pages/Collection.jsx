@@ -8,13 +8,11 @@ const Collection = () => {
     const { user, openModal } = useAuth();
     const navigate = useNavigate();
     const [selectedCollection, setSelectedCollection] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState('All');
     const [collections, setCollections] = useState([]);
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [templatesLoading, setTemplatesLoading] = useState(false);
-
-    const categories = ['All', 'Business', 'Artistic', 'Lifestyle', 'Events'];
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Fetch collections on mount
     useEffect(() => {
@@ -30,14 +28,14 @@ const Collection = () => {
             console.error('Error fetching collections:', error);
             // Fallback to static data if API fails
             setCollections([
-                { id: 'professional', title: 'Professional', category: 'Business', icon: '💼', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', templateCount: 6 },
-                { id: 'ghibli', title: 'Ghibli Style', category: 'Artistic', icon: '🎨', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', templateCount: 6 },
-                { id: 'creative', title: 'Creative Portrait', category: 'Artistic', icon: '✨', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', templateCount: 6 },
-                { id: 'food', title: 'Food Photography', category: 'Lifestyle', icon: '🍕', color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', templateCount: 6 },
-                { id: 'lifestyle', title: 'Lifestyle', category: 'Lifestyle', icon: '🌅', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', templateCount: 6 },
-                { id: 'wedding', title: 'Wedding', category: 'Events', icon: '💍', color: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', templateCount: 6 },
-                { id: 'minimalist', title: 'Minimalist', category: 'Artistic', icon: '⬜', color: 'linear-gradient(135deg, #e0e0e0 0%, #ffffff 100%)', templateCount: 6 },
-                { id: 'vintage', title: 'Vintage', category: 'Artistic', icon: '📷', color: 'linear-gradient(135deg, #c9b18a 0%, #8b7355 100%)', templateCount: 6 }
+                { id: 'professional', title: 'Professional', icon: '💼', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', templateCount: 6 },
+                { id: 'ghibli', title: 'Ghibli Style', icon: '🎨', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', templateCount: 6 },
+                { id: 'creative', title: 'Creative Portrait', icon: '✨', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', templateCount: 6 },
+                { id: 'food', title: 'Food Photography', icon: '🍕', color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', templateCount: 6 },
+                { id: 'lifestyle', title: 'Lifestyle', icon: '🌅', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', templateCount: 6 },
+                { id: 'wedding', title: 'Wedding', icon: '💍', color: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', templateCount: 6 },
+                { id: 'minimalist', title: 'Minimalist', icon: '⬜', color: 'linear-gradient(135deg, #e0e0e0 0%, #ffffff 100%)', templateCount: 6 },
+                { id: 'vintage', title: 'Vintage', icon: '📷', color: 'linear-gradient(135deg, #c9b18a 0%, #8b7355 100%)', templateCount: 6 }
             ]);
         } finally {
             setLoading(false);
@@ -57,9 +55,11 @@ const Collection = () => {
         }
     };
 
-    const filteredCollections = selectedCategory === 'All'
-        ? collections
-        : collections.filter(item => item.category === selectedCategory);
+    // Filter collections based on search term
+    const filteredCollections = collections.filter(collection =>
+        collection.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        collection.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleUseTemplate = (e, template) => {
         e.stopPropagation();
@@ -79,6 +79,7 @@ const Collection = () => {
     const handleBackToCollections = () => {
         setSelectedCollection(null);
         setTemplates([]);
+        setSearchTerm('');
     };
 
     const selectedCollectionData = collections.find(c => c.id === selectedCollection);
@@ -116,7 +117,7 @@ const Collection = () => {
                     ) : (
                         <>
                             <h1>Our Collections</h1>
-                            <p>Explore stunning templates organized by style and category</p>
+                            <p>Explore stunning templates organized by collection</p>
                         </>
                     )}
                 </div>
@@ -126,45 +127,64 @@ const Collection = () => {
                 <div className="container">
                     {!selectedCollection ? (
                         <>
-                            {/* Category Filter */}
-                            <div className="category-filter">
-                                {categories.map(category => (
-                                    <button
-                                        key={category}
-                                        className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
-                                        onClick={() => setSelectedCategory(category)}
-                                    >
-                                        {category}
-                                    </button>
-                                ))}
+                            {/* Search Bar */}
+                            <div className="collection-search-bar">
+                                <div className="search-input-wrapper">
+                                    <span className="search-icon">🔍</span>
+                                    <input
+                                        type="text"
+                                        placeholder="Search collections..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="collection-search-input"
+                                    />
+                                    {searchTerm && (
+                                        <button
+                                            className="search-clear-btn"
+                                            onClick={() => setSearchTerm('')}
+                                        >
+                                            ×
+                                        </button>
+                                    )}
+                                </div>
+                                {searchTerm && (
+                                    <span className="search-results-count">
+                                        {filteredCollections.length} collection{filteredCollections.length !== 1 ? 's' : ''} found
+                                    </span>
+                                )}
                             </div>
 
                             {/* Collections Grid */}
-                            <div className="collections-grid">
-                                {filteredCollections.map((item, index) => (
-                                    <div
-                                        key={item.id}
-                                        className="collection-card fade-in-up"
-                                        style={{ animationDelay: `${index * 0.1}s` }}
-                                        onClick={() => handleCollectionClick(item.id)}
-                                    >
-                                        <div className="collection-card-bg" style={{ background: item.color }}></div>
-                                        <div className="collection-card-content">
-                                            <span className="collection-icon">{item.icon}</span>
-                                            <h3>{item.title}</h3>
-                                            <p>{item.templateCount} templates</p>
-                                            <div className="collection-meta">
-                                                <span className="badge badge-category">{item.category}</span>
+                            {filteredCollections.length === 0 ? (
+                                <div className="no-results">
+                                    <span className="no-results-icon">🔍</span>
+                                    <h3>No collections found</h3>
+                                    <p>Try a different search term</p>
+                                </div>
+                            ) : (
+                                <div className="collections-grid">
+                                    {filteredCollections.map((item, index) => (
+                                        <div
+                                            key={item.id}
+                                            className="collection-card fade-in-up"
+                                            style={{ animationDelay: `${index * 0.1}s` }}
+                                            onClick={() => handleCollectionClick(item.id)}
+                                        >
+                                            <div className="collection-card-bg" style={{ background: item.color }}></div>
+                                            <div className="collection-card-content">
+                                                <span className="collection-icon">{item.icon}</span>
+                                                <h3>{item.title}</h3>
+                                                <p>{item.templateCount} templates</p>
+                                            </div>
+                                            <div className="collection-card-arrow">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M5 12h14M12 5l7 7-7 7" />
+                                                </svg>
                                             </div>
                                         </div>
-                                        <div className="collection-card-arrow">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M5 12h14M12 5l7 7-7 7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </>
                     ) : (
                         <>

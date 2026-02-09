@@ -62,7 +62,7 @@ const createTemplate = async (req, res) => {
             return res.status(400).json({ message: 'Please upload a thumbnail image' });
         }
 
-        const thumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
+        const thumbnailUrl = `/uploads/template-thumbnails/${req.file.filename}`;
 
         const template = await Template.create({
             name,
@@ -125,7 +125,7 @@ const updateTemplate = async (req, res) => {
             if (fs.existsSync(oldThumbnailPath)) {
                 fs.unlinkSync(oldThumbnailPath);
             }
-            template.thumbnailUrl = `/uploads/thumbnails/${req.file.filename}`;
+            template.thumbnailUrl = `/uploads/template-thumbnails/${req.file.filename}`;
         }
 
         await template.save();

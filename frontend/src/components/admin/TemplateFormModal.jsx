@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { templateAPI } from '../../services/api';
 import '../../pages/admin/Admin.css';
 
 const TemplateFormModal = ({ template, onClose, onSubmit }) => {
@@ -6,7 +7,6 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         name: '',
         basePrompt: '',
         creditCost: 1,
-        category: 'Business',
         collectionId: '',
         collectionTitle: '',
         collectionIcon: '✨',
@@ -17,10 +17,11 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
     const [thumbnailPreview, setThumbnailPreview] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [collections, setCollections] = useState([]);
+    const [selectedCollection, setSelectedCollection] = useState('');
+    const [isNewCollection, setIsNewCollection] = useState(false);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-    const categories = ['Business', 'Artistic', 'Lifestyle', 'Events', 'Creative', 'Professional'];
 
     const colorPresets = [
         { name: 'Violet', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
@@ -28,10 +29,71 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         { name: 'Green', value: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' },
         { name: 'Orange', value: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' },
         { name: 'Pink', value: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)' },
-        { name: 'Teal', value: 'linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)' }
+        { name: 'Teal', value: 'linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)' },
+        { name: 'Purple', value: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)' },
+        { name: 'Rose', value: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)' },
+        { name: 'Amber', value: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' },
+        { name: 'Emerald', value: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }
     ];
 
-    const iconOptions = ['✨', '🎨', '💼', '🌟', '🔮', '🎭', '📸', '💫', '🌈', '🎪', '🏆', '💎'];
+    // Extended icon library organized by category
+    const iconLibrary = {
+        'Popular': ['✨', '🎨', '💼', '🌟', '🔮', '🎭', '📸', '💫', '🌈', '🎪', '🏆', '💎'],
+        'Business': ['💼', '📊', '👔', '🏢', '📈', '💰', '🎯', '📋', '💳', '🤝', '📁', '✅'],
+        'Creative': ['✨', '🎨', '🌈', '🎭', '🎪', '💫', '🔮', '🌟', '🎬', '🖌️', '🎤', '🎵'],
+        'Photography': ['📷', '📸', '🖼️', '🎬', '📹', '🎞️', '🌅', '🌄', '🏞️', '🎥', '📽️', '🔍'],
+        'Lifestyle': ['🌅', '🏠', '🌿', '☕', '🍃', '🌸', '🍷', '🧘', '🛋️', '🌻', '🕯️', '📚'],
+        'Events': ['💍', '🎂', '🎉', '🎊', '🎁', '🥂', '💒', '👰', '🤵', '🎈', '🪅', '🎆'],
+        'Food': ['🍕', '🍔', '🍰', '🍱', '🥗', '🍜', '☕', '🍷', '🧁', '🍳', '🥘', '🍣'],
+        'Nature': ['🌲', '🌊', '🏔️', '🌺', '🦋', '🌙', '⭐', '🌸', '🍁', '🌴', '🌵', '🦜'],
+        'Tech': ['💻', '📱', '🔧', '⚙️', '🚀', '💡', '🤖', '🎮', '🔌', '📡', '🛸', '⌨️'],
+        'Sports': ['⚽', '🏀', '🎾', '🏈', '⚾', '🏐', '🎳', '🏋️', '🚴', '🏊', '🎿', '🏆'],
+        'Travel': ['✈️', '🚗', '🏖️', '🗺️', '🧳', '🏕️', '🎡', '🗼', '🏰', '⛵', '🚂', '🌍']
+    };
+
+    // Fetch existing collections on mount
+    useEffect(() => {
+        fetchCollections();
+    }, []);
+
+    const fetchCollections = async () => {
+        try {
+            const response = await templateAPI.getCollections();
+            const apiCollections = response.data || [];
+
+            // Also load pending collections from localStorage
+            const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
+
+            // Convert pending collections to the same format as API collections
+            const formattedPending = pendingCollections.map(pc => ({
+                id: pc.collectionId,
+                title: pc.collectionTitle,
+                icon: pc.collectionIcon,
+                color: pc.collectionColor,
+                templateCount: 0,
+                isPending: true // Mark as pending
+            }));
+
+            // Merge: API collections take priority, add pending ones that don't exist in API
+            const existingIds = apiCollections.map(c => c.id);
+            const newPending = formattedPending.filter(pc => !existingIds.includes(pc.id));
+
+            setCollections([...apiCollections, ...newPending]);
+        } catch (error) {
+            console.error('Error fetching collections:', error);
+            // Still try to load pending collections even if API fails
+            const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
+            const formattedPending = pendingCollections.map(pc => ({
+                id: pc.collectionId,
+                title: pc.collectionTitle,
+                icon: pc.collectionIcon,
+                color: pc.collectionColor,
+                templateCount: 0,
+                isPending: true
+            }));
+            setCollections(formattedPending);
+        }
+    };
 
     useEffect(() => {
         if (template) {
@@ -39,13 +101,16 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                 name: template.name || '',
                 basePrompt: template.basePrompt || '',
                 creditCost: template.creditCost || 1,
-                category: template.category || 'Business',
                 collectionId: template.collectionId || '',
                 collectionTitle: template.collectionTitle || '',
                 collectionIcon: template.collectionIcon || '✨',
                 collectionColor: template.collectionColor || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 popular: template.popular || false
             });
+            // Set selected collection if editing
+            if (template.collectionId) {
+                setSelectedCollection(template.collectionId);
+            }
             if (template.thumbnailUrl) {
                 setThumbnailPreview(template.thumbnailUrl.startsWith('http')
                     ? template.thumbnailUrl
@@ -66,6 +131,36 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         }
     };
 
+    const handleCollectionSelect = (e) => {
+        const value = e.target.value;
+        setSelectedCollection(value);
+
+        if (value === '__new__') {
+            setIsNewCollection(true);
+            setFormData(prev => ({
+                ...prev,
+                collectionId: '',
+                collectionTitle: '',
+                collectionIcon: '✨',
+                collectionColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            }));
+        } else if (value) {
+            setIsNewCollection(false);
+            const collection = collections.find(c => c.id === value);
+            if (collection) {
+                setFormData(prev => ({
+                    ...prev,
+                    collectionId: collection.id,
+                    collectionTitle: collection.title,
+                    collectionIcon: collection.icon,
+                    collectionColor: collection.color
+                }));
+            }
+        } else {
+            setIsNewCollection(false);
+        }
+    };
+
     const handleThumbnailChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -82,7 +177,6 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'Name is required';
         if (!formData.basePrompt.trim()) newErrors.basePrompt = 'Prompt is required';
-        if (!formData.category) newErrors.category = 'Category is required';
         if (!formData.collectionId.trim()) newErrors.collectionId = 'Collection ID is required';
         if (!formData.collectionTitle.trim()) newErrors.collectionTitle = 'Collection title is required';
         if (!template && !thumbnailFile) newErrors.thumbnail = 'Thumbnail is required';
@@ -102,7 +196,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         submitData.append('name', formData.name);
         submitData.append('basePrompt', formData.basePrompt);
         submitData.append('creditCost', formData.creditCost);
-        submitData.append('category', formData.category);
+        submitData.append('category', 'General'); // Default category for backward compatibility
         submitData.append('collectionId', formData.collectionId);
         submitData.append('collectionTitle', formData.collectionTitle);
         submitData.append('collectionIcon', formData.collectionIcon);
@@ -122,7 +216,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
 
     return (
         <div className="admin-modal-overlay" onClick={onClose}>
-            <div className="admin-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-modal admin-modal-large" onClick={e => e.stopPropagation()}>
                 <div className="admin-modal-header">
                     <h2>{template ? '✏️ Edit Template' : '➕ Add New Template'}</h2>
                     <button className="admin-modal-close" onClick={onClose}>×</button>
@@ -155,11 +249,15 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
 
                         <div className="admin-form-row">
                             <div className="admin-form-group">
-                                <label>Category *</label>
-                                <select name="category" value={formData.category} onChange={handleChange}>
-                                    {categories.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
+                                <label>Collection *</label>
+                                <select value={selectedCollection} onChange={handleCollectionSelect}>
+                                    <option value="">Select a collection...</option>
+                                    {collections.map(col => (
+                                        <option key={col.id} value={col.id}>
+                                            {col.icon} {col.title}
+                                        </option>
                                     ))}
+                                    <option value="__new__">➕ Create New Collection...</option>
                                 </select>
                             </div>
 
@@ -175,77 +273,90 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                             </div>
                         </div>
 
-                        <div className="admin-form-row">
-                            <div className="admin-form-group">
-                                <label>Collection ID *</label>
-                                <input
-                                    type="text"
-                                    name="collectionId"
-                                    value={formData.collectionId}
-                                    onChange={handleChange}
-                                    placeholder="e.g., professional"
-                                />
-                                {errors.collectionId && <span style={{ color: '#ef4444', fontSize: '0.85rem' }}>{errors.collectionId}</span>}
-                            </div>
+                        {/* Show new collection fields when creating new */}
+                        {isNewCollection && (
+                            <>
+                                <div className="admin-form-row">
+                                    <div className="admin-form-group">
+                                        <label>Collection ID *</label>
+                                        <input
+                                            type="text"
+                                            name="collectionId"
+                                            value={formData.collectionId}
+                                            onChange={handleChange}
+                                            placeholder="e.g., professional"
+                                        />
+                                        {errors.collectionId && <span style={{ color: '#ef4444', fontSize: '0.85rem' }}>{errors.collectionId}</span>}
+                                    </div>
 
-                            <div className="admin-form-group">
-                                <label>Collection Title *</label>
-                                <input
-                                    type="text"
-                                    name="collectionTitle"
-                                    value={formData.collectionTitle}
-                                    onChange={handleChange}
-                                    placeholder="e.g., Professional Photos"
-                                />
-                                {errors.collectionTitle && <span style={{ color: '#ef4444', fontSize: '0.85rem' }}>{errors.collectionTitle}</span>}
-                            </div>
-                        </div>
+                                    <div className="admin-form-group">
+                                        <label>Collection Title *</label>
+                                        <input
+                                            type="text"
+                                            name="collectionTitle"
+                                            value={formData.collectionTitle}
+                                            onChange={handleChange}
+                                            placeholder="e.g., Professional Photos"
+                                        />
+                                        {errors.collectionTitle && <span style={{ color: '#ef4444', fontSize: '0.85rem' }}>{errors.collectionTitle}</span>}
+                                    </div>
+                                </div>
 
-                        <div className="admin-form-row">
-                            <div className="admin-form-group">
-                                <label>Collection Icon</label>
-                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                    {iconOptions.map(icon => (
-                                        <button
-                                            key={icon}
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, collectionIcon: icon }))}
-                                            style={{
-                                                padding: '8px 12px',
-                                                fontSize: '1.25rem',
-                                                border: formData.collectionIcon === icon ? '2px solid var(--primary-color)' : '1px solid var(--border-color)',
-                                                borderRadius: '8px',
-                                                background: formData.collectionIcon === icon ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {icon}
-                                        </button>
-                                    ))}
+                                <div className="admin-form-group">
+                                    <label>Collection Icon</label>
+                                    <div className="icon-library">
+                                        {Object.entries(iconLibrary).map(([category, icons]) => (
+                                            <div key={category} className="icon-category">
+                                                <span className="icon-category-label">{category}</span>
+                                                <div className="icon-grid">
+                                                    {icons.map(icon => (
+                                                        <button
+                                                            key={`${category}-${icon}`}
+                                                            type="button"
+                                                            onClick={() => setFormData(prev => ({ ...prev, collectionIcon: icon }))}
+                                                            className={`icon-btn ${formData.collectionIcon === icon ? 'selected' : ''}`}
+                                                        >
+                                                            {icon}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="admin-form-group">
+                                    <label>Collection Color</label>
+                                    <div className="color-presets">
+                                        {colorPresets.map(color => (
+                                            <button
+                                                key={color.name}
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, collectionColor: color.value }))}
+                                                className={`color-preset-btn ${formData.collectionColor === color.value ? 'selected' : ''}`}
+                                                title={color.name}
+                                            >
+                                                <span className="color-preview" style={{ background: color.value }}></span>
+                                                <span className="color-name">{color.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Show collection preview when existing selected */}
+                        {selectedCollection && !isNewCollection && (
+                            <div className="collection-preview-card">
+                                <div className="collection-preview-icon" style={{ background: formData.collectionColor }}>
+                                    {formData.collectionIcon}
+                                </div>
+                                <div className="collection-preview-info">
+                                    <strong>{formData.collectionTitle}</strong>
+                                    <span>ID: {formData.collectionId}</span>
                                 </div>
                             </div>
-
-                            <div className="admin-form-group">
-                                <label>Collection Color</label>
-                                <select
-                                    name="collectionColor"
-                                    value={formData.collectionColor}
-                                    onChange={handleChange}
-                                >
-                                    {colorPresets.map(color => (
-                                        <option key={color.name} value={color.value}>{color.name}</option>
-                                    ))}
-                                </select>
-                                <div
-                                    style={{
-                                        marginTop: '8px',
-                                        height: '20px',
-                                        borderRadius: '4px',
-                                        background: formData.collectionColor
-                                    }}
-                                />
-                            </div>
-                        </div>
+                        )}
 
                         <div className="admin-form-group">
                             <label>Thumbnail Image {!template && '*'}</label>
@@ -275,19 +386,17 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                             {errors.thumbnail && <span style={{ color: '#ef4444', fontSize: '0.85rem' }}>{errors.thumbnail}</span>}
                         </div>
 
+                        {/* Popular Toggle - Prominent Button Style */}
                         <div className="admin-form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                                <div className="toggle-switch">
-                                    <input
-                                        type="checkbox"
-                                        name="popular"
-                                        checked={formData.popular}
-                                        onChange={handleChange}
-                                    />
-                                    <span className="toggle-slider"></span>
-                                </div>
-                                Mark as Popular
-                            </label>
+                            <label>Mark as Popular</label>
+                            <button
+                                type="button"
+                                className={`popular-toggle-btn ${formData.popular ? 'active' : ''}`}
+                                onClick={() => setFormData(prev => ({ ...prev, popular: !prev.popular }))}
+                            >
+                                <span className="popular-icon">🔥</span>
+                                <span>{formData.popular ? 'Popular - Enabled' : 'Click to Mark as Popular'}</span>
+                            </button>
                         </div>
                     </div>
 

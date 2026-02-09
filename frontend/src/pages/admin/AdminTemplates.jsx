@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { templateAPI } from '../../services/api';
 import TemplateFormModal from '../../components/admin/TemplateFormModal';
+import CollectionFormModal from '../../components/admin/CollectionFormModal';
 import './Admin.css';
 
 const AdminTemplates = () => {
     const [templates, setTemplates] = useState([]);
+    const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('');
+    const [collectionFilter, setCollectionFilter] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [showCollectionModal, setShowCollectionModal] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState(null);
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
 
@@ -16,6 +19,7 @@ const AdminTemplates = () => {
 
     useEffect(() => {
         fetchTemplates();
+        fetchCollections();
     }, []);
 
     const fetchTemplates = async () => {
@@ -31,6 +35,43 @@ const AdminTemplates = () => {
         }
     };
 
+    const fetchCollections = async () => {
+        try {
+            const response = await templateAPI.getCollections();
+            const apiCollections = response.data || [];
+
+            // Also load pending collections from localStorage
+            const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
+            const formattedPending = pendingCollections.map(pc => ({
+                id: pc.collectionId,
+                title: pc.collectionTitle,
+                icon: pc.collectionIcon,
+                color: pc.collectionColor,
+                templateCount: 0,
+                isPending: true
+            }));
+
+            // Merge: API collections take priority
+            const existingIds = apiCollections.map(c => c.id);
+            const newPending = formattedPending.filter(pc => !existingIds.includes(pc.id));
+
+            setCollections([...apiCollections, ...newPending]);
+        } catch (error) {
+            console.error('Error fetching collections:', error);
+            // Still try to load pending collections
+            const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
+            const formattedPending = pendingCollections.map(pc => ({
+                id: pc.collectionId,
+                title: pc.collectionTitle,
+                icon: pc.collectionIcon,
+                color: pc.collectionColor,
+                templateCount: 0,
+                isPending: true
+            }));
+            setCollections(formattedPending);
+        }
+    };
+
     const showAlert = (type, message) => {
         setAlert({ show: true, type, message });
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
@@ -39,6 +80,10 @@ const AdminTemplates = () => {
     const handleAddNew = () => {
         setEditingTemplate(null);
         setShowModal(true);
+    };
+
+    const handleAddCollection = () => {
+        setShowCollectionModal(true);
     };
 
     const handleEdit = (template) => {
@@ -55,6 +100,8 @@ const AdminTemplates = () => {
             await templateAPI.delete(id);
             setTemplates(templates.filter(t => t._id !== id));
             showAlert('success', 'Template deleted successfully');
+            // Refresh collections in case the deleted template was the last one in a collection
+            fetchCollections();
         } catch (error) {
             console.error('Error deleting template:', error);
             showAlert('error', 'Failed to delete template');
@@ -63,32 +110,65 @@ const AdminTemplates = () => {
 
     const handleFormSubmit = async (formData, isEdit) => {
         try {
+            let createdTemplate;
             if (isEdit) {
                 const response = await templateAPI.update(editingTemplate._id, formData);
                 setTemplates(templates.map(t => t._id === editingTemplate._id ? response.data : t));
                 showAlert('success', 'Template updated successfully');
+                createdTemplate = response.data;
             } else {
                 const response = await templateAPI.create(formData);
                 setTemplates([...templates, response.data]);
                 showAlert('success', 'Template created successfully');
+                createdTemplate = response.data;
             }
             setShowModal(false);
             setEditingTemplate(null);
+
+            // Clean up pending collection from localStorage if it was used
+            if (createdTemplate?.collectionId) {
+                const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
+                const updatedPending = pendingCollections.filter(
+                    pc => pc.collectionId !== createdTemplate.collectionId
+                );
+                localStorage.setItem('pendingCollections', JSON.stringify(updatedPending));
+            }
+
+            // Refresh collections - the new one now exists in DB
+            fetchCollections();
         } catch (error) {
             console.error('Error saving template:', error);
             showAlert('error', error.response?.data?.message || 'Failed to save template');
         }
     };
 
-    // Get unique categories for filter
-    const categories = [...new Set(templates.map(t => t.category))].filter(Boolean);
+    const handleCollectionSubmit = async (collectionData) => {
+        // Store collection data in localStorage for use when creating templates
+        const savedCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
+
+        // Check if collection with same ID already exists
+        const existingIndex = savedCollections.findIndex(c => c.collectionId === collectionData.collectionId);
+        if (existingIndex >= 0) {
+            savedCollections[existingIndex] = collectionData; // Update existing
+        } else {
+            savedCollections.push(collectionData); // Add new
+        }
+
+        localStorage.setItem('pendingCollections', JSON.stringify(savedCollections));
+
+        // Refresh collections to show the new pending collection
+        await fetchCollections();
+
+        showAlert('success', `Collection "${collectionData.collectionTitle}" created! Now add a template to this collection.`);
+        setShowCollectionModal(false);
+    };
 
     // Filter templates
     const filteredTemplates = templates.filter(template => {
         const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             template.basePrompt.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = !categoryFilter || template.category === categoryFilter;
-        return matchesSearch && matchesCategory;
+        const matchesCollection = !collectionFilter || template.collectionId === collectionFilter;
+        return matchesSearch && matchesCollection;
     });
 
     if (loading) {
@@ -104,6 +184,9 @@ const AdminTemplates = () => {
             <div className="admin-page-header">
                 <h1>🎨 Manage Templates</h1>
                 <div className="header-actions">
+                    <button className="btn btn-secondary" onClick={handleAddCollection}>
+                        📁 Create Collection
+                    </button>
                     <button className="btn btn-primary" onClick={handleAddNew}>
                         + Add Template
                     </button>
@@ -126,10 +209,12 @@ const AdminTemplates = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-                    <option value="">All Categories</option>
-                    {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
+                <select value={collectionFilter} onChange={(e) => setCollectionFilter(e.target.value)}>
+                    <option value="">All Collections</option>
+                    {collections.map(col => (
+                        <option key={col.id} value={col.id}>
+                            {col.icon} {col.title}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -146,7 +231,6 @@ const AdminTemplates = () => {
                         <thead>
                             <tr>
                                 <th>Template</th>
-                                <th>Category</th>
                                 <th>Collection</th>
                                 <th>Credits</th>
                                 <th>Status</th>
@@ -159,12 +243,16 @@ const AdminTemplates = () => {
                                     <td>
                                         <div className="table-template-cell">
                                             <img
-                                                src={template.thumbnailUrl.startsWith('http')
-                                                    ? template.thumbnailUrl
-                                                    : `${API_URL}${template.thumbnailUrl}`}
+                                                src={template.thumbnailUrl
+                                                    ? (template.thumbnailUrl.startsWith('http')
+                                                        ? template.thumbnailUrl
+                                                        : `${API_URL}${template.thumbnailUrl}`)
+                                                    : 'https://via.placeholder.com/60x60/f0f0f0/888?text=No+Image'}
                                                 alt={template.name}
                                                 className="template-thumbnail"
-                                                onError={(e) => e.target.src = '/placeholder.png'}
+                                                onError={(e) => {
+                                                    e.target.src = 'https://via.placeholder.com/60x60/f0f0f0/888?text=No+Image';
+                                                }}
                                             />
                                             <div>
                                                 <strong>{template.name}</strong>
@@ -174,7 +262,6 @@ const AdminTemplates = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{template.category}</td>
                                     <td>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             {template.collectionIcon} {template.collectionTitle}
@@ -189,7 +276,7 @@ const AdminTemplates = () => {
                                     </td>
                                     <td>
                                         {template.popular && (
-                                            <span className="status-badge popular">Popular</span>
+                                            <span className="status-badge popular">🔥 Popular</span>
                                         )}
                                     </td>
                                     <td>
@@ -223,6 +310,13 @@ const AdminTemplates = () => {
                         setEditingTemplate(null);
                     }}
                     onSubmit={handleFormSubmit}
+                />
+            )}
+
+            {showCollectionModal && (
+                <CollectionFormModal
+                    onClose={() => setShowCollectionModal(false)}
+                    onSubmit={handleCollectionSubmit}
                 />
             )}
         </div>

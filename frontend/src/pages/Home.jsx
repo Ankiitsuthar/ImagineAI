@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 const Home = () => {
-    const { openModal } = useAuth();
+    const { openModal, user } = useAuth();
 
     const handleGoogleLogin = () => {
         openModal('login');
@@ -43,28 +43,32 @@ const Home = () => {
                                 photo, and let our AI generate perfect results.
                             </p>
 
-                            <div className="hero-actions">
-                                <button className="btn btn-google" onClick={handleGoogleLogin}>
-                                    <span className="google-icon">G</span> Continue with Google
-                                </button>
-                            </div>
+                            {!user && (
+                                <>
+                                    <div className="hero-actions">
+                                        <button className="btn btn-google" onClick={handleGoogleLogin}>
+                                            <span className="google-icon">G</span> Continue with Google
+                                        </button>
+                                    </div>
 
-                            <div className="hero-badges">
-                                <div className="badge-item">
-                                    <span className="badge-icon">⚡</span>
-                                    <div className="badge-text">
-                                        <strong>5 Free Credits</strong>
-                                        <span>On signup</span>
+                                    <div className="hero-badges">
+                                        <div className="badge-item">
+                                            <span className="badge-icon">⚡</span>
+                                            <div className="badge-text">
+                                                <strong>5 Free Credits</strong>
+                                                <span>On signup</span>
+                                            </div>
+                                        </div>
+                                        <div className="badge-item">
+                                            <span className="badge-icon">🛡️</span>
+                                            <div className="badge-text">
+                                                <strong>Secure</strong>
+                                                <span>Google OAuth</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="badge-item">
-                                    <span className="badge-icon">🛡️</span>
-                                    <div className="badge-text">
-                                        <strong>Secure</strong>
-                                        <span>Google OAuth</span>
-                                    </div>
-                                </div>
-                            </div>
+                                </>
+                            )}
                         </div>
 
                         <div className="hero-images fade-in-up" style={{ animationDelay: '0.2s' }}>
