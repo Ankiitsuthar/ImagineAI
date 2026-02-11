@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { templateAPI } from '../../services/api';
+import IconRenderer from '../IconRenderer';
 import '../../pages/admin/Admin.css';
 
 const TemplateFormModal = ({ template, onClose, onSubmit }) => {
@@ -349,7 +350,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                         {selectedCollection && !isNewCollection && (
                             <div className="collection-preview-card">
                                 <div className="collection-preview-icon" style={{ background: formData.collectionColor }}>
-                                    {formData.collectionIcon}
+                                    <IconRenderer value={formData.collectionIcon} size={24} />
                                 </div>
                                 <div className="collection-preview-info">
                                     <strong>{formData.collectionTitle}</strong>

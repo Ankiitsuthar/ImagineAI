@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { statsAPI } from '../../services/api';
+import { Crown, Users, Palette, Image, DollarSign, Package } from 'lucide-react';
 import './Admin.css';
 import './AdminDashboard.css';
 
@@ -58,13 +59,13 @@ const AdminDashboard = () => {
     return (
         <div className="admin-page container">
             <div className="admin-header">
-                <h1>Admin Dashboard 👑</h1>
+                <h1>Admin Dashboard <Crown size={28} /></h1>
                 <p className="text-muted">Manage your AI Image Generation platform</p>
             </div>
 
             <div className="stats-grid">
                 <div className="stat-card card-glass">
-                    <div className="stat-icon">👥</div>
+                    <div className="stat-icon"><Users size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.totalUsers}</h3>
                         <p>Total Users</p>
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="stat-card card-glass">
-                    <div className="stat-icon">🎨</div>
+                    <div className="stat-icon"><Palette size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.totalTemplates}</h3>
                         <p>Templates</p>
@@ -80,7 +81,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="stat-card card-glass">
-                    <div className="stat-icon">🖼️</div>
+                    <div className="stat-icon"><Image size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.totalGenerations}</h3>
                         <p>Generations</p>
@@ -88,7 +89,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="stat-card card-glass">
-                    <div className="stat-icon">💰</div>
+                    <div className="stat-icon"><DollarSign size={24} /></div>
                     <div className="stat-content">
                         <h3>{formatCurrency(stats.totalRevenue)}</h3>
                         <p>Total Revenue</p>
@@ -100,19 +101,19 @@ const AdminDashboard = () => {
                 <h2>Management</h2>
                 <div className="action-grid grid grid-3">
                     <Link to="/admin/templates" className="admin-action-card card-glass">
-                        <span className="action-icon">🎨</span>
+                        <span className="action-icon"><Palette size={28} /></span>
                         <h3>Templates</h3>
                         <p>Add, edit & delete templates</p>
                     </Link>
 
                     <Link to="/admin/users" className="admin-action-card card-glass">
-                        <span className="action-icon">👥</span>
+                        <span className="action-icon"><Users size={28} /></span>
                         <h3>Users</h3>
                         <p>Manage user accounts</p>
                     </Link>
 
                     <Link to="/admin/orders" className="admin-action-card card-glass">
-                        <span className="action-icon">📦</span>
+                        <span className="action-icon"><Package size={28} /></span>
                         <h3>Orders</h3>
                         <p>View all transactions</p>
                     </Link>

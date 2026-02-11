@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CheckCircle, Mail, Clock, MessageCircle } from 'lucide-react';
 import './Contact.css';
 
 const Contact = () => {
@@ -69,7 +70,7 @@ const Contact = () => {
 
                             {submitted && (
                                 <div className="success-message card-glass">
-                                    <span className="success-icon">✓</span>
+                                    <span className="success-icon"><CheckCircle size={24} /></span>
                                     <p>Thank you for your message! We'll get back to you soon.</p>
                                 </div>
                             )}
@@ -145,15 +146,15 @@ const Contact = () => {
 
                                 <div className="contact-details">
                                     <div className="contact-detail">
-                                        <div className="contact-icon">📧</div>
+                                        <div className="contact-icon"><Mail size={22} /></div>
                                         <div>
                                             <h4>Email</h4>
-                                            <p>support@imagineai.com</p>
+                                            <p><a href="mailto:support@imagineai.com">support@imagineai.com</a></p>
                                         </div>
                                     </div>
 
                                     <div className="contact-detail">
-                                        <div className="contact-icon">⏰</div>
+                                        <div className="contact-icon"><Clock size={22} /></div>
                                         <div>
                                             <h4>Response Time</h4>
                                             <p>Within 24 hours</p>
@@ -161,7 +162,7 @@ const Contact = () => {
                                     </div>
 
                                     <div className="contact-detail">
-                                        <div className="contact-icon">💬</div>
+                                        <div className="contact-icon"><MessageCircle size={22} /></div>
                                         <div>
                                             <h4>Support Hours</h4>
                                             <p>Mon-Fri: 9AM - 6PM</p>

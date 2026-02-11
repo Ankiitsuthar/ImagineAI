@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { templateAPI } from '../../services/api';
+import { Palette, FolderPlus, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plus } from 'lucide-react';
 import TemplateFormModal from '../../components/admin/TemplateFormModal';
 import CollectionFormModal from '../../components/admin/CollectionFormModal';
+import IconRenderer from '../../components/IconRenderer';
 import './Admin.css';
 
 const AdminTemplates = () => {
@@ -29,7 +31,7 @@ const AdminTemplates = () => {
             setTemplates(response.data);
         } catch (error) {
             console.error('Error fetching templates:', error);
-            showAlert('error', 'Failed to load templates');
+            showAlertMsg('error', 'Failed to load templates');
         } finally {
             setLoading(false);
         }
@@ -72,7 +74,7 @@ const AdminTemplates = () => {
         }
     };
 
-    const showAlert = (type, message) => {
+    const showAlertMsg = (type, message) => {
         setAlert({ show: true, type, message });
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
     };
@@ -99,12 +101,12 @@ const AdminTemplates = () => {
         try {
             await templateAPI.delete(id);
             setTemplates(templates.filter(t => t._id !== id));
-            showAlert('success', 'Template deleted successfully');
+            showAlertMsg('success', 'Template deleted successfully');
             // Refresh collections in case the deleted template was the last one in a collection
             fetchCollections();
         } catch (error) {
             console.error('Error deleting template:', error);
-            showAlert('error', 'Failed to delete template');
+            showAlertMsg('error', 'Failed to delete template');
         }
     };
 
@@ -114,12 +116,12 @@ const AdminTemplates = () => {
             if (isEdit) {
                 const response = await templateAPI.update(editingTemplate._id, formData);
                 setTemplates(templates.map(t => t._id === editingTemplate._id ? response.data : t));
-                showAlert('success', 'Template updated successfully');
+                showAlertMsg('success', 'Template updated successfully');
                 createdTemplate = response.data;
             } else {
                 const response = await templateAPI.create(formData);
                 setTemplates([...templates, response.data]);
-                showAlert('success', 'Template created successfully');
+                showAlertMsg('success', 'Template created successfully');
                 createdTemplate = response.data;
             }
             setShowModal(false);
@@ -138,7 +140,7 @@ const AdminTemplates = () => {
             fetchCollections();
         } catch (error) {
             console.error('Error saving template:', error);
-            showAlert('error', error.response?.data?.message || 'Failed to save template');
+            showAlertMsg('error', error.response?.data?.message || 'Failed to save template');
         }
     };
 
@@ -159,7 +161,7 @@ const AdminTemplates = () => {
         // Refresh collections to show the new pending collection
         await fetchCollections();
 
-        showAlert('success', `Collection "${collectionData.collectionTitle}" created! Now add a template to this collection.`);
+        showAlertMsg('success', `Collection "${collectionData.collectionTitle}" created! Now add a template to this collection.`);
         setShowCollectionModal(false);
     };
 
@@ -182,26 +184,26 @@ const AdminTemplates = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1>🎨 Manage Templates</h1>
+                <h1><Palette size={28} /> Manage Templates</h1>
                 <div className="header-actions">
                     <button className="btn btn-secondary" onClick={handleAddCollection}>
-                        📁 Create Collection
+                        <FolderPlus size={16} /> Create Collection
                     </button>
                     <button className="btn btn-primary" onClick={handleAddNew}>
-                        + Add Template
+                        <Plus size={16} /> Add Template
                     </button>
                 </div>
             </div>
 
             {alert.show && (
                 <div className={`admin-alert ${alert.type}`}>
-                    {alert.type === 'success' ? '✓' : '⚠'} {alert.message}
+                    {alert.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />} {alert.message}
                 </div>
             )}
 
             <div className="admin-search-bar">
                 <div className="search-input-wrapper">
-                    <span className="search-icon">🔍</span>
+                    <span className="search-icon"><Search size={16} /></span>
                     <input
                         type="text"
                         placeholder="Search templates..."
@@ -221,7 +223,7 @@ const AdminTemplates = () => {
 
             {filteredTemplates.length === 0 ? (
                 <div className="admin-empty-state card-glass">
-                    <div className="empty-icon">🎨</div>
+                    <div className="empty-icon"><Palette size={32} /></div>
                     <h3>No templates found</h3>
                     <p>Create your first template to get started</p>
                 </div>
@@ -264,7 +266,7 @@ const AdminTemplates = () => {
                                     </td>
                                     <td>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            {template.collectionIcon} {template.collectionTitle}
+                                            <IconRenderer value={template.collectionIcon} size={18} /> {template.collectionTitle}
                                         </span>
                                     </td>
                                     <td>
@@ -276,7 +278,7 @@ const AdminTemplates = () => {
                                     </td>
                                     <td>
                                         {template.popular && (
-                                            <span className="status-badge popular">🔥 Popular</span>
+                                            <span className="status-badge popular"><Flame size={14} /> Popular</span>
                                         )}
                                     </td>
                                     <td>
@@ -285,13 +287,13 @@ const AdminTemplates = () => {
                                                 className="action-btn edit"
                                                 onClick={() => handleEdit(template)}
                                             >
-                                                ✏️ Edit
+                                                <Pencil size={14} /> Edit
                                             </button>
                                             <button
                                                 className="action-btn delete"
                                                 onClick={() => handleDelete(template._id)}
                                             >
-                                                🗑️ Delete
+                                                <Trash2 size={14} /> Delete
                                             </button>
                                         </div>
                                     </td>

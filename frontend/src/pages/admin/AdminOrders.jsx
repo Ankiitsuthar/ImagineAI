@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { orderAPI } from '../../services/api';
+import { Package, CheckCircle, AlertTriangle, Clock, XCircle, RotateCcw, Coins, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Admin.css';
 
 const AdminOrders = () => {
@@ -38,13 +39,13 @@ const AdminOrders = () => {
             }
         } catch (error) {
             console.error('Error fetching orders:', error);
-            showAlert('error', 'Failed to load orders');
+            showAlertMsg('error', 'Failed to load orders');
         } finally {
             setLoading(false);
         }
     };
 
-    const showAlert = (type, message) => {
+    const showAlertMsg = (type, message) => {
         setAlert({ show: true, type, message });
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
     };
@@ -66,6 +67,16 @@ const AdminOrders = () => {
         }).format(amount);
     };
 
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'completed': return <CheckCircle size={14} />;
+            case 'pending': return <Clock size={14} />;
+            case 'failed': return <XCircle size={14} />;
+            case 'refunded': return <RotateCcw size={14} />;
+            default: return <Clock size={14} />;
+        }
+    };
+
     // Calculate stats
     const stats = {
         pending: orders.filter(o => o.status === 'pending').length,
@@ -85,7 +96,7 @@ const AdminOrders = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1>📦 Manage Orders</h1>
+                <h1><Package size={28} /> Manage Orders</h1>
                 <div className="header-actions">
                     <span style={{
                         padding: '8px 16px',
@@ -100,35 +111,35 @@ const AdminOrders = () => {
 
             {alert.show && (
                 <div className={`admin-alert ${alert.type}`}>
-                    {alert.type === 'success' ? '✓' : '⚠'} {alert.message}
+                    {alert.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />} {alert.message}
                 </div>
             )}
 
             {/* Stats Cards */}
             <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '2rem' }}>
                 <div className="stat-card card-glass">
-                    <div className="stat-icon" style={{ background: 'rgba(234, 179, 8, 0.15)', fontSize: '1.5rem' }}>⏳</div>
+                    <div className="stat-icon" style={{ background: 'rgba(234, 179, 8, 0.15)', fontSize: '1.5rem' }}><Clock size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.pending}</h3>
                         <p>Pending</p>
                     </div>
                 </div>
                 <div className="stat-card card-glass">
-                    <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', fontSize: '1.5rem' }}>✓</div>
+                    <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', fontSize: '1.5rem' }}><CheckCircle size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.completed}</h3>
                         <p>Completed</p>
                     </div>
                 </div>
                 <div className="stat-card card-glass">
-                    <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.15)', fontSize: '1.5rem' }}>✗</div>
+                    <div className="stat-icon" style={{ background: 'rgba(239, 68, 68, 0.15)', fontSize: '1.5rem' }}><XCircle size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.failed}</h3>
                         <p>Failed</p>
                     </div>
                 </div>
                 <div className="stat-card card-glass">
-                    <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', fontSize: '1.5rem' }}>↩</div>
+                    <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', fontSize: '1.5rem' }}><RotateCcw size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats.refunded}</h3>
                         <p>Refunded</p>
@@ -157,7 +168,7 @@ const AdminOrders = () => {
 
             {orders.length === 0 ? (
                 <div className="admin-empty-state card-glass">
-                    <div className="empty-icon">📦</div>
+                    <div className="empty-icon"><Package size={32} /></div>
                     <h3>No orders found</h3>
                     <p>Orders will appear here once customers make purchases</p>
                 </div>
@@ -213,15 +224,12 @@ const AdminOrders = () => {
                                             alignItems: 'center',
                                             gap: '4px'
                                         }}>
-                                            💰 {order.credits || order.creditsPurchased || 0}
+                                            <Coins size={14} /> {order.credits || order.creditsPurchased || 0}
                                         </span>
                                     </td>
                                     <td>
                                         <span className={`status-badge ${order.status || 'pending'}`}>
-                                            {order.status === 'completed' && '✓ '}
-                                            {order.status === 'pending' && '⏳ '}
-                                            {order.status === 'failed' && '✗ '}
-                                            {order.status === 'refunded' && '↩ '}
+                                            {getStatusIcon(order.status)}{' '}
                                             {(order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1)}
                                         </span>
                                     </td>
@@ -239,7 +247,7 @@ const AdminOrders = () => {
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
                             >
-                                ← Previous
+                                <ChevronLeft size={16} /> Previous
                             </button>
                             <span className="page-info">
                                 Page {currentPage} of {totalPages}
@@ -248,7 +256,7 @@ const AdminOrders = () => {
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                             >
-                                Next →
+                                Next <ChevronRight size={16} />
                             </button>
                         </div>
                     )}

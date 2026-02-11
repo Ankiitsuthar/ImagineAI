@@ -1,3 +1,4 @@
+import { Palette, Camera, Sparkles, Download, Check } from 'lucide-react';
 import './About.css';
 
 const About = () => {
@@ -26,22 +27,22 @@ const About = () => {
                         <h2>How It Works</h2>
                         <div className="how-it-works-grid">
                             <div className="how-card card-glass">
-                                <div className="how-icon">🎨</div>
+                                <div className="how-icon"><Palette size={28} /></div>
                                 <h3>Choose a Theme</h3>
                                 <p>Select from our collection of themes.</p>
                             </div>
                             <div className="how-card card-glass">
-                                <div className="how-icon">📸</div>
+                                <div className="how-icon"><Camera size={28} /></div>
                                 <h3>Upload Your Photo</h3>
                                 <p>Simply upload your favorite photo. Our AI works with any photo quality.</p>
                             </div>
                             <div className="how-card card-glass">
-                                <div className="how-icon">✨</div>
+                                <div className="how-icon"><Sparkles size={28} /></div>
                                 <h3>AI Magic</h3>
                                 <p>Our advanced AI transforms your photo while preserving your unique features.</p>
                             </div>
                             <div className="how-card card-glass">
-                                <div className="how-icon">💾</div>
+                                <div className="how-icon"><Download size={28} /></div>
                                 <h3>Download & Share</h3>
                                 <p>Get your stunning photo in seconds. Download and share with loved ones.</p>
                             </div>
@@ -52,35 +53,35 @@ const About = () => {
                         <h2>Why Choose Us?</h2>
                         <div className="features-list">
                             <div className="feature-item">
-                                <span className="feature-check">✓</span>
+                                <span className="feature-check"><Check size={18} /></span>
                                 <div>
                                     <h4>50+ Professional Themes</h4>
                                     <p>From Professional to Creative, we have themes for every style</p>
                                 </div>
                             </div>
                             <div className="feature-item">
-                                <span className="feature-check">✓</span>
+                                <span className="feature-check"><Check size={18} /></span>
                                 <div>
                                     <h4>Lightning Fast</h4>
                                     <p>Get your transformed photos in seconds, not days</p>
                                 </div>
                             </div>
                             <div className="feature-item">
-                                <span className="feature-check">✓</span>
+                                <span className="feature-check"><Check size={18} /></span>
                                 <div>
                                     <h4>High Quality Results</h4>
                                     <p>Professional-grade images suitable for printing and sharing</p>
                                 </div>
                             </div>
                             <div className="feature-item">
-                                <span className="feature-check">✓</span>
+                                <span className="feature-check"><Check size={18} /></span>
                                 <div>
                                     <h4>Secure & Private</h4>
                                     <p>Your photos are encrypted and never shared with third parties</p>
                                 </div>
                             </div>
                             <div className="feature-item">
-                                <span className="feature-check">✓</span>
+                                <span className="feature-check"><Check size={18} /></span>
                                 <div>
                                     <h4>Affordable Pricing</h4>
                                     <p>Get started with 5 free credits, then pay only for what you use</p>

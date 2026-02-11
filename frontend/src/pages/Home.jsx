@@ -1,9 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Sparkles, Zap, Image, ShieldCheck } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
     const { openModal, user } = useAuth();
+    const navigate = useNavigate();
 
     const handleGoogleLogin = () => {
         openModal('login');
@@ -11,17 +13,17 @@ const Home = () => {
 
     const features = [
         {
-            icon: '✨',
+            icon: <Sparkles size={28} />,
             title: 'AI-Powered',
             description: 'Powered by Gemini Nano Banana for stunning, professional-quality results.'
         },
         {
-            icon: '⚡',
+            icon: <Zap size={28} />,
             title: 'Lightning Fast',
             description: 'Generate professional images in seconds. No waiting, no hassle.'
         },
         {
-            icon: '🖼️',
+            icon: <Image size={28} />,
             title: 'Multiple Templates',
             description: 'LinkedIn headshots, professional portraits, food photography, and more.'
         }
@@ -45,22 +47,18 @@ const Home = () => {
 
                             {!user && (
                                 <>
-                                    <div className="hero-actions">
-                                        <button className="btn btn-google" onClick={handleGoogleLogin}>
-                                            <span className="google-icon">G</span> Continue with Google
-                                        </button>
-                                    </div>
+
 
                                     <div className="hero-badges">
                                         <div className="badge-item">
-                                            <span className="badge-icon">⚡</span>
+                                            <span className="badge-icon"><Zap size={18} /></span>
                                             <div className="badge-text">
                                                 <strong>5 Free Credits</strong>
                                                 <span>On signup</span>
                                             </div>
                                         </div>
                                         <div className="badge-item">
-                                            <span className="badge-icon">🛡️</span>
+                                            <span className="badge-icon"><ShieldCheck size={18} /></span>
                                             <div className="badge-text">
                                                 <strong>Secure</strong>
                                                 <span>Google OAuth</span>
@@ -120,7 +118,7 @@ const Home = () => {
                     <div className="home-cta card-glass text-center">
                         <h2>Ready to Create Your Dream Photos?</h2>
                         <p>Join thousands of happy users who have transformed their memories</p>
-                        <button onClick={() => openModal('signup')} className="btn btn-primary btn-lg">
+                        <button onClick={() => user ? navigate('/templates') : openModal('signup')} className="btn btn-primary btn-lg">
                             Get Started Free
                         </button>
                     </div>

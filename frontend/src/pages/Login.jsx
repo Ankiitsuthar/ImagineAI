@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
 import './Auth.css';
 
 const Login = () => {
@@ -14,7 +15,7 @@ const Login = () => {
         <div className="auth-page">
             <div className="auth-card">
                 <div className="auth-header">
-                    <span className="auth-icon">✨</span>
+                    <span className="auth-icon"><Sparkles size={28} /></span>
                     <h1 className="auth-title">Welcome Back</h1>
                     <p className="auth-subtitle">
                         Sign in to continue to Imagine AI

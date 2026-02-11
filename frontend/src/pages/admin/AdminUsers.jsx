@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { userAPI } from '../../services/api';
+import { Users, Search, CheckCircle, AlertTriangle, Crown, User, X, Coins, ChevronLeft, ChevronRight, Edit3, Save } from 'lucide-react';
 import './Admin.css';
 
 const AdminUsers = () => {
@@ -10,11 +11,22 @@ const AdminUsers = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
-    const [editingCredits, setEditingCredits] = useState({ userId: null, value: 0 });
+    const [editModal, setEditModal] = useState({ show: false, user: null });
+    const [editForm, setEditForm] = useState({ name: '', role: 'user', credits: 0 });
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         fetchUsers();
     }, [currentPage]);
+
+    // Real-time search with debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setCurrentPage(1);
+            fetchUsers();
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
     const fetchUsers = async () => {
         try {
@@ -25,52 +37,55 @@ const AdminUsers = () => {
             setTotal(response.data.total);
         } catch (error) {
             console.error('Error fetching users:', error);
-            showAlert('error', 'Failed to load users');
+            showAlertMsg('error', 'Failed to load users');
         } finally {
             setLoading(false);
         }
     };
 
-    const showAlert = (type, message) => {
+    const showAlertMsg = (type, message) => {
         setAlert({ show: true, type, message });
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
-    };
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        setCurrentPage(1);
-        fetchUsers();
     };
 
     const handleToggleStatus = async (userId) => {
         try {
             const response = await userAPI.toggleStatus(userId);
             setUsers(users.map(u => u._id === userId ? response.data.user : u));
-            showAlert('success', response.data.message);
+            showAlertMsg('success', response.data.message);
         } catch (error) {
             console.error('Error toggling status:', error);
-            showAlert('error', error.response?.data?.message || 'Failed to toggle status');
+            showAlertMsg('error', error.response?.data?.message || 'Failed to toggle status');
         }
     };
 
-    const handleCreditsEdit = (user) => {
-        setEditingCredits({ userId: user._id, value: user.credits });
+    const openEditModal = (user) => {
+        setEditForm({
+            name: user.name || '',
+            role: user.role || 'user',
+            credits: user.credits || 0
+        });
+        setEditModal({ show: true, user });
     };
 
-    const handleCreditsSave = async (userId) => {
+    const closeEditModal = () => {
+        setEditModal({ show: false, user: null });
+    };
+
+    const handleEditSave = async () => {
+        if (!editModal.user) return;
         try {
-            const response = await userAPI.updateCredits(userId, editingCredits.value);
-            setUsers(users.map(u => u._id === userId ? response.data.user : u));
-            setEditingCredits({ userId: null, value: 0 });
-            showAlert('success', 'Credits updated successfully');
+            setSaving(true);
+            const response = await userAPI.updateUser(editModal.user._id, editForm);
+            setUsers(users.map(u => u._id === editModal.user._id ? { ...u, ...response.data.user } : u));
+            showAlertMsg('success', 'User updated successfully');
+            closeEditModal();
         } catch (error) {
-            console.error('Error updating credits:', error);
-            showAlert('error', 'Failed to update credits');
+            console.error('Error updating user:', error);
+            showAlertMsg('error', error.response?.data?.message || 'Failed to update user');
+        } finally {
+            setSaving(false);
         }
-    };
-
-    const handleCreditsCancel = () => {
-        setEditingCredits({ userId: null, value: 0 });
     };
 
     const formatDate = (dateString) => {
@@ -92,7 +107,7 @@ const AdminUsers = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1>👥 Manage Users</h1>
+                <h1><Users size={28} /> Manage Users</h1>
                 <div className="header-actions">
                     <span style={{ color: 'var(--text-muted)' }}>
                         Total: {total} users
@@ -102,26 +117,39 @@ const AdminUsers = () => {
 
             {alert.show && (
                 <div className={`admin-alert ${alert.type}`}>
-                    {alert.type === 'success' ? '✓' : '⚠'} {alert.message}
+                    {alert.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />} {alert.message}
                 </div>
             )}
 
-            <form onSubmit={handleSearch} className="admin-search-bar">
+            <div className="admin-search-bar">
                 <div className="search-input-wrapper">
-                    <span className="search-icon">🔍</span>
+                    <span className="search-icon"><Search size={16} /></span>
                     <input
                         type="text"
                         placeholder="Search by name or email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                    {searchTerm && (
+                        <button
+                            type="button"
+                            onClick={() => setSearchTerm('')}
+                            style={{
+                                position: 'absolute', right: '12px', top: '50%',
+                                transform: 'translateY(-50%)', background: 'none',
+                                border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
+                                display: 'flex', alignItems: 'center', padding: '4px'
+                            }}
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
                 </div>
-                <button type="submit" className="btn btn-primary">Search</button>
-            </form>
+            </div>
 
             {users.length === 0 ? (
                 <div className="admin-empty-state card-glass">
-                    <div className="empty-icon">👥</div>
+                    <div className="empty-icon"><Users size={32} /></div>
                     <h3>No users found</h3>
                     <p>Try adjusting your search criteria</p>
                 </div>
@@ -171,85 +199,38 @@ const AdminUsers = () => {
                                     </td>
                                     <td>
                                         <span className={`status-badge ${user.role}`}>
-                                            {user.role === 'admin' ? '👑' : '👤'} {user.role}
+                                            {user.role === 'admin' ? <Crown size={14} /> : <User size={14} />} {user.role}
                                         </span>
                                     </td>
                                     <td>
-                                        {editingCredits.userId === user._id ? (
-                                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Coins size={14} /> {user.credits}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {/* Toggle Switch */}
+                                        <div className="toggle-status-wrapper">
+                                            <label className="toggle-switch">
                                                 <input
-                                                    type="number"
-                                                    value={editingCredits.value}
-                                                    onChange={(e) => setEditingCredits({
-                                                        ...editingCredits,
-                                                        value: parseInt(e.target.value) || 0
-                                                    })}
-                                                    style={{
-                                                        width: '80px',
-                                                        padding: '4px 8px',
-                                                        borderRadius: '4px',
-                                                        border: '1px solid var(--border-color)',
-                                                        background: 'var(--bg-secondary)',
-                                                        color: 'var(--text-primary)'
-                                                    }}
-                                                    min="0"
+                                                    type="checkbox"
+                                                    checked={user.isActive}
+                                                    onChange={() => handleToggleStatus(user._id)}
                                                 />
-                                                <button
-                                                    onClick={() => handleCreditsSave(user._id)}
-                                                    style={{
-                                                        padding: '4px 8px',
-                                                        background: '#22c55e',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    ✓
-                                                </button>
-                                                <button
-                                                    onClick={handleCreditsCancel}
-                                                    style={{
-                                                        padding: '4px 8px',
-                                                        background: '#ef4444',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    ✗
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <span
-                                                onClick={() => handleCreditsEdit(user)}
-                                                style={{ cursor: 'pointer' }}
-                                                title="Click to edit"
-                                            >
-                                                💰 {user.credits}
+                                                <span className="toggle-slider"></span>
+                                            </label>
+                                            <span className={`toggle-label ${user.isActive ? 'active' : 'inactive'}`}>
+                                                {user.isActive ? 'Active' : 'Disabled'}
                                             </span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                                            {user.isActive ? '✓ Active' : '✗ Inactive'}
-                                        </span>
+                                        </div>
                                     </td>
                                     <td>{formatDate(user.createdAt)}</td>
                                     <td>
                                         <div className="table-actions">
                                             <button
                                                 className="action-btn edit"
-                                                onClick={() => handleCreditsEdit(user)}
+                                                onClick={() => openEditModal(user)}
                                             >
-                                                💰 Credits
-                                            </button>
-                                            <button
-                                                className={`action-btn toggle`}
-                                                onClick={() => handleToggleStatus(user._id)}
-                                            >
-                                                {user.isActive ? '🔒 Disable' : '🔓 Enable'}
+                                                <Edit3 size={14} /> Edit
                                             </button>
                                         </div>
                                     </td>
@@ -264,7 +245,7 @@ const AdminUsers = () => {
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
                             >
-                                ← Previous
+                                <ChevronLeft size={16} /> Previous
                             </button>
                             <span className="page-info">
                                 Page {currentPage} of {totalPages}
@@ -273,10 +254,116 @@ const AdminUsers = () => {
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                             >
-                                Next →
+                                Next <ChevronRight size={16} />
                             </button>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Edit User Modal */}
+            {editModal.show && editModal.user && (
+                <div className="admin-modal-overlay" onClick={closeEditModal}>
+                    <div className="admin-modal" onClick={e => e.stopPropagation()}>
+                        <div className="admin-modal-header">
+                            <h2><Edit3 size={20} /> Edit User</h2>
+                            <button className="modal-close" onClick={closeEditModal}><X size={20} /></button>
+                        </div>
+
+                        <div className="admin-modal-body">
+                            {/* User Info Header */}
+                            <div style={{
+                                display: 'flex', alignItems: 'center', gap: '12px',
+                                padding: '16px', background: 'var(--bg-secondary)',
+                                borderRadius: '12px', marginBottom: '20px'
+                            }}>
+                                {editModal.user.avatar ? (
+                                    <img
+                                        src={editModal.user.avatar}
+                                        alt={editModal.user.name}
+                                        style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        width: 48, height: 48, borderRadius: '50%',
+                                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        color: 'white', fontSize: '1.25rem', fontWeight: 600
+                                    }}>
+                                        {editModal.user.name?.charAt(0)?.toUpperCase() || '?'}
+                                    </div>
+                                )}
+                                <div>
+                                    <div style={{ fontWeight: 600, fontSize: '1rem' }}>{editModal.user.name}</div>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{editModal.user.email}</div>
+                                </div>
+                            </div>
+
+                            {/* Name */}
+                            <div className="admin-form-group">
+                                <label>Full Name</label>
+                                <input
+                                    type="text"
+                                    value={editForm.name}
+                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    placeholder="User's full name"
+                                />
+                            </div>
+
+                            {/* Role & Credits Row */}
+                            <div className="admin-form-row">
+                                <div className="admin-form-group">
+                                    <label>Role</label>
+                                    <select
+                                        value={editForm.role}
+                                        onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                                    >
+                                        <option value="user">User</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+
+                                <div className="admin-form-group">
+                                    <label>Credits</label>
+                                    <input
+                                        type="number"
+                                        value={editForm.credits}
+                                        onChange={(e) => setEditForm({ ...editForm, credits: parseInt(e.target.value) || 0 })}
+                                        min="0"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Account Status Toggle */}
+                            <div className="admin-form-group">
+                                <label>Account Status</label>
+                                <div className="edit-toggle-row">
+                                    <label className="toggle-switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={editModal.user.isActive}
+                                            onChange={() => handleToggleStatus(editModal.user._id)}
+                                        />
+                                        <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className={`toggle-label ${editModal.user.isActive ? 'active' : 'inactive'}`}>
+                                        {editModal.user.isActive ? 'Account Active' : 'Account Disabled'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="admin-modal-footer">
+                            <button className="btn btn-secondary" onClick={closeEditModal}>Cancel</button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleEditSave}
+                                disabled={saving}
+                            >
+                                <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

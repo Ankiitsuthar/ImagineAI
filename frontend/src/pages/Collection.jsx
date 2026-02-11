@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI } from '../services/api';
+import { ArrowLeft, ArrowRight, Search, Flame, X, Layers, Star, Sparkles } from 'lucide-react';
+import IconRenderer from '../components/IconRenderer';
 import './Collection.css';
 
 const Collection = () => {
@@ -11,69 +13,45 @@ const Collection = () => {
     const [collections, setCollections] = useState([]);
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [templatesLoading, setTemplatesLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Fetch collections on mount
     useEffect(() => {
         fetchCollections();
     }, []);
 
     const fetchCollections = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const response = await templateAPI.getCollections();
-            setCollections(response.data);
+            setCollections(response.data || []);
         } catch (error) {
             console.error('Error fetching collections:', error);
-            // Fallback to static data if API fails
             setCollections([
-                { id: 'professional', title: 'Professional', icon: '💼', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', templateCount: 6 },
-                { id: 'ghibli', title: 'Ghibli Style', icon: '🎨', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', templateCount: 6 },
-                { id: 'creative', title: 'Creative Portrait', icon: '✨', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', templateCount: 6 },
-                { id: 'food', title: 'Food Photography', icon: '🍕', color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', templateCount: 6 },
-                { id: 'lifestyle', title: 'Lifestyle', icon: '🌅', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', templateCount: 6 },
-                { id: 'wedding', title: 'Wedding', icon: '💍', color: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', templateCount: 6 },
-                { id: 'minimalist', title: 'Minimalist', icon: '⬜', color: 'linear-gradient(135deg, #e0e0e0 0%, #ffffff 100%)', templateCount: 6 },
-                { id: 'vintage', title: 'Vintage', icon: '📷', color: 'linear-gradient(135deg, #c9b18a 0%, #8b7355 100%)', templateCount: 6 }
+                { id: 'professional', title: 'Professional', icon: '💼', color: '#6c63ff', templateCount: 0 },
+                { id: 'creative', title: 'Creative', icon: '🎨', color: '#f72585', templateCount: 0 },
+                { id: 'seasonal', title: 'Seasonal', icon: '🌸', color: '#4cc9f0', templateCount: 0 },
             ]);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchTemplatesByCollection = async (collectionId) => {
-        setTemplatesLoading(true);
+    const fetchCollectionTemplates = async (collectionId) => {
         try {
+            setLoading(true);
             const response = await templateAPI.getByCollection(collectionId);
-            setTemplates(response.data);
+            setTemplates(response.data || []);
         } catch (error) {
-            console.error('Error fetching templates:', error);
+            console.error('Error fetching collection templates:', error);
             setTemplates([]);
         } finally {
-            setTemplatesLoading(false);
+            setLoading(false);
         }
     };
 
-    // Filter collections based on search term
-    const filteredCollections = collections.filter(collection =>
-        collection.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        collection.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const handleUseTemplate = (e, template) => {
-        e.stopPropagation();
-        if (!user) {
-            openModal('signup');
-        } else {
-            // Pass the MongoDB _id to the Templates page
-            navigate('/templates', { state: { templateId: template._id } });
-        }
-    };
-
-    const handleCollectionClick = (collectionId) => {
-        setSelectedCollection(collectionId);
-        fetchTemplatesByCollection(collectionId);
+    const handleCollectionClick = async (collection) => {
+        setSelectedCollection(collection);
+        await fetchCollectionTemplates(collection.id);
     };
 
     const handleBackToCollections = () => {
@@ -82,163 +60,206 @@ const Collection = () => {
         setSearchTerm('');
     };
 
-    const selectedCollectionData = collections.find(c => c.id === selectedCollection);
+    const handleTemplateClick = (template) => {
+        if (!user) {
+            openModal('login');
+            return;
+        }
+        navigate('/generate', { state: { template } });
+    };
 
-    if (loading) {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+    const filteredCollections = collections.filter(col =>
+        col.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (loading && !selectedCollection) {
         return (
-            <div className="collection-page">
-                <div className="flex-center" style={{ minHeight: '60vh' }}>
-                    <div className="spinner"></div>
-                </div>
+            <div className="flex-center" style={{ minHeight: '80vh' }}>
+                <div className="spinner"></div>
             </div>
         );
     }
 
     return (
         <div className="collection-page">
-            <section className="collection-hero">
-                <div className="container">
-                    {selectedCollection ? (
-                        <>
-                            <button className="back-btn" onClick={handleBackToCollections}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M19 12H5M12 19l-7-7 7-7" />
-                                </svg>
-                                Back to Collections
-                            </button>
-                            <div className="collection-header-detail">
-                                <span className="collection-icon-large" style={{ background: selectedCollectionData?.color }}>
-                                    {selectedCollectionData?.icon}
-                                </span>
-                                <h1>{selectedCollectionData?.title}</h1>
-                                <p>{selectedCollectionData?.templateCount} templates available</p>
+            {!selectedCollection ? (
+                <>
+                    {/* Hero Section */}
+                    <section className="collection-hero">
+                        <div className="container">
+                            <div className="collection-hero-badge">
+                                <Layers size={14} /> Curated Collections
                             </div>
-                        </>
-                    ) : (
-                        <>
-                            <h1>Our Collections</h1>
-                            <p>Explore stunning templates organized by collection</p>
-                        </>
-                    )}
-                </div>
-            </section>
+                            <h1>Discover <span className="highlight">Template Collections</span></h1>
+                            <p>Browse curated collections of AI-powered templates designed to bring your creative vision to life</p>
 
-            <section className="collection-content">
-                <div className="container">
-                    {!selectedCollection ? (
-                        <>
-                            {/* Search Bar */}
-                            <div className="collection-search-bar">
-                                <div className="search-input-wrapper">
-                                    <span className="search-icon">🔍</span>
+                            {/* Search */}
+                            <div className="collection-search">
+                                <div className="collection-search-box">
+                                    <Search size={18} className="search-icon" />
                                     <input
                                         type="text"
                                         placeholder="Search collections..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="collection-search-input"
                                     />
                                     {searchTerm && (
-                                        <button
-                                            className="search-clear-btn"
-                                            onClick={() => setSearchTerm('')}
-                                        >
-                                            ×
+                                        <button className="search-clear" onClick={() => setSearchTerm('')}>
+                                            <X size={16} />
                                         </button>
                                     )}
                                 </div>
                                 {searchTerm && (
-                                    <span className="search-results-count">
-                                        {filteredCollections.length} collection{filteredCollections.length !== 1 ? 's' : ''} found
+                                    <span className="search-count">
+                                        {filteredCollections.length} result{filteredCollections.length !== 1 ? 's' : ''} found
                                     </span>
                                 )}
                             </div>
+                        </div>
+                    </section>
 
-                            {/* Collections Grid */}
+                    {/* Collections Grid */}
+                    <section className="collection-grid-section">
+                        <div className="container">
                             {filteredCollections.length === 0 ? (
-                                <div className="no-results">
-                                    <span className="no-results-icon">🔍</span>
+                                <div className="collection-empty">
+                                    <Search size={40} />
                                     <h3>No collections found</h3>
                                     <p>Try a different search term</p>
                                 </div>
                             ) : (
                                 <div className="collections-grid">
-                                    {filteredCollections.map((item, index) => (
+                                    {filteredCollections.map((collection, index) => (
                                         <div
-                                            key={item.id}
-                                            className="collection-card fade-in-up"
-                                            style={{ animationDelay: `${index * 0.1}s` }}
-                                            onClick={() => handleCollectionClick(item.id)}
+                                            key={collection.id}
+                                            className="collection-card"
+                                            onClick={() => handleCollectionClick(collection)}
+                                            style={{
+                                                '--collection-color': collection.color,
+                                                animationDelay: `${index * 0.06}s`
+                                            }}
                                         >
-                                            <div className="collection-card-bg" style={{ background: item.color }}></div>
+                                            <div className="collection-card-gradient" style={{
+                                                background: `linear-gradient(135deg, ${collection.color}22 0%, ${collection.color}08 100%)`
+                                            }} />
                                             <div className="collection-card-content">
-                                                <span className="collection-icon">{item.icon}</span>
-                                                <h3>{item.title}</h3>
-                                                <p>{item.templateCount} templates</p>
-                                            </div>
-                                            <div className="collection-card-arrow">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M5 12h14M12 5l7 7-7 7" />
-                                                </svg>
+                                                <div className="collection-card-icon" style={{
+                                                    background: `linear-gradient(135deg, ${collection.color}25 0%, ${collection.color}10 100%)`,
+                                                    border: `1px solid ${collection.color}20`
+                                                }}>
+                                                    <IconRenderer value={collection.icon} size={28} />
+                                                </div>
+                                                <div className="collection-card-info">
+                                                    <h3>{collection.title}</h3>
+                                                    <span className="collection-card-count">
+                                                        {collection.templateCount} template{collection.templateCount !== 1 ? 's' : ''}
+                                                    </span>
+                                                </div>
+                                                <div className="collection-card-arrow">
+                                                    <ArrowRight size={18} />
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
-                        </>
-                    ) : (
-                        <>
-                            {/* Templates Grid */}
-                            <div className="templates-section">
-                                <div className="templates-header">
-                                    <h2>Available Templates</h2>
-                                    <span className="template-badge">{templates.length} templates</span>
+                        </div>
+                    </section>
+                </>
+            ) : (
+                <>
+                    {/* Detail Hero */}
+                    <section className="detail-hero">
+                        <div className="container">
+                            <button className="back-btn" onClick={handleBackToCollections}>
+                                <ArrowLeft size={18} />
+                                Back to Collections
+                            </button>
+                            <div className="detail-hero-content">
+                                <div className="detail-hero-icon" style={{
+                                    background: `linear-gradient(135deg, ${selectedCollection.color}30 0%, ${selectedCollection.color}10 100%)`,
+                                    border: `2px solid ${selectedCollection.color}25`
+                                }}>
+                                    <IconRenderer value={selectedCollection.icon} size={36} />
                                 </div>
+                                <div className="detail-hero-text">
+                                    <h1>{selectedCollection.title}</h1>
+                                    <p>{templates.length} template{templates.length !== 1 ? 's' : ''} available</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-                                {templatesLoading ? (
-                                    <div className="flex-center" style={{ minHeight: '300px' }}>
-                                        <div className="spinner"></div>
-                                    </div>
-                                ) : (
-                                    <div className="templates-grid">
-                                        {templates.map((template, index) => (
-                                            <div
-                                                key={template._id}
-                                                className="template-card fade-in-up"
-                                                style={{ animationDelay: `${index * 0.1}s` }}
-                                            >
-                                                {template.popular && <span className="popular-badge">🔥 Popular</span>}
-                                                <div className="template-image-container">
-                                                    <img
-                                                        src={template.thumbnailUrl?.startsWith('http') ? template.thumbnailUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${template.thumbnailUrl}`}
-                                                        alt={template.name}
-                                                        className="template-image"
-                                                        onError={(e) => {
-                                                            e.target.src = 'https://via.placeholder.com/300x400/f0f0f0/888?text=Template';
-                                                        }}
-                                                    />
-                                                    <div className="template-overlay">
-                                                        <button
-                                                            onClick={(e) => handleUseTemplate(e, template)}
-                                                            className="btn btn-primary"
-                                                        >
-                                                            Use Template
-                                                        </button>
-                                                    </div>
+                    {/* Templates Grid */}
+                    <section className="detail-templates">
+                        <div className="container">
+                            {loading ? (
+                                <div className="flex-center" style={{ padding: '4rem' }}>
+                                    <div className="spinner"></div>
+                                </div>
+                            ) : templates.length === 0 ? (
+                                <div className="collection-empty">
+                                    <Sparkles size={40} />
+                                    <h3>No templates yet</h3>
+                                    <p>Templates will be added to this collection soon!</p>
+                                </div>
+                            ) : (
+                                <div className="detail-grid">
+                                    {templates.map((template, index) => (
+                                        <div
+                                            key={template._id}
+                                            className="detail-card"
+                                            onClick={() => handleTemplateClick(template)}
+                                            style={{ animationDelay: `${index * 0.06}s` }}
+                                        >
+                                            <div className="detail-card-image">
+                                                <img
+                                                    src={template.thumbnailUrl
+                                                        ? (template.thumbnailUrl.startsWith('http')
+                                                            ? template.thumbnailUrl
+                                                            : `${API_URL}${template.thumbnailUrl}`)
+                                                        : 'https://via.placeholder.com/400x300/f0f0f0/888?text=Template'}
+                                                    alt={template.name}
+                                                    onError={(e) => {
+                                                        e.target.src = 'https://via.placeholder.com/400x300/f0f0f0/888?text=Template';
+                                                    }}
+                                                />
+                                                <div className="detail-card-overlay">
+                                                    <span className="detail-card-cta">
+                                                        <Sparkles size={14} /> Use Template
+                                                    </span>
                                                 </div>
-                                                <div className="template-info">
-                                                    <h3>{template.name}</h3>
-                                                    <span className="credit-cost">{template.creditCost} credit{template.creditCost > 1 ? 's' : ''}</span>
+                                                {template.popular && (
+                                                    <span className="detail-card-badge popular">
+                                                        <Flame size={12} /> Popular
+                                                    </span>
+                                                )}
+                                                {template.creditCost === 0 && !template.popular && (
+                                                    <span className="detail-card-badge free">
+                                                        <Star size={12} /> Free
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="detail-card-body">
+                                                <h4>{template.name}</h4>
+                                                <p className="detail-card-prompt">{template.basePrompt}</p>
+                                                <div className="detail-card-footer">
+                                                    <span className={`detail-card-cost ${template.creditCost === 0 ? 'free' : ''}`}>
+                                                        {template.creditCost === 0 ? 'Free' : `${template.creditCost} credit${template.creditCost !== 1 ? 's' : ''}`}
+                                                    </span>
+                                                    <ArrowRight size={16} className="detail-card-arrow" />
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    )}
-                </div>
-            </section>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                </>
+            )}
         </div>
     );
 };

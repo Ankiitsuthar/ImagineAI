@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { generationAPI } from '../services/api';
+import { Palette, Inbox } from 'lucide-react';
 import './History.css';
 
 const History = () => {
@@ -49,13 +50,13 @@ const History = () => {
     return (
         <div className="history-container container">
             <div className="history-header">
-                <h1>Generation History 🎨</h1>
+                <h1>Generation History <Palette size={28} /></h1>
                 <p className="text-muted">View and download all your generated images</p>
             </div>
 
             {images.length === 0 ? (
                 <div className="empty-state card-glass">
-                    <span className="empty-icon">📭</span>
+                    <span className="empty-icon"><Inbox size={32} /></span>
                     <h3>No generations yet</h3>
                     <p>Start creating amazing AI images!</p>
                 </div>

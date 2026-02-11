@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
+import { Sparkles, FolderOpen, PartyPopper } from 'lucide-react';
 import TemplateCard from '../components/TemplateCard';
 import './Generate.css';
 
@@ -118,7 +119,7 @@ const Generate = () => {
     return (
         <div className="generate-container container">
             <div className="generate-header">
-                <h1>Generate AI Image ✨</h1>
+                <h1>Generate AI Image <Sparkles size={28} /></h1>
                 <p className="text-muted">Upload your image and select a template to create amazing AI-powered images</p>
             </div>
 
@@ -128,7 +129,7 @@ const Generate = () => {
             {/* Show generated image result */}
             {generatedImage && (
                 <div className="generation-result card-glass">
-                    <h3>🎉 Your Generated Image</h3>
+                    <h3><PartyPopper size={22} /> Your Generated Image</h3>
                     <div className="result-image-container">
                         <img
                             src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${generatedImage.generatedImagePath}`}
@@ -164,7 +165,7 @@ const Generate = () => {
                                     <img src={preview} alt="Preview" className="preview-image" />
                                 ) : (
                                     <div className="upload-placeholder">
-                                        <span className="upload-icon">📁</span>
+                                        <span className="upload-icon"><FolderOpen size={32} /></span>
                                         <p>Click to upload or drag and drop</p>
                                         <p className="text-muted">PNG, JPG, WEBP (max 10MB)</p>
                                     </div>

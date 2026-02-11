@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
+import { Sparkles, Upload, Wand2, Flame, FolderOpen, PartyPopper, ArrowRight } from 'lucide-react';
 import './Templates.css';
 
 const Templates = () => {
@@ -170,7 +171,7 @@ const Templates = () => {
                             className={`step-tab ${step === 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}
                             onClick={() => step > 1 && setStep(1)}
                         >
-                            <span className="step-icon">✨</span>
+                            <span className="step-icon"><Sparkles size={16} /></span>
                             Templates
                         </button>
                         <button
@@ -178,14 +179,14 @@ const Templates = () => {
                             onClick={() => step > 2 && setStep(2)}
                             disabled={!selectedTemplate}
                         >
-                            <span className="step-icon">📤</span>
+                            <span className="step-icon"><Upload size={16} /></span>
                             Upload
                         </button>
                         <button
                             className={`step-tab ${step === 3 ? 'active' : ''}`}
                             disabled={!selectedFile}
                         >
-                            <span className="step-icon">✦</span>
+                            <span className="step-icon"><Wand2 size={16} /></span>
                             Generate
                         </button>
                     </div>
@@ -208,8 +209,8 @@ const Templates = () => {
 
                                     if (template.popular) {
                                         badgeClass = 'badge-popular';
-                                        badgeText = '🔥 Popular';
-                                    } else if (template.creditCost > 0) { // Changed from > 1 to > 0 to catch 1 credit cost
+                                        badgeText = (<><Flame size={14} /> Popular</>);
+                                    } else if (template.creditCost > 0) {
                                         badgeClass = 'badge-credits';
                                         badgeText = `${template.creditCost} Credits`;
                                     }
@@ -264,7 +265,7 @@ const Templates = () => {
                                     style={{ display: 'none' }}
                                 />
                                 <label htmlFor="file-input" className="dropzone-label">
-                                    <div className="dropzone-icon">📁</div>
+                                    <div className="dropzone-icon"><FolderOpen size={32} /></div>
                                     <h3>Drop your image here</h3>
                                     <p>or click to browse</p>
                                     <span className="dropzone-hint">Supports: PNG, JPG, WEBP (max 10MB)</span>
@@ -281,7 +282,7 @@ const Templates = () => {
                                     <h4>Your Image</h4>
                                     <img src={preview} alt="Preview" className="preview-image" />
                                 </div>
-                                <div className="preview-arrow">→</div>
+                                <div className="preview-arrow"><ArrowRight size={24} /></div>
                                 <div className="preview-card">
                                     <h4>Template Style</h4>
                                     <div className="template-style-info">
@@ -306,7 +307,7 @@ const Templates = () => {
                                             Generating...
                                         </>
                                     ) : (
-                                        <>✨ Generate Image</>
+                                        <><Sparkles size={18} /> Generate Image</>
                                     )}
                                 </button>
                             </div>
@@ -316,7 +317,7 @@ const Templates = () => {
                     {/* Generated Result */}
                     {generatedImage && (
                         <div className="result-section fade-in">
-                            <h2>🎉 Your AI-Generated Image</h2>
+                            <h2><PartyPopper size={24} /> Your AI-Generated Image</h2>
                             <div className="result-image-wrapper">
                                 <img
                                     src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${generatedImage.generatedImagePath}`}

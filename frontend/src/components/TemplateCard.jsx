@@ -1,3 +1,4 @@
+import { Star, Check } from 'lucide-react';
 import './TemplateCard.css';
 
 const TemplateCard = ({ template, onSelect, selected }) => {
@@ -16,10 +17,10 @@ const TemplateCard = ({ template, onSelect, selected }) => {
                 <p className="template-description">{template.description}</p>
                 <div className="template-footer">
                     <span className="template-cost">
-                        <span className="cost-icon">⭐</span>
+                        <span className="cost-icon"><Star size={14} /></span>
                         {template.creditCost} credits
                     </span>
-                    {selected && <span className="selected-badge">✓ Selected</span>}
+                    {selected && <span className="selected-badge"><Check size={14} /> Selected</span>}
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { ChevronDown, LayoutDashboard, Sparkles, History, LogOut, Star } from 'lucide-react';
 import './Navbar.css';
 import logo from '../assets/logo.png';
 
@@ -42,9 +43,7 @@ const Navbar = () => {
     ];
 
     const dropdownLinks = [
-        { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-        { path: '/templates', label: 'Generate', icon: '✨' },
-        { path: '/history', label: 'History', icon: '📜' }
+        { path: '/history', label: 'History', icon: <History size={16} /> }
     ];
 
     const adminLinks = [
@@ -106,18 +105,10 @@ const Navbar = () => {
                                         </div>
                                     )}
                                     <span className="user-name">{user.name?.split(' ')[0]}</span>
-                                    <svg
+                                    <ChevronDown
+                                        size={16}
                                         className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`}
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                    >
-                                        <path d="M6 9l6 6 6-6" />
-                                    </svg>
+                                    />
                                 </div>
 
                                 {/* Dropdown Menu */}
@@ -125,7 +116,7 @@ const Navbar = () => {
                                     <div className="dropdown-menu">
                                         <div className="dropdown-header">
                                             <span className="dropdown-user-name">{user.name}</span>
-                                            <span className="dropdown-credits">⭐ {user.credits} credits</span>
+                                            <span className="dropdown-credits"><Star size={14} /> {user.credits} credits</span>
                                         </div>
                                         <div className="dropdown-divider"></div>
                                         {dropdownLinks.map(link => (
@@ -141,7 +132,7 @@ const Navbar = () => {
                                         ))}
                                         <div className="dropdown-divider"></div>
                                         <button onClick={handleLogout} className="dropdown-item dropdown-logout">
-                                            <span className="dropdown-icon">🚪</span>
+                                            <span className="dropdown-icon"><LogOut size={16} /></span>
                                             Logout
                                         </button>
                                     </div>
@@ -221,7 +212,7 @@ const Navbar = () => {
                                     )}
                                     <div className="mobile-user-details">
                                         <span className="mobile-user-name">{user.name}</span>
-                                        <span className="mobile-credits">⭐ {user.credits} credits</span>
+                                        <span className="mobile-credits"><Star size={14} /> {user.credits} credits</span>
                                     </div>
                                 </div>
                                 <button onClick={handleLogout} className="btn btn-logout w-full">

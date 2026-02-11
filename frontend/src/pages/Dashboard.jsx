@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userAPI, generationAPI } from '../services/api';
+import { Star, Palette, Rocket, Sparkles, CreditCard, Hand } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -49,13 +50,13 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container container">
             <div className="dashboard-header">
-                <h1>{getGreeting()}, {user?.name?.split(' ')[0] || 'there'}! 👋</h1>
+                <h1>{getGreeting()}, {user?.name?.split(' ')[0] || 'there'}! <Hand size={28} /></h1>
                 <p>Ready to create something amazing today?</p>
             </div>
 
             <div className="stats-grid">
                 <div className="stat-card">
-                    <div className="stat-icon">⭐</div>
+                    <div className="stat-icon"><Star size={24} /></div>
                     <div className="stat-content">
                         <h3>{user?.credits || 0}</h3>
                         <p>Available Credits</p>
@@ -63,7 +64,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon">🎨</div>
+                    <div className="stat-icon"><Palette size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats?.totalGenerations || 0}</h3>
                         <p>Total Generations</p>
@@ -71,7 +72,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon">🚀</div>
+                    <div className="stat-icon"><Rocket size={24} /></div>
                     <div className="stat-content">
                         <h3>{stats?.totalGenerations || 0}</h3>
                         <p>Successful Creations</p>
@@ -83,13 +84,13 @@ const Dashboard = () => {
                 <h2>Quick Actions</h2>
                 <div className="action-buttons">
                     <Link to="/templates" className="action-card">
-                        <span className="action-icon">✨</span>
+                        <span className="action-icon"><Sparkles size={24} /></span>
                         <h3>Generate Image</h3>
                         <p>Create stunning AI-powered images</p>
                     </Link>
 
                     <Link to="/buy-credits" className="action-card">
-                        <span className="action-icon">💳</span>
+                        <span className="action-icon"><CreditCard size={24} /></span>
                         <h3>Buy Credits</h3>
                         <p>Get more credits to create more</p>
                     </Link>

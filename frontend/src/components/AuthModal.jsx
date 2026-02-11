@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Sparkles, X } from 'lucide-react';
 import './AuthModal.css';
 
 const AuthModal = () => {
@@ -25,10 +26,10 @@ const AuthModal = () => {
     return (
         <div className="auth-modal-overlay" onClick={closeModal}>
             <div className="auth-modal-card" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close-btn" onClick={closeModal}>×</button>
+                <button className="modal-close-btn" onClick={closeModal}><X size={20} /></button>
 
                 <div className="auth-modal-header">
-                    <span className="auth-modal-icon">✨</span>
+                    <span className="auth-modal-icon"><Sparkles size={28} /></span>
                     <h2 className="auth-modal-title">Imagine AI</h2>
                     <p className="auth-modal-subtitle">
                         {modalMode === 'login'
