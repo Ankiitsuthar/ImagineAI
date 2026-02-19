@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthSuccess from './pages/AuthSuccess';
 import Dashboard from './pages/Dashboard';
@@ -14,6 +15,7 @@ import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import LoadingScreen from './components/LoadingScreen';
 
 // Public Pages
 import Home from './pages/Home';
@@ -28,6 +30,20 @@ import Signup from './pages/Signup';
 import AuthModal from './components/AuthModal';
 
 function App() {
+  // 👉 Step 1: Loader State
+  const [loading, setLoading] = useState(true);
+
+  // 👉 Step 2: Simulate loading for 1–2 sec
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 👉 Step 3: Show loader BEFORE showing website
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <AuthProvider>
       <Router>
