@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { templateAPI } from '../../services/api';
-import { Palette, FolderPlus, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plus } from 'lucide-react';
+import { Palette, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plus } from 'lucide-react';
 import TemplateFormModal from '../../components/admin/TemplateFormModal';
-import CollectionFormModal from '../../components/admin/CollectionFormModal';
 import IconRenderer from '../../components/IconRenderer';
 import './Admin.css';
 
@@ -13,7 +12,6 @@ const AdminTemplates = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [collectionFilter, setCollectionFilter] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [showCollectionModal, setShowCollectionModal] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState(null);
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
 
@@ -40,37 +38,10 @@ const AdminTemplates = () => {
     const fetchCollections = async () => {
         try {
             const response = await templateAPI.getCollections();
-            const apiCollections = response.data || [];
-
-            // Also load pending collections from localStorage
-            const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
-            const formattedPending = pendingCollections.map(pc => ({
-                id: pc.collectionId,
-                title: pc.collectionTitle,
-                icon: pc.collectionIcon,
-                color: pc.collectionColor,
-                templateCount: 0,
-                isPending: true
-            }));
-
-            // Merge: API collections take priority
-            const existingIds = apiCollections.map(c => c.id);
-            const newPending = formattedPending.filter(pc => !existingIds.includes(pc.id));
-
-            setCollections([...apiCollections, ...newPending]);
+            setCollections(response.data || []);
         } catch (error) {
             console.error('Error fetching collections:', error);
-            // Still try to load pending collections
-            const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
-            const formattedPending = pendingCollections.map(pc => ({
-                id: pc.collectionId,
-                title: pc.collectionTitle,
-                icon: pc.collectionIcon,
-                color: pc.collectionColor,
-                templateCount: 0,
-                isPending: true
-            }));
-            setCollections(formattedPending);
+            setCollections([]);
         }
     };
 
@@ -84,9 +55,7 @@ const AdminTemplates = () => {
         setShowModal(true);
     };
 
-    const handleAddCollection = () => {
-        setShowCollectionModal(true);
-    };
+
 
     const handleEdit = (template) => {
         setEditingTemplate(template);
@@ -126,17 +95,6 @@ const AdminTemplates = () => {
             }
             setShowModal(false);
             setEditingTemplate(null);
-
-            // Clean up pending collection from localStorage if it was used
-            if (createdTemplate?.collectionId) {
-                const pendingCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
-                const updatedPending = pendingCollections.filter(
-                    pc => pc.collectionId !== createdTemplate.collectionId
-                );
-                localStorage.setItem('pendingCollections', JSON.stringify(updatedPending));
-            }
-
-            // Refresh collections - the new one now exists in DB
             fetchCollections();
         } catch (error) {
             console.error('Error saving template:', error);
@@ -144,26 +102,7 @@ const AdminTemplates = () => {
         }
     };
 
-    const handleCollectionSubmit = async (collectionData) => {
-        // Store collection data in localStorage for use when creating templates
-        const savedCollections = JSON.parse(localStorage.getItem('pendingCollections') || '[]');
 
-        // Check if collection with same ID already exists
-        const existingIndex = savedCollections.findIndex(c => c.collectionId === collectionData.collectionId);
-        if (existingIndex >= 0) {
-            savedCollections[existingIndex] = collectionData; // Update existing
-        } else {
-            savedCollections.push(collectionData); // Add new
-        }
-
-        localStorage.setItem('pendingCollections', JSON.stringify(savedCollections));
-
-        // Refresh collections to show the new pending collection
-        await fetchCollections();
-
-        showAlertMsg('success', `Collection "${collectionData.collectionTitle}" created! Now add a template to this collection.`);
-        setShowCollectionModal(false);
-    };
 
     // Filter templates
     const filteredTemplates = templates.filter(template => {
@@ -186,9 +125,6 @@ const AdminTemplates = () => {
             <div className="admin-page-header">
                 <h1><Palette size={28} /> Manage Templates</h1>
                 <div className="header-actions">
-                    <button className="btn btn-secondary" onClick={handleAddCollection}>
-                        <FolderPlus size={16} /> Create Collection
-                    </button>
                     <button className="btn btn-primary" onClick={handleAddNew}>
                         <Plus size={16} /> Add Template
                     </button>
@@ -278,7 +214,7 @@ const AdminTemplates = () => {
                                     </td>
                                     <td>
                                         {template.popular && (
-                                            <span className="status-badge popular"><Flame size={14} /> Popular</span>
+                                            <span className="status-badge popular"><Flame size={14} /></span>
                                         )}
                                     </td>
                                     <td>
@@ -315,12 +251,7 @@ const AdminTemplates = () => {
                 />
             )}
 
-            {showCollectionModal && (
-                <CollectionFormModal
-                    onClose={() => setShowCollectionModal(false)}
-                    onSubmit={handleCollectionSubmit}
-                />
-            )}
+
         </div>
     );
 };

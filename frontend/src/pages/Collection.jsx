@@ -17,6 +17,15 @@ const Collection = () => {
 
     useEffect(() => {
         fetchCollections();
+
+        // Re-fetch when tab becomes visible (real-time admin changes)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchCollections();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, []);
 
     const fetchCollections = async () => {
@@ -65,7 +74,7 @@ const Collection = () => {
             openModal('login');
             return;
         }
-        navigate('/generate', { state: { template } });
+        navigate('/templates', { state: { templateId: template._id } });
     };
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -233,7 +242,7 @@ const Collection = () => {
                                                 </div>
                                                 {template.popular && (
                                                     <span className="detail-card-badge popular">
-                                                        <Flame size={12} /> Popular
+                                                        <Flame size={14} />
                                                     </span>
                                                 )}
                                                 {template.creditCost === 0 && !template.popular && (

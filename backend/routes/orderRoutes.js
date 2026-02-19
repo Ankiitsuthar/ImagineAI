@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const {
     createOrder,
-    handleWebhook,
+    handlePaymentSuccess,
+    handlePaymentFailure,
     getUserOrders,
     getAllOrders,
     getCreditPackages
@@ -12,8 +13,9 @@ const { protect, admin } = require('../middleware/auth');
 // Public routes
 router.get('/packages', getCreditPackages);
 
-// Webhook route (raw body needed for Stripe signature verification)
-router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+// PayU callback routes (must accept POST with URL-encoded body)
+router.post('/payment/success', express.urlencoded({ extended: true }), handlePaymentSuccess);
+router.post('/payment/failure', express.urlencoded({ extended: true }), handlePaymentFailure);
 
 // User routes
 router.post('/create', protect, createOrder);

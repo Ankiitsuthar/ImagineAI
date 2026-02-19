@@ -20,9 +20,13 @@ const orderSchema = new mongoose.Schema({
     },
     currency: {
         type: String,
-        default: 'usd'
+        default: 'INR'
     },
-    paymentIntentId: {
+    transactionId: {
+        type: String,
+        default: null
+    },
+    payuMihpayid: {
         type: String,
         default: null
     },
@@ -37,5 +41,6 @@ const orderSchema = new mongoose.Schema({
 
 // Index for faster queries
 orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ transactionId: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);

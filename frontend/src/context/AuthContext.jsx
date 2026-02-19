@@ -70,6 +70,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const refreshUser = async () => {
+        try {
+            const response = await userAPI.getProfile();
+            const { user: updatedUser } = response.data;
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+        } catch (error) {
+            console.error('Failed to refresh user:', error);
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -102,6 +113,7 @@ export const AuthProvider = ({ children }) => {
         adminLogin,
 
         logout,
+        refreshUser,
         updateUserCredits,
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',

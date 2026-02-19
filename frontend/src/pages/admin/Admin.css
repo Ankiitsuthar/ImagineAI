@@ -1129,3 +1129,200 @@
     border-radius: 10px;
     margin-top: 4px;
 }
+
+/* ========== Revenue Analytics Styles ========== */
+
+.revenue-analytics-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.analytics-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+}
+
+.analytics-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+/* Revenue Bar Chart */
+.revenue-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    height: 220px;
+    padding-top: 1rem;
+}
+
+.chart-bar-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.chart-bar-wrapper {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.chart-bar {
+    width: 80%;
+    max-width: 50px;
+    background: linear-gradient(180deg, #a855f7, #6366f1);
+    border-radius: 6px 6px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+    min-height: 8px;
+    cursor: pointer;
+}
+
+.chart-bar:hover {
+    background: linear-gradient(180deg, #c084fc, #818cf8);
+    transform: scaleX(1.1);
+}
+
+.chart-bar-value {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background: rgba(30, 30, 50, 0.9);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.chart-bar:hover .chart-bar-value {
+    opacity: 1;
+}
+
+.chart-bar-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Top Purchasers */
+.top-purchasers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.purchaser-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-lg);
+    transition: background 0.2s ease;
+}
+
+.purchaser-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.purchaser-rank {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+}
+
+.purchaser-item:first-child .purchaser-rank {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: #fff;
+}
+
+.purchaser-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.purchaser-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.purchaser-email {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.purchaser-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
+.purchaser-spent {
+    font-weight: 700;
+    color: #22c55e;
+    font-size: 0.95rem;
+}
+
+.purchaser-orders {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.analytics-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    color: var(--text-muted);
+}
+
+/* Responsive Analytics */
+@media (max-width: 900px) {
+    .revenue-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .revenue-chart {
+        height: 160px;
+    }
+}

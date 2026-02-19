@@ -14,9 +14,11 @@ const authRoutes = require('./routes/authRoutes');
 const templateRoutes = require('./routes/templateRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const userRoutes = require('./routes/userRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const collectionRoutes = require('./routes/collectionRoutes');
 const passport = require('passport');
 
 // Passport Config
@@ -67,9 +69,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/collections', collectionRoutes);
 
 // Health check route
 app.get('/api/health', async (req, res) => {
@@ -86,7 +90,7 @@ app.get('/api/health', async (req, res) => {
         },
         services: {
             replicate: !!process.env.REPLICATE_API_TOKEN,
-            stripe: !!process.env.STRIPE_SECRET_KEY
+            payu: !!process.env.PAYU_MERCHANT_KEY
         }
     };
 

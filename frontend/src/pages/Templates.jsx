@@ -26,6 +26,15 @@ const Templates = () => {
 
     useEffect(() => {
         fetchTemplates();
+
+        // Re-fetch when tab becomes visible (real-time admin changes)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchTemplates();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, []);
 
     // Auto-select template if passed from Collection page
@@ -209,7 +218,7 @@ const Templates = () => {
 
                                     if (template.popular) {
                                         badgeClass = 'badge-popular';
-                                        badgeText = (<><Flame size={14} /> Popular</>);
+                                        badgeText = (<Flame size={16} />);
                                     } else if (template.creditCost > 0) {
                                         badgeClass = 'badge-credits';
                                         badgeText = `${template.creditCost} Credits`;
@@ -285,6 +294,14 @@ const Templates = () => {
                                 <div className="preview-arrow"><ArrowRight size={24} /></div>
                                 <div className="preview-card">
                                     <h4>Template Style</h4>
+                                    <img
+                                        src={selectedTemplate?.thumbnailUrl?.startsWith('http') ? selectedTemplate.thumbnailUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedTemplate?.thumbnailUrl}`}
+                                        alt={selectedTemplate?.name}
+                                        className="preview-image"
+                                        onError={(e) => {
+                                            e.target.src = 'https://picsum.photos/400/300?random=' + selectedTemplate?._id;
+                                        }}
+                                    />
                                     <div className="template-style-info">
                                         <span className="style-name">{selectedTemplate?.name}</span>
                                         <span className="style-cost">{selectedTemplate?.creditCost} credit</span>

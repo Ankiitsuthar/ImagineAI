@@ -1,15 +1,40 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const crypto = require('crypto');
 const Order = require('../models/Order');
 const User = require('../models/User');
 
-// Credit packages
+const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY;
+const PAYU_SALT = process.env.PAYU_SALT;
+const PAYU_MODE = process.env.PAYU_MODE || 'TEST';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
+
+// PayU base URLs
+const PAYU_BASE_URL = PAYU_MODE === 'LIVE'
+    ? 'https://secure.payu.in/_payment'
+    : 'https://test.payu.in/_payment';
+
+// Credit packages (INR pricing)
 const creditPackages = {
-    starter: { credits: 10, price: 999, name: 'Starter Pack' }, // $9.99
-    popular: { credits: 50, price: 3999, name: 'Popular Pack' }, // $39.99
-    premium: { credits: 100, price: 6999, name: 'Premium Pack' } // $69.99
+    starter: { credits: 10, price: 199, name: 'Starter Pack' },    // ₹199
+    popular: { credits: 50, price: 999, name: 'Popular Pack' },     // ₹999
+    premium: { credits: 100, price: 1999, name: 'Premium Pack' }    // ₹1999
 };
 
-// @desc    Create payment intent
+// Generate PayU hash
+// Formula: sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||salt)
+const generateHash = (params) => {
+    const hashString = `${params.key}|${params.txnid}|${params.amount}|${params.productinfo}|${params.firstname}|${params.email}|${params.udf1 || ''}|${params.udf2 || ''}|${params.udf3 || ''}|${params.udf4 || ''}|${params.udf5 || ''}||||||${PAYU_SALT}`;
+    return crypto.createHash('sha512').update(hashString).digest('hex');
+};
+
+// Verify PayU response hash
+// Formula: sha512(salt|status||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key)
+const verifyHash = (params) => {
+    const hashString = `${PAYU_SALT}|${params.status}||||||${params.udf5 || ''}|${params.udf4 || ''}|${params.udf3 || ''}|${params.udf2 || ''}|${params.udf1 || ''}|${params.email}|${params.firstname}|${params.productinfo}|${params.amount}|${params.txnid}|${PAYU_MERCHANT_KEY}`;
+    return crypto.createHash('sha512').update(hashString).digest('hex');
+};
+
+// @desc    Create order and return PayU payment params
 // @route   POST /api/orders/create
 // @access  Private
 const createOrder = async (req, res) => {
@@ -20,84 +45,119 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Invalid package type' });
         }
 
-        const package = creditPackages[packageType];
-
-        // Create Stripe payment intent
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: package.price,
-            currency: 'usd',
-            metadata: {
-                userId: req.user._id.toString(),
-                packageType,
-                credits: package.credits
-            }
-        });
+        const pkg = creditPackages[packageType];
+        const txnid = `TXN_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
         // Create order record
         const order = await Order.create({
             user: req.user._id,
-            packageName: package.name,
-            credits: package.credits,
-            amount: package.price / 100, // Convert cents to dollars
-            currency: 'usd',
-            paymentIntentId: paymentIntent.id,
+            packageName: pkg.name,
+            credits: pkg.credits,
+            amount: pkg.price,
+            currency: 'INR',
+            transactionId: txnid,
             status: 'pending'
         });
 
+        // PayU payment params
+        const payuParams = {
+            key: PAYU_MERCHANT_KEY,
+            txnid: txnid,
+            amount: pkg.price.toFixed(2),
+            productinfo: pkg.name,
+            firstname: req.user.name || 'User',
+            email: req.user.email,
+            phone: req.body.phone || '',
+            udf1: order._id.toString(),       // Store orderId in udf1
+            udf2: pkg.credits.toString(),      // Store credits in udf2
+            udf3: '',
+            udf4: '',
+            udf5: '',
+            surl: `${BACKEND_URL}/api/orders/payment/success`,
+            furl: `${BACKEND_URL}/api/orders/payment/failure`,
+        };
+
+        // Generate hash
+        payuParams.hash = generateHash(payuParams);
+        payuParams.payuBaseUrl = PAYU_BASE_URL;
+
         res.status(201).json({
-            clientSecret: paymentIntent.client_secret,
+            payuParams,
             orderId: order._id
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error creating order:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
-// @desc    Webhook for Stripe payment confirmation
-// @route   POST /api/orders/webhook
-// @access  Public (Stripe)
-const handleWebhook = async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    let event;
-
+// @desc    Handle PayU payment success callback
+// @route   POST /api/orders/payment/success
+// @access  Public (PayU callback)
+const handlePaymentSuccess = async (req, res) => {
     try {
-        event = stripe.webhooks.constructEvent(
-            req.body,
-            sig,
-            process.env.STRIPE_WEBHOOK_SECRET
-        );
-    } catch (err) {
-        console.error('Webhook signature verification failed:', err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+        const payuResponse = req.body;
+        console.log('PayU Success Callback:', payuResponse.txnid, payuResponse.status);
 
-    // Handle the event
-    if (event.type === 'payment_intent.succeeded') {
-        const paymentIntent = event.data.object;
+        // Verify the response hash
+        const expectedHash = verifyHash(payuResponse);
 
-        try {
-            // Find the order
-            const order = await Order.findOne({ paymentIntentId: paymentIntent.id });
-
-            if (order && order.status === 'pending') {
-                // Update order status
-                order.status = 'completed';
-                await order.save();
-
-                // Add credits to user
-                const user = await User.findById(order.user);
-                if (user) {
-                    user.credits += order.credits;
-                    await user.save();
-                }
-            }
-        } catch (error) {
-            console.error('Error processing webhook:', error);
+        if (expectedHash !== payuResponse.hash) {
+            console.error('Hash verification failed for txn:', payuResponse.txnid);
+            return res.redirect(`${FRONTEND_URL}/payment/failure?reason=hash_mismatch`);
         }
-    }
 
-    res.json({ received: true });
+        // Find and update the order
+        const order = await Order.findOne({ transactionId: payuResponse.txnid });
+
+        if (!order) {
+            console.error('Order not found for txn:', payuResponse.txnid);
+            return res.redirect(`${FRONTEND_URL}/payment/failure?reason=order_not_found`);
+        }
+
+        if (order.status === 'pending') {
+            order.status = 'completed';
+            order.payuMihpayid = payuResponse.mihpayid; // PayU payment ID
+            await order.save();
+
+            // Add credits to user
+            const user = await User.findById(order.user);
+            if (user) {
+                user.credits += order.credits;
+                await user.save();
+            }
+        }
+
+        // Redirect to frontend success page
+        res.redirect(`${FRONTEND_URL}/payment/success?txnid=${payuResponse.txnid}&credits=${order.credits}&amount=${order.amount}`);
+    } catch (error) {
+        console.error('Error handling payment success:', error);
+        res.redirect(`${FRONTEND_URL}/payment/failure?reason=server_error`);
+    }
+};
+
+// @desc    Handle PayU payment failure callback
+// @route   POST /api/orders/payment/failure
+// @access  Public (PayU callback)
+const handlePaymentFailure = async (req, res) => {
+    try {
+        const payuResponse = req.body;
+        console.log('PayU Failure Callback:', payuResponse.txnid, payuResponse.status);
+
+        // Update order status
+        const order = await Order.findOne({ transactionId: payuResponse.txnid });
+
+        if (order && order.status === 'pending') {
+            order.status = 'failed';
+            await order.save();
+        }
+
+        // Redirect to frontend failure page
+        res.redirect(`${FRONTEND_URL}/payment/failure?txnid=${payuResponse.txnid || ''}&reason=${payuResponse.error_Message || 'payment_failed'}`);
+    } catch (error) {
+        console.error('Error handling payment failure:', error);
+        res.redirect(`${FRONTEND_URL}/payment/failure?reason=server_error`);
+    }
 };
 
 // @desc    Get user's order history
@@ -129,7 +189,7 @@ const getUserOrders = async (req, res) => {
 };
 
 // @desc    Get all orders (Admin)
-// @route   GET /api/admin/orders
+// @route   GET /api/orders/all
 // @access  Private/Admin
 const getAllOrders = async (req, res) => {
     try {
@@ -177,7 +237,7 @@ const getCreditPackages = async (req, res) => {
         const packages = Object.keys(creditPackages).map(key => ({
             type: key,
             ...creditPackages[key],
-            priceDisplay: `$${(creditPackages[key].price / 100).toFixed(2)}`
+            priceDisplay: `₹${creditPackages[key].price}`
         }));
 
         res.json(packages);
@@ -189,7 +249,8 @@ const getCreditPackages = async (req, res) => {
 
 module.exports = {
     createOrder,
-    handleWebhook,
+    handlePaymentSuccess,
+    handlePaymentFailure,
     getUserOrders,
     getAllOrders,
     getCreditPackages

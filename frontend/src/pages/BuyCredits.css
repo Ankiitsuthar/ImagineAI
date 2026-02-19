@@ -1,0 +1,467 @@
+/* Buy Credits Page */
+.buy-credits-page {
+    min-height: 80vh;
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.buy-credits-page .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.buy-credits-page .page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+}
+
+.buy-credits-page .page-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.buy-credits-page .current-credits {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(99, 102, 241, 0.08));
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 2rem;
+    padding: 0.6rem 1.5rem;
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #7c3aed;
+    font-size: 1rem;
+}
+
+/* Packages Grid */
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+    align-items: stretch;
+}
+
+.package-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.35s ease;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+}
+
+.package-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #7c3aed, #6366f1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.package-card:hover {
+    transform: translateY(-6px);
+    border-color: #c4b5fd;
+    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.package-card:hover::before {
+    opacity: 1;
+}
+
+/* Popular Card - Highlighted */
+.package-card.popular {
+    border-color: #a78bfa;
+    background: linear-gradient(180deg, #faf5ff 0%, #ffffff 100%);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12);
+}
+
+.package-card.popular::before {
+    opacity: 1;
+    background: linear-gradient(90deg, #f59e0b, #f97316, #ef4444);
+    height: 4px;
+}
+
+.popular-badge {
+    position: absolute;
+    top: 1rem;
+    right: -2rem;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.3rem 3rem;
+    transform: rotate(45deg);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Package Icon */
+.package-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+}
+
+.package-card:nth-child(1) .package-icon {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    color: #7c3aed;
+}
+
+.package-card:nth-child(2) .package-icon {
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    color: #9333ea;
+}
+
+.package-card:nth-child(3) .package-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #d97706;
+}
+
+/* Package Name */
+.package-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+/* Package Credits */
+.package-credits {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.package-credits span {
+    font-size: 1rem;
+    font-weight: 500;
+    -webkit-text-fill-color: #94a3b8;
+}
+
+/* Package Price */
+.package-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 1rem 0;
+}
+
+.package-price .per-credit {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: #94a3b8;
+    margin-top: 0.25rem;
+}
+
+/* Package Features */
+.package-features {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.package-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.package-features li svg {
+    color: #22c55e;
+    flex-shrink: 0;
+}
+
+/* Buy Button */
+.buy-btn {
+    width: 100%;
+    padding: 0.9rem 2rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.buy-btn.primary {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: #fff;
+}
+
+.buy-btn.primary:hover {
+    background: linear-gradient(135deg, #6d28d9, #4f46e5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+}
+
+.buy-btn.secondary {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+
+.buy-btn.secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.buy-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* PayU Badge */
+.payment-provider-badge {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 2rem 0;
+}
+
+.payment-provider-badge span:first-child {
+    font-weight: 600;
+    color: #64748b;
+}
+
+.payment-methods {
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+/* Payment Status Page */
+.payment-status-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.payment-status-card {
+    text-align: center;
+    padding: 3rem 2.5rem;
+    max-width: 500px;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.payment-status-card.success {
+    border-color: #86efac;
+}
+
+.payment-status-card.failure {
+    border-color: #fca5a5;
+}
+
+.status-icon-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.status-icon-large.success {
+    background: #f0fdf4;
+    color: #22c55e;
+}
+
+.status-icon-large.failure {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.status-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.status-description {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.payment-details {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.detail-row:not(:last-child) {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-row strong {
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.status-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Alert Message */
+.credits-alert {
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.credits-alert.success {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #16a34a;
+}
+
+.credits-alert.error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+}
+
+/* Loading Spinner */
+.btn-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .buy-credits-page {
+        padding: 2rem 1rem;
+    }
+
+    .buy-credits-page .page-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .packages-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .package-credits {
+        font-size: 2.5rem;
+    }
+
+    .payment-status-card {
+        padding: 2rem 1.5rem;
+    }
+}

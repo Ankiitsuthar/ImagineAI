@@ -166,7 +166,12 @@ const deleteTemplate = async (req, res) => {
 // @access  Public
 const getCollections = async (req, res) => {
     try {
-        const collections = await Template.aggregate([
+        // Try to load from Collection model first
+        let Collection;
+        try { Collection = require('../models/Collection'); } catch (e) { Collection = null; }
+
+        // Aggregate template counts per collectionId
+        const templateAgg = await Template.aggregate([
             {
                 $group: {
                     _id: '$collectionId',
@@ -191,7 +196,28 @@ const getCollections = async (req, res) => {
             { $sort: { title: 1 } }
         ]);
 
-        res.json(collections);
+        if (Collection) {
+            // Merge with Collection model so empty collections also appear
+            const dbCollections = await Collection.find({}).lean();
+            const aggMap = {};
+            templateAgg.forEach(a => { aggMap[a.id] = a; });
+
+            dbCollections.forEach(col => {
+                if (!aggMap[col.collectionId]) {
+                    templateAgg.push({
+                        id: col.collectionId,
+                        title: col.title,
+                        icon: col.icon,
+                        color: col.color,
+                        templateCount: 0
+                    });
+                }
+            });
+
+            templateAgg.sort((a, b) => a.title.localeCompare(b.title));
+        }
+
+        res.json(templateAgg);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error', error: error.message });

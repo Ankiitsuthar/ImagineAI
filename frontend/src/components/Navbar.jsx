@@ -1,9 +1,9 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ChevronDown, LayoutDashboard, Sparkles, History, LogOut, Star } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, Sparkles, History, LogOut, Star, Coins } from 'lucide-react';
 import './Navbar.css';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.svg';
 
 const Navbar = () => {
     const { user, logout, isAdmin } = useAuth();
@@ -43,12 +43,14 @@ const Navbar = () => {
     ];
 
     const dropdownLinks = [
+        { path: '/buy-credits', label: 'Buy Credits', icon: <Coins size={16} /> },
         { path: '/history', label: 'History', icon: <History size={16} /> }
     ];
 
     const adminLinks = [
         { path: '/admin', label: 'Dashboard' },
         { path: '/admin/templates', label: 'Templates' },
+        { path: '/admin/collections', label: 'Collections' },
         { path: '/admin/users', label: 'Users' },
         { path: '/admin/orders', label: 'Orders' }
     ];
@@ -119,17 +121,19 @@ const Navbar = () => {
                                             <span className="dropdown-credits"><Star size={14} /> {user.credits} credits</span>
                                         </div>
                                         <div className="dropdown-divider"></div>
-                                        {dropdownLinks.map(link => (
-                                            <Link
-                                                key={link.path}
-                                                to={link.path}
-                                                className={`dropdown-item ${isActive(link.path) ? 'active' : ''}`}
-                                                onClick={() => setDropdownOpen(false)}
-                                            >
-                                                <span className="dropdown-icon">{link.icon}</span>
-                                                {link.label}
-                                            </Link>
-                                        ))}
+                                        {dropdownLinks
+                                            .filter(link => !(isAdmin && link.path === '/buy-credits'))
+                                            .map(link => (
+                                                <Link
+                                                    key={link.path}
+                                                    to={link.path}
+                                                    className={`dropdown-item ${isActive(link.path) ? 'active' : ''}`}
+                                                    onClick={() => setDropdownOpen(false)}
+                                                >
+                                                    <span className="dropdown-icon">{link.icon}</span>
+                                                    {link.label}
+                                                </Link>
+                                            ))}
                                         <div className="dropdown-divider"></div>
                                         <button onClick={handleLogout} className="dropdown-item dropdown-logout">
                                             <span className="dropdown-icon"><LogOut size={16} /></span>
@@ -188,17 +192,19 @@ const Navbar = () => {
                         {user && (
                             <>
                                 <div className="mobile-divider"></div>
-                                {dropdownLinks.map(link => (
-                                    <Link
-                                        key={link.path}
-                                        to={link.path}
-                                        className={`mobile-nav-link ${isActive(link.path) ? 'active' : ''}`}
-                                        onClick={() => setMobileMenuOpen(false)}
-                                    >
-                                        <span className="mobile-link-icon">{link.icon}</span>
-                                        {link.label}
-                                    </Link>
-                                ))}
+                                {dropdownLinks
+                                    .filter(link => !(isAdmin && link.path === '/buy-credits'))
+                                    .map(link => (
+                                        <Link
+                                            key={link.path}
+                                            to={link.path}
+                                            className={`mobile-nav-link ${isActive(link.path) ? 'active' : ''}`}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            <span className="mobile-link-icon">{link.icon}</span>
+                                            {link.label}
+                                        </Link>
+                                    ))}
                             </>
                         )}
 

@@ -4,8 +4,8 @@ const validateEnv = () => {
         'MONGODB_URI',
         'JWT_SECRET',
         'REPLICATE_API_TOKEN',
-        'STRIPE_SECRET_KEY',
-        'STRIPE_WEBHOOK_SECRET'
+        'PAYU_MERCHANT_KEY',
+        'PAYU_SALT'
     ];
 
     const optional = [

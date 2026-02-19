@@ -97,10 +97,12 @@ export const userAPI = {
     toggleStatus: (id) => api.put(`/users/${id}/toggle-status`)
 };
 
-// Order API (Refactored to Transaction API)
+// Order API
 export const orderAPI = {
-    // create: (packageType) => api.post('/orders/create', { packageType }),
-    createTransaction: (data) => api.post('/transactions', data), // amount, creditsPurchased, paymentId
+    getPackages: () => api.get('/orders/packages'),
+    createOrder: (packageType) => api.post('/orders/create', { packageType }),
+    getUserOrders: (page = 1, limit = 20) => api.get(`/orders?page=${page}&limit=${limit}`),
+    createTransaction: (data) => api.post('/transactions', data),
     getTransactions: () => api.get('/transactions'),
     getAllOrders: (page = 1, limit = 20, status = '') =>
         api.get(`/orders/all?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`)
@@ -108,7 +110,16 @@ export const orderAPI = {
 
 // Stats API (Admin)
 export const statsAPI = {
-    getDashboard: () => api.get('/stats/dashboard')
+    getDashboard: () => api.get('/stats/dashboard'),
+    getRevenueAnalytics: () => api.get('/stats/revenue')
+};
+
+// Collection API (Admin)
+export const collectionAPI = {
+    getAll: () => api.get('/collections'),
+    create: (data) => api.post('/collections', data),
+    update: (id, data) => api.put(`/collections/${id}`, data),
+    delete: (id) => api.delete(`/collections/${id}`)
 };
 
 export default api;
