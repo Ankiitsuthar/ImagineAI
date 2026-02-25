@@ -9,6 +9,16 @@ const AuthSuccess = () => {
 
     useEffect(() => {
         const token = searchParams.get('token');
+        const error = searchParams.get('error');
+
+        // Handle deactivated account error from backend
+        if (error === 'account_disabled') {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/?account_disabled=true';
+            return;
+        }
+
         if (token && !hasCalled.current) {
             hasCalled.current = true;
             loginWithToken(token)

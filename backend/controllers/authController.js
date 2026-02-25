@@ -6,12 +6,17 @@ const User = require('../models/User');
 // @access  Public
 const googleCallback = (req, res) => {
     try {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+        // Block deactivated users from logging in
+        if (req.user.isActive === false) {
+            return res.redirect(`${frontendUrl}/auth/success?error=account_disabled`);
+        }
+
         // req.user is populated by passport
         const token = generateToken(req.user._id);
 
         // Redirect to frontend with token
-        // In production, use environment variable for frontend URL
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         res.redirect(`${frontendUrl}/auth/success?token=${token}`);
     } catch (error) {
         console.error(error);

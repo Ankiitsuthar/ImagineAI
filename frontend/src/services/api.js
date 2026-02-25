@@ -43,10 +43,20 @@ api.interceptors.response.use(
         // Don't auto-handle auth errors if we're on the auth success page (handling token login)
         const isAuthSuccessPage = window.location.pathname.startsWith('/auth/success');
 
-        if ((status === 401 || status === 403) && !isAuthSuccessPage) {
+        if (status === 401 && !isAuthSuccessPage) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';
+        }
+        if (status === 403 && !isAuthSuccessPage) {
+            const message = error.response?.data?.message;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (message === 'Account is disabled') {
+                window.location.href = '/?account_disabled=true';
+            } else {
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

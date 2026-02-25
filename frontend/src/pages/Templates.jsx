@@ -166,14 +166,6 @@ const Templates = () => {
                     <h1>Design Your Perfect <span className="highlight">AI Moment</span></h1>
                     <p>Upload your inspiration, choose a template, and let our AI craft stunning images tailored to your vision</p>
 
-                    {/* Credits Badge */}
-                    {user && (
-                        <div className="credits-pill">
-                            <span>Free credits remaining:</span>
-                            <span className="credits-count">{user.credits}</span>
-                        </div>
-                    )}
-
                     {/* Step Tabs */}
                     <div className="step-tabs">
                         <button

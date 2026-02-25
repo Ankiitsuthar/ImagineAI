@@ -32,11 +32,22 @@ import AuthModal from './components/AuthModal';
 function App() {
   // 👉 Step 1: Loader State
   const [loading, setLoading] = useState(true);
+  const [accountDisabled, setAccountDisabled] = useState(false);
 
   // 👉 Step 2: Simulate loading for 1–2 sec
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
+  }, []);
+
+  // 👉 Detect account_disabled flag from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('account_disabled') === 'true') {
+      setAccountDisabled(true);
+      // Clean the URL without reloading
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   // 👉 Step 3: Show loader BEFORE showing website
@@ -48,6 +59,39 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="app">
+          {accountDisabled && (
+            <div style={{
+              background: '#fef2f2',
+              borderBottom: '1px solid #fecaca',
+              padding: '14px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              fontSize: '0.95rem',
+              color: '#991b1b',
+              fontWeight: 500,
+              position: 'relative',
+              zIndex: 10000
+            }}>
+              <span>⚠️ Your account has been disabled by the admin. Please contact support for assistance.</span>
+              <button
+                onClick={() => setAccountDisabled(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  color: '#991b1b',
+                  lineHeight: 1,
+                  padding: '0 4px'
+                }}
+                aria-label="Dismiss"
+              >
+                ×
+              </button>
+            </div>
+          )}
           <Navbar />
           <main className="main-content">
             <Routes>
