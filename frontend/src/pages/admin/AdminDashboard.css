@@ -48,3 +48,44 @@
     color: var(--text-muted);
     margin: 0;
 }
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
+
+    .action-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-action-card {
+        padding: var(--spacing-xl);
+    }
+
+    .admin-action-card .action-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-container {
+        padding: var(--spacing-lg) var(--spacing-sm);
+    }
+
+    .action-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .admin-action-card {
+        padding: var(--spacing-lg);
+    }
+
+    .admin-action-card .action-icon {
+        font-size: 2rem;
+    }
+
+    .admin-action-card h3 {
+        font-size: 1.1rem;
+    }
+}

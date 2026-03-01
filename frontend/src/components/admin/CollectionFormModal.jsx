@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Smile, Shapes, ImagePlus, Search, Upload, X, FolderPlus } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Shapes, ImagePlus, Search, Upload, X, FolderPlus, Pencil } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
 import '../../pages/admin/Admin.css';
 
@@ -32,16 +32,19 @@ const LUCIDE_ICONS = {
     ]
 };
 
-const CollectionFormModal = ({ onClose, onSubmit }) => {
+const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
+    const isEditing = !!collection;
+
     const [formData, setFormData] = useState({
         collectionId: '',
         collectionTitle: '',
-        collectionIcon: '✨',
-        collectionColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        collectionIcon: 'lucide:Sparkles',
+        collectionColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        description: ''
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [iconTab, setIconTab] = useState('emoji'); // emoji | lucide | upload
+    const [iconTab, setIconTab] = useState('lucide'); // lucide | upload
     const [iconSearch, setIconSearch] = useState('');
     const fileInputRef = useRef(null);
 
@@ -60,75 +63,18 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
         { name: 'Indigo', value: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' }
     ];
 
-    // Emoji → best matching color name
-    const emojiColorMap = {
-        // Popular
-        '✨': 'Amber', '🎨': 'Purple', '💼': 'Blue', '🌟': 'Amber',
-        '🔮': 'Purple', '🎭': 'Rose', '📸': 'Indigo', '💫': 'Violet',
-        '🌈': 'Pink', '🎪': 'Rose', '🏆': 'Amber', '💎': 'Cyan',
-        // Business
-        '📊': 'Blue', '👔': 'Indigo', '🏢': 'Blue', '📈': 'Green',
-        '💰': 'Amber', '🎯': 'Rose', '📋': 'Teal', '💳': 'Indigo',
-        '🤝': 'Blue', '📁': 'Orange', '✅': 'Emerald',
-        // Creative
-        '🎬': 'Rose', '🖌️': 'Purple', '🎤': 'Indigo', '🎵': 'Violet',
-        // Photography
-        '📷': 'Indigo', '🖼️': 'Purple', '📹': 'Rose', '🎞️': 'Violet',
-        '🌅': 'Orange', '🌄': 'Amber', '🏞️': 'Green', '🎥': 'Rose',
-        '📽️': 'Indigo', '🔍': 'Blue',
-        // Lifestyle
-        '🏠': 'Teal', '🌿': 'Green', '☕': 'Amber', '🍃': 'Emerald',
-        '🌸': 'Pink', '🍷': 'Rose', '🧘': 'Teal', '🛋️': 'Violet',
-        '🌻': 'Amber', '🕯️': 'Orange', '📚': 'Indigo',
-        // Events
-        '💍': 'Purple', '🎂': 'Pink', '🎉': 'Amber', '🎊': 'Pink',
-        '🎁': 'Rose', '🥂': 'Amber', '💒': 'Violet', '👰': 'Pink',
-        '🤵': 'Indigo', '🎈': 'Rose', '🪅': 'Orange', '🎆': 'Indigo',
-        // Food
-        '🍕': 'Orange', '🍔': 'Amber', '🍰': 'Pink', '🍱': 'Teal',
-        '🥗': 'Green', '🍜': 'Orange', '🧁': 'Pink', '🍳': 'Amber',
-        '🥘': 'Orange', '🍣': 'Rose',
-        // Nature
-        '🌲': 'Emerald', '🌊': 'Cyan', '🏔️': 'Blue', '🌺': 'Pink',
-        '🦋': 'Purple', '🌙': 'Indigo', '⭐': 'Amber', '🍁': 'Orange',
-        '🌴': 'Green', '🌵': 'Emerald', '🦜': 'Green',
-        // Tech
-        '💻': 'Blue', '📱': 'Indigo', '🔧': 'Teal', '⚙️': 'Blue',
-        '🚀': 'Violet', '💡': 'Amber', '🤖': 'Cyan', '🎮': 'Purple',
-        '🔌': 'Teal', '📡': 'Indigo', '🛸': 'Violet', '⌨️': 'Blue',
-        // Sports
-        '⚽': 'Emerald', '🏀': 'Orange', '🎾': 'Green', '🏈': 'Amber',
-        '⚾': 'Rose', '🏐': 'Blue', '🎳': 'Indigo', '🏋️': 'Rose',
-        '🚴': 'Green', '🏊': 'Cyan', '🎿': 'Blue',
-        // Travel
-        '✈️': 'Blue', '🚗': 'Rose', '🏖️': 'Cyan', '🗺️': 'Teal',
-        '🧳': 'Amber', '🏕️': 'Emerald', '🎡': 'Pink', '🗼': 'Rose',
-        '🏰': 'Violet', '⛵': 'Cyan', '🚂': 'Orange', '🌍': 'Teal'
-    };
-
-    // Returns the best matching color gradient for an emoji
-    const getColorForEmoji = (emoji) => {
-        const colorName = emojiColorMap[emoji];
-        if (colorName) {
-            const preset = colorPresets.find(c => c.name === colorName);
-            if (preset) return preset.value;
+    // Pre-populate form when editing
+    useEffect(() => {
+        if (collection) {
+            setFormData({
+                collectionId: collection.collectionId || collection.id || '',
+                collectionTitle: collection.title || '',
+                collectionIcon: collection.icon || 'lucide:Sparkles',
+                collectionColor: collection.color || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                description: collection.description || ''
+            });
         }
-        return null; // keep current color if no match
-    };
-
-    const iconLibrary = {
-        'Popular': ['✨', '🎨', '💼', '🌟', '🔮', '🎭', '📸', '💫', '🌈', '🎪', '🏆', '💎'],
-        'Business': ['💼', '📊', '👔', '🏢', '📈', '💰', '🎯', '📋', '💳', '🤝', '📁', '✅'],
-        'Creative': ['✨', '🎨', '🌈', '🎭', '🎪', '💫', '🔮', '🌟', '🎬', '🖌️', '🎤', '🎵'],
-        'Photography': ['📷', '🖼️', '🎬', '📹', '🎞️', '🌅', '🌄', '🏞️', '🎥', '📽️', '🔍'],
-        'Lifestyle': ['🌅', '🏠', '🌿', '☕', '🍃', '🌸', '🍷', '🧘', '🛋️', '🌻', '🕯️', '📚'],
-        'Events': ['💍', '🎂', '🎉', '🎊', '🎁', '🥂', '💒', '👰', '🤵', '🎈', '🪅', '🎆'],
-        'Food': ['🍕', '🍔', '🍰', '🍱', '🥗', '🍜', '☕', '🍷', '🧁', '🍳', '🥘', '🍣'],
-        'Nature': ['🌲', '🌊', '🏔️', '🌺', '🦋', '🌙', '⭐', '🌸', '🍁', '🌴', '🌵', '🦜'],
-        'Tech': ['💻', '📱', '🔧', '⚙️', '🚀', '💡', '🤖', '🎮', '🔌', '📡', '🛸', '⌨️'],
-        'Sports': ['⚽', '🏀', '🎾', '🏈', '⚾', '🏐', '🎳', '🏋️', '🚴', '🏊', '🎿', '🏆'],
-        'Travel': ['✈️', '🚗', '🏖️', '🗺️', '🧳', '🏕️', '🎡', '🗼', '🏰', '⛵', '🚂', '🌍']
-    };
+    }, [collection]);
 
     // Filter Lucide icons by search
     const getFilteredLucideIcons = () => {
@@ -150,8 +96,8 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
         const { name, value } = e.target;
         setFormData(prev => {
             const updated = { ...prev, [name]: value };
-            // Auto-generate ID when title changes
-            if (name === 'collectionTitle') {
+            // Auto-generate ID when title changes (only for new collections)
+            if (name === 'collectionTitle' && !isEditing) {
                 updated.collectionId = toSlug(value);
             }
             return updated;
@@ -212,7 +158,7 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
         if (!validate()) return;
         setLoading(true);
         try {
-            await onSubmit(formData);
+            await onSubmit(formData, isEditing);
         } finally {
             setLoading(false);
         }
@@ -226,7 +172,12 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
         <div className="admin-modal-overlay" onClick={onClose}>
             <div className="admin-modal admin-modal-large" onClick={e => e.stopPropagation()}>
                 <div className="admin-modal-header">
-                    <h2><FolderPlus size={22} /> Create New Collection</h2>
+                    <h2>
+                        {isEditing
+                            ? <><Pencil size={20} /> Edit Collection</>
+                            : <><FolderPlus size={22} /> Create New Collection</>
+                        }
+                    </h2>
                     <button className="admin-modal-close" onClick={onClose}><X size={18} /></button>
                 </div>
 
@@ -256,19 +207,39 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
                             {errors.collectionTitle && <span style={{ color: '#ef4444', fontSize: '0.85rem' }}>{errors.collectionTitle}</span>}
                         </div>
 
+                        {/* Collection ID - read-only when editing */}
+                        {isEditing && (
+                            <div className="admin-form-group">
+                                <label>Collection ID <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>(read-only)</span></label>
+                                <input
+                                    type="text"
+                                    name="collectionId"
+                                    value={formData.collectionId}
+                                    disabled
+                                    style={{ opacity: 0.6 }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Description */}
+                        <div className="admin-form-group">
+                            <label>Description</label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                placeholder="Brief description of this collection..."
+                                rows={2}
+                                style={{ minHeight: '70px' }}
+                            />
+                        </div>
+
                         {/* Icon Picker */}
                         <div className="admin-form-group">
                             <label>Choose Icon *</label>
 
                             {/* Tab Switcher */}
                             <div className="icon-picker-tabs">
-                                <button
-                                    type="button"
-                                    className={`icon-picker-tab ${iconTab === 'emoji' ? 'active' : ''}`}
-                                    onClick={() => { setIconTab('emoji'); setIconSearch(''); }}
-                                >
-                                    <Smile size={16} /> Emoji
-                                </button>
                                 <button
                                     type="button"
                                     className={`icon-picker-tab ${iconTab === 'lucide' ? 'active' : ''}`}
@@ -287,35 +258,6 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
 
                             {/* Tab Content */}
                             <div className="icon-picker-content">
-                                {/* Emoji Tab */}
-                                {iconTab === 'emoji' && (
-                                    <div className="icon-library">
-                                        {Object.entries(iconLibrary).map(([category, icons]) => (
-                                            <div key={category} className="icon-category">
-                                                <span className="icon-category-label">{category}</span>
-                                                <div className="icon-grid">
-                                                    {icons.map((icon, index) => (
-                                                        <button
-                                                            key={`${category}-${index}`}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const matchedColor = getColorForEmoji(icon);
-                                                                setFormData(prev => ({
-                                                                    ...prev,
-                                                                    collectionIcon: icon,
-                                                                    ...(matchedColor ? { collectionColor: matchedColor } : {})
-                                                                }));
-                                                            }}
-                                                            className={`icon-btn ${isIconSelected(icon) ? 'selected' : ''}`}
-                                                        >
-                                                            {icon}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
 
                                 {/* Lucide Icons Tab */}
                                 {iconTab === 'lucide' && (
@@ -386,7 +328,7 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
                                                         className="icon-upload-remove"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setFormData(prev => ({ ...prev, collectionIcon: '✨' }));
+                                                            setFormData(prev => ({ ...prev, collectionIcon: 'lucide:Sparkles' }));
                                                         }}
                                                     >
                                                         <X size={14} /> Remove
@@ -437,7 +379,10 @@ const CollectionFormModal = ({ onClose, onSubmit }) => {
                             Cancel
                         </button>
                         <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? 'Creating...' : 'Create Collection'}
+                            {loading
+                                ? (isEditing ? 'Updating...' : 'Creating...')
+                                : (isEditing ? 'Update Collection' : 'Create Collection')
+                            }
                         </button>
                     </div>
                 </form>

@@ -6,31 +6,71 @@ const Template = require('../models/Template');
 // @access  Public
 const getCollections = async (req, res) => {
     try {
-        // Get all collections from the Collection model
+        // 1. Get all explicit collections from the Collection model
         const collections = await Collection.find({}).sort({ title: 1 }).lean();
 
-        // Get template counts per collectionId
+        // 2. Get template counts per collectionId
         const templateCounts = await Template.aggregate([
             { $group: { _id: '$collectionId', count: { $sum: 1 } } }
         ]);
         const countMap = {};
         templateCounts.forEach(tc => { countMap[tc._id] = tc.count; });
 
-        // Enrich collections with template count
-        const enriched = collections.map(col => ({
-            _id: col._id,
-            id: col.collectionId,
-            collectionId: col.collectionId,
-            title: col.title,
-            icon: col.icon,
-            color: col.color,
-            description: col.description || '',
-            templateCount: countMap[col.collectionId] || 0,
-            createdAt: col.createdAt,
-            updatedAt: col.updatedAt
-        }));
+        // 3. Build a map of explicit collections (keyed by collectionId)
+        const collectionMap = {};
+        collections.forEach(col => {
+            collectionMap[col.collectionId] = {
+                _id: col._id,
+                id: col.collectionId,
+                collectionId: col.collectionId,
+                title: col.title,
+                icon: col.icon,
+                color: col.color,
+                description: col.description || '',
+                templateCount: countMap[col.collectionId] || 0,
+                createdAt: col.createdAt,
+                updatedAt: col.updatedAt
+            };
+        });
 
-        res.json(enriched);
+        // 4. Discover implicit collections from templates that don't have
+        //    a matching Collection document
+        const templateCollections = await Template.aggregate([
+            { $match: { collectionId: { $exists: true, $ne: '' } } },
+            {
+                $group: {
+                    _id: '$collectionId',
+                    title: { $first: '$collectionTitle' },
+                    icon: { $first: '$collectionIcon' },
+                    color: { $first: '$collectionColor' },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        templateCollections.forEach(tc => {
+            if (!collectionMap[tc._id]) {
+                collectionMap[tc._id] = {
+                    _id: null,
+                    id: tc._id,
+                    collectionId: tc._id,
+                    title: tc.title || tc._id,
+                    icon: tc.icon || 'lucide:Sparkles',
+                    color: tc.color || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    description: '',
+                    templateCount: tc.count,
+                    createdAt: null,
+                    updatedAt: null,
+                    implicit: true
+                };
+            }
+        });
+
+        // 5. Return all collections sorted by title
+        const allCollections = Object.values(collectionMap)
+            .sort((a, b) => a.title.localeCompare(b.title));
+
+        res.json(allCollections);
     } catch (error) {
         console.error('Error fetching collections:', error);
         res.status(500).json({ message: 'Server error', error: error.message });

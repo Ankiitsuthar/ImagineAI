@@ -1,27 +1,12 @@
 import { useState, useEffect } from 'react';
 import { collectionAPI } from '../../services/api';
 import {
-    Layers, Plus, Search, CheckCircle, AlertTriangle,
-    Pencil, Trash2, X, FolderPlus
+    Layers, Search, CheckCircle, AlertTriangle,
+    Pencil, Trash2, FolderPlus
 } from 'lucide-react';
 import IconRenderer from '../../components/IconRenderer';
 import CollectionFormModal from '../../components/admin/CollectionFormModal';
 import './Admin.css';
-
-// Emoji categories for the icon picker
-const EMOJI_CATEGORIES = {
-    'Popular': ['✨', '🎨', '💼', '🌟', '🔮', '🎭', '📸', '💫', '🌈', '🎪', '🏆', '💎'],
-    'Nature': ['🌸', '🌊', '🌴', '🌺', '🍂', '🌙', '☀️', '❄️', '🔥', '🌿', '🦋', '🌻'],
-    'Objects': ['📷', '🎵', '🎮', '💄', '👗', '🏠', '✈️', '🚀', '💡', '📚', '🎯', '🎁'],
-    'Food': ['🍕', '🍰', '🍜', '☕', '🍎', '🍷', '🎂', '🍿', '🥑', '🍔', '🍣', '🧁'],
-    'Faces': ['😊', '😎', '🤩', '😍', '🥳', '😇', '🤗', '😏', '🧐', '🤠', '👻', '🎃']
-};
-
-const COLOR_PRESETS = [
-    '#8B5CF6', '#6366F1', '#3B82F6', '#06B6D4', '#10B981',
-    '#F59E0B', '#F97316', '#EF4444', '#EC4899', '#8B5CF6',
-    '#6c63ff', '#f72585', '#4cc9f0', '#7209b7', '#2ec4b6'
-];
 
 const AdminCollections = () => {
     const [collections, setCollections] = useState([]);
@@ -29,16 +14,7 @@ const AdminCollections = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
     const [showModal, setShowModal] = useState(false);
-    const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingCollection, setEditingCollection] = useState(null);
-    const [formData, setFormData] = useState({
-        collectionId: '',
-        title: '',
-        icon: '✨',
-        color: '#8B5CF6',
-        description: ''
-    });
-    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         fetchCollections();
@@ -62,23 +38,13 @@ const AdminCollections = () => {
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 4000);
     };
 
-    const toSlug = (text) => {
-        return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    };
-
     const handleAddNew = () => {
-        setShowCreateModal(true);
+        setEditingCollection(null);
+        setShowModal(true);
     };
 
     const handleEdit = (collection) => {
         setEditingCollection(collection);
-        setFormData({
-            collectionId: collection.collectionId || collection.id,
-            title: collection.title,
-            icon: collection.icon || '✨',
-            color: collection.color || '#8B5CF6',
-            description: collection.description || ''
-        });
         setShowModal(true);
     };
 
@@ -100,52 +66,12 @@ const AdminCollections = () => {
         }
     };
 
-    const handleFormChange = (field, value) => {
-        setFormData(prev => {
-            const updated = { ...prev, [field]: value };
-            // Auto-generate slug from title if creating new
-            if (field === 'title' && !editingCollection) {
-                updated.collectionId = toSlug(value);
-            }
-            return updated;
-        });
+    const handleModalClose = () => {
+        setShowModal(false);
+        setEditingCollection(null);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.title.trim()) {
-            showAlertMsg('error', 'Title is required');
-            return;
-        }
-        if (!formData.collectionId.trim()) {
-            showAlertMsg('error', 'Collection ID is required');
-            return;
-        }
-
-        setSaving(true);
-        try {
-            if (editingCollection) {
-                const response = await collectionAPI.update(editingCollection._id, formData);
-                setCollections(collections.map(c =>
-                    c._id === editingCollection._id ? { ...c, ...response.data, templateCount: c.templateCount } : c
-                ));
-                showAlertMsg('success', 'Collection updated successfully');
-            } else {
-                await collectionAPI.create(formData);
-                showAlertMsg('success', 'Collection created successfully');
-                fetchCollections(); // Refresh to get the full merged data
-            }
-            setShowModal(false);
-            setEditingCollection(null);
-        } catch (error) {
-            console.error('Error saving:', error);
-            showAlertMsg('error', error.response?.data?.message || 'Failed to save collection');
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    const handleCollectionFormSubmit = async (modalData) => {
+    const handleModalSubmit = async (modalData, isEdit) => {
         try {
             const apiData = {
                 collectionId: modalData.collectionId,
@@ -154,13 +80,29 @@ const AdminCollections = () => {
                 color: modalData.collectionColor,
                 description: modalData.description || ''
             };
-            await collectionAPI.create(apiData);
-            showAlertMsg('success', 'Collection created successfully');
-            fetchCollections();
-            setShowCreateModal(false);
+
+            if (isEdit && editingCollection) {
+                if (editingCollection._id) {
+                    // Explicit collection — update existing record
+                    const response = await collectionAPI.update(editingCollection._id, apiData);
+                    setCollections(collections.map(c =>
+                        c._id === editingCollection._id ? { ...c, ...response.data, templateCount: c.templateCount } : c
+                    ));
+                } else {
+                    // Implicit collection (from templates only) — create a new Collection record
+                    await collectionAPI.create(apiData);
+                    fetchCollections();
+                }
+                showAlertMsg('success', 'Collection updated successfully');
+            } else {
+                await collectionAPI.create(apiData);
+                showAlertMsg('success', 'Collection created successfully');
+                fetchCollections();
+            }
+            handleModalClose();
         } catch (error) {
-            console.error('Error creating collection:', error);
-            showAlertMsg('error', error.response?.data?.message || 'Failed to create collection');
+            console.error('Error saving collection:', error);
+            showAlertMsg('error', error.response?.data?.message || 'Failed to save collection');
         }
     };
 
@@ -286,144 +228,11 @@ const AdminCollections = () => {
                 </div>
             )}
 
-            {/* Add/Edit Modal */}
             {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2><FolderPlus size={22} /> {editingCollection ? 'Edit Collection' : 'New Collection'}</h2>
-                            <button className="modal-close" onClick={() => setShowModal(false)}><X size={20} /></button>
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
-                                {/* Title */}
-                                <div className="form-group">
-                                    <label>Collection Title *</label>
-                                    <input
-                                        type="text"
-                                        value={formData.title}
-                                        onChange={(e) => handleFormChange('title', e.target.value)}
-                                        placeholder="e.g. Professional Portraits"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Collection ID */}
-                                <div className="form-group">
-                                    <label>Collection ID {editingCollection && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>(read-only)</span>}</label>
-                                    <input
-                                        type="text"
-                                        value={formData.collectionId}
-                                        onChange={(e) => handleFormChange('collectionId', e.target.value)}
-                                        placeholder="e.g. professional-portraits"
-                                        disabled={!!editingCollection}
-                                        required
-                                        style={editingCollection ? { opacity: 0.6 } : {}}
-                                    />
-                                </div>
-
-                                {/* Description */}
-                                <div className="form-group">
-                                    <label>Description</label>
-                                    <textarea
-                                        value={formData.description}
-                                        onChange={(e) => handleFormChange('description', e.target.value)}
-                                        placeholder="Brief description of this collection..."
-                                        rows={2}
-                                    />
-                                </div>
-
-                                {/* Icon Picker */}
-                                <div className="form-group">
-                                    <label>Icon</label>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                                        <div style={{
-                                            width: 48, height: 48, borderRadius: 12,
-                                            background: `${formData.color}20`,
-                                            border: `2px solid ${formData.color}40`,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '1.5rem'
-                                        }}>
-                                            <IconRenderer value={formData.icon} size={24} />
-                                        </div>
-                                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Selected: {formData.icon}</span>
-                                    </div>
-                                    <div style={{ maxHeight: 160, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 8, padding: '0.5rem' }}>
-                                        {Object.entries(EMOJI_CATEGORIES).map(([category, emojis]) => (
-                                            <div key={category} style={{ marginBottom: '0.5rem' }}>
-                                                <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: 1 }}>{category}</div>
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                                                    {emojis.map(emoji => (
-                                                        <button
-                                                            key={emoji}
-                                                            type="button"
-                                                            onClick={() => handleFormChange('icon', emoji)}
-                                                            style={{
-                                                                width: 32, height: 32, border: formData.icon === emoji ? `2px solid ${formData.color}` : '1px solid var(--border)',
-                                                                borderRadius: 6, background: formData.icon === emoji ? `${formData.color}15` : 'white',
-                                                                cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                                            }}
-                                                        >
-                                                            {emoji}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Color Picker */}
-                                <div className="form-group">
-                                    <label>Color</label>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: '0.5rem' }}>
-                                        {COLOR_PRESETS.map((color, i) => (
-                                            <button
-                                                key={i}
-                                                type="button"
-                                                onClick={() => handleFormChange('color', color)}
-                                                style={{
-                                                    width: 32, height: 32, borderRadius: 8, background: color,
-                                                    border: formData.color === color ? '3px solid var(--text-primary)' : '2px solid transparent',
-                                                    cursor: 'pointer', transition: 'transform 0.15s',
-                                                    transform: formData.color === color ? 'scale(1.15)' : 'scale(1)'
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <input
-                                            type="color"
-                                            value={formData.color}
-                                            onChange={(e) => handleFormChange('color', e.target.value)}
-                                            style={{ width: 40, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={formData.color}
-                                            onChange={(e) => handleFormChange('color', e.target.value)}
-                                            style={{ width: 100, fontSize: '0.85rem' }}
-                                            placeholder="#8B5CF6"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary" disabled={saving}>
-                                    {saving ? 'Saving...' : editingCollection ? 'Update Collection' : 'Create Collection'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {showCreateModal && (
                 <CollectionFormModal
-                    onClose={() => setShowCreateModal(false)}
-                    onSubmit={handleCollectionFormSubmit}
+                    collection={editingCollection}
+                    onClose={handleModalClose}
+                    onSubmit={handleModalSubmit}
                 />
             )}
         </div>

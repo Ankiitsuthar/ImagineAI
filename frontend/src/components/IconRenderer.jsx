@@ -33,7 +33,6 @@ const ICON_MAP = {
 
 /**
  * IconRenderer — renders an icon value that can be:
- *  - emoji string (e.g. "✨")
  *  - lucide icon reference (e.g. "lucide:Camera")
  *  - image data URL or URL (e.g. "data:image/png;base64,..." or "https://...")
  */
@@ -47,7 +46,7 @@ const IconRenderer = ({ value, size = 24, className = '' }) => {
         if (LucideIcon) {
             return <LucideIcon size={size} className={className} />;
         }
-        return <span className={className} style={{ fontSize: size }}>✨</span>;
+        return <Sparkles size={size} className={className} />;
     }
 
     // Image (data URL or http URL)

@@ -204,18 +204,6 @@ const Templates = () => {
                         <div className="templates-grid-section fade-in">
                             <div className="templates-grid">
                                 {templates.map((template, index) => {
-                                    // Determine badge type
-                                    let badgeClass = 'badge-free';
-                                    let badgeText = 'Free';
-
-                                    if (template.popular) {
-                                        badgeClass = 'badge-popular';
-                                        badgeText = (<Flame size={16} />);
-                                    } else if (template.creditCost > 0) {
-                                        badgeClass = 'badge-credits';
-                                        badgeText = `${template.creditCost} Credits`;
-                                    }
-
                                     return (
                                         <div
                                             key={template._id}
@@ -223,9 +211,18 @@ const Templates = () => {
                                             onClick={() => handleSelectTemplate(template)}
                                             style={{ animationDelay: `${index * 0.05}s` }}
                                         >
-                                            <div className={`template-badge ${badgeClass}`}>
-                                                {badgeText}
+                                            {/* Popular badge - left side */}
+                                            {template.popular && (
+                                                <div className="template-badge badge-popular">
+                                                    <Flame size={15} />
+                                                </div>
+                                            )}
+
+                                            {/* Credit/Free badge - right side */}
+                                            <div className={`template-badge ${template.creditCost > 0 ? 'badge-credits' : 'badge-free'}`}>
+                                                {template.creditCost > 0 ? template.creditCost : 'Free'}
                                             </div>
+
                                             <div className="template-image-wrapper">
                                                 <img
                                                     src={template.thumbnailUrl?.startsWith('http') ? template.thumbnailUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${template.thumbnailUrl}`}
@@ -247,9 +244,22 @@ const Templates = () => {
                     {/* Step 2: Upload */}
                     {step === 2 && (
                         <div className="upload-section fade-in">
-                            <div className="selected-template-info">
-                                <h3>Selected Template: <span>{selectedTemplate?.name}</span></h3>
-                                <button className="btn btn-link" onClick={() => setStep(1)}>Change template</button>
+                            <div className="selected-template-preview">
+                                <div className="selected-template-thumb">
+                                    <img
+                                        src={selectedTemplate?.thumbnailUrl?.startsWith('http') ? selectedTemplate.thumbnailUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedTemplate?.thumbnailUrl}`}
+                                        alt={selectedTemplate?.name}
+                                        onError={(e) => {
+                                            e.target.src = 'https://picsum.photos/400/300?random=' + selectedTemplate?._id;
+                                        }}
+                                    />
+                                </div>
+                                <div className="selected-template-details">
+                                    <span className="selected-template-label">Selected Template</span>
+                                    <h3 className="selected-template-name">{selectedTemplate?.name}</h3>
+                                    <span className="selected-template-cost">{selectedTemplate?.creditCost} {selectedTemplate?.creditCost === 1 ? 'Credit' : 'Credits'}</span>
+                                    <button className="btn btn-link" onClick={() => setStep(1)}>Change template</button>
+                                </div>
                             </div>
 
                             <div

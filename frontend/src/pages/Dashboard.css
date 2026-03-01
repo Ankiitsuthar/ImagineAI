@@ -154,8 +154,7 @@
 }
 
 .quick-actions h2::before {
-    content: '⚡';
-    font-size: 1.25rem;
+    content: '';
 }
 
 .action-buttons {
@@ -276,8 +275,7 @@
 }
 
 .section-header h2::before {
-    content: '🎨';
-    font-size: 1.25rem;
+    content: '';
 }
 
 /* Gallery Grid */
@@ -442,5 +440,62 @@
     .action-card:hover,
     .generation-preview:hover {
         transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 1.5rem 0 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .stat-card {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.5rem;
+    }
+
+    .stat-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .stat-content p {
+        font-size: 0.75rem;
+    }
+
+    .action-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .action-icon {
+        width: 4rem;
+        height: 4rem;
+        font-size: 2rem;
+    }
+
+    .action-card h3 {
+        font-size: 1.15rem;
+    }
+
+    .action-card p {
+        font-size: 0.85rem;
+    }
+
+    .generation-preview img {
+        height: 200px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
     }
 }

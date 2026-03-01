@@ -132,11 +132,46 @@
 
 @media (max-width: 640px) {
     .footer-content {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
     }
 
     .footer {
         padding: 3rem 0 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer {
+        padding: 2rem 0 1rem;
+    }
+
+    .footer-content {
+        gap: 2rem;
+    }
+
+    .footer-brand {
+        font-size: 1.25rem;
+    }
+
+    .footer-description {
+        font-size: 0.85rem;
+    }
+
+    .social-link {
+        width: 36px;
+        height: 36px;
+    }
+
+    .footer-heading {
+        font-size: 0.8rem;
+    }
+
+    .footer-links li {
+        font-size: 0.85rem;
+    }
+
+    .footer-bottom p {
+        font-size: 0.8rem;
     }
 }

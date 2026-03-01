@@ -465,3 +465,47 @@
         padding: 2rem 1.5rem;
     }
 }
+
+@media (max-width: 480px) {
+    .buy-credits-page {
+        padding: 1.5rem 0.75rem;
+    }
+
+    .buy-credits-page .page-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .buy-credits-page .page-header p {
+        font-size: 0.95rem;
+    }
+
+    .package-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .package-credits {
+        font-size: 2.25rem;
+    }
+
+    .package-price {
+        font-size: 1.75rem;
+    }
+
+    .package-icon {
+        width: 52px;
+        height: 52px;
+    }
+
+    .payment-status-card {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .status-icon-large {
+        width: 80px;
+        height: 80px;
+    }
+
+    .status-title {
+        font-size: 1.5rem;
+    }
+}

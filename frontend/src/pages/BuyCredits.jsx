@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { orderAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Coins, Sparkles, Check, AlertTriangle, CreditCard, Star, Zap, Crown, CheckCircle } from 'lucide-react';
+import { Coins, Sparkles, Check, AlertTriangle, CreditCard, Star, Zap, Crown, CheckCircle, Lock } from 'lucide-react';
 import './BuyCredits.css';
 
 // Main Buy Credits page
@@ -170,7 +170,7 @@ const BuyCredits = () => {
 
             {/* PayU badge */}
             <div className="payment-provider-badge">
-                <span>🔒 Secured by PayU</span>
+                <span><Lock size={16} /> Secured by PayU</span>
                 <span className="payment-methods">UPI · Cards · NetBanking · Wallets</span>
             </div>
         </div>

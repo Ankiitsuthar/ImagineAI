@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { templateAPI } from '../../services/api';
+import { Pencil, Plus, Camera, Flame, ChevronDown } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
 import '../../pages/admin/Admin.css';
 
@@ -10,7 +11,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         creditCost: 1,
         collectionId: '',
         collectionTitle: '',
-        collectionIcon: '✨',
+        collectionIcon: 'lucide:Sparkles',
         collectionColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         popular: false
     });
@@ -21,6 +22,19 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
     const [collections, setCollections] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState('');
     const [isNewCollection, setIsNewCollection] = useState(false);
+    const [collectionDropdownOpen, setCollectionDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setCollectionDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -37,19 +51,15 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         { name: 'Emerald', value: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }
     ];
 
-    // Extended icon library organized by category
+    // Extended icon library organized by category (Lucide icon names)
     const iconLibrary = {
-        'Popular': ['✨', '🎨', '💼', '🌟', '🔮', '🎭', '📸', '💫', '🌈', '🎪', '🏆', '💎'],
-        'Business': ['💼', '📊', '👔', '🏢', '📈', '💰', '🎯', '📋', '💳', '🤝', '📁', '✅'],
-        'Creative': ['✨', '🎨', '🌈', '🎭', '🎪', '💫', '🔮', '🌟', '🎬', '🖌️', '🎤', '🎵'],
-        'Photography': ['📷', '📸', '🖼️', '🎬', '📹', '🎞️', '🌅', '🌄', '🏞️', '🎥', '📽️', '🔍'],
-        'Lifestyle': ['🌅', '🏠', '🌿', '☕', '🍃', '🌸', '🍷', '🧘', '🛋️', '🌻', '🕯️', '📚'],
-        'Events': ['💍', '🎂', '🎉', '🎊', '🎁', '🥂', '💒', '👰', '🤵', '🎈', '🪅', '🎆'],
-        'Food': ['🍕', '🍔', '🍰', '🍱', '🥗', '🍜', '☕', '🍷', '🧁', '🍳', '🥘', '🍣'],
-        'Nature': ['🌲', '🌊', '🏔️', '🌺', '🦋', '🌙', '⭐', '🌸', '🍁', '🌴', '🌵', '🦜'],
-        'Tech': ['💻', '📱', '🔧', '⚙️', '🚀', '💡', '🤖', '🎮', '🔌', '📡', '🛸', '⌨️'],
-        'Sports': ['⚽', '🏀', '🎾', '🏈', '⚾', '🏐', '🎳', '🏋️', '🚴', '🏊', '🎿', '🏆'],
-        'Travel': ['✈️', '🚗', '🏖️', '🗺️', '🧳', '🏕️', '🎡', '🗼', '🏰', '⛵', '🚂', '🌍']
+        'Popular': ['Sparkles', 'Star', 'Heart', 'Zap', 'Flame', 'Sun', 'Moon', 'Cloud', 'Rocket', 'Diamond', 'Crown', 'Award'],
+        'Creative': ['Palette', 'Brush', 'Pen', 'Pencil', 'Camera', 'Image', 'Film', 'Music', 'Mic', 'Headphones', 'Video', 'Wand2'],
+        'Business': ['Briefcase', 'Building2', 'TrendingUp', 'BarChart3', 'PieChart', 'DollarSign', 'CreditCard', 'ShoppingBag', 'Store', 'Megaphone', 'Users', 'FileText'],
+        'Nature': ['TreePine', 'Flower2', 'Leaf', 'Mountain', 'Waves', 'Sunrise', 'CloudSun', 'Snowflake', 'Bug', 'Bird', 'Fish', 'Cherry'],
+        'Lifestyle': ['Home', 'Coffee', 'UtensilsCrossed', 'Wine', 'Cake', 'Dumbbell', 'Bike', 'Glasses', 'Shirt', 'Watch', 'Gift', 'Target'],
+        'Tech': ['Laptop', 'Smartphone', 'Monitor', 'Cpu', 'Wifi', 'Database', 'Code', 'Terminal', 'Gamepad2', 'Bot', 'Satellite', 'HardDrive'],
+        'Travel': ['Plane', 'Car', 'Ship', 'MapPin', 'Compass', 'Tent', 'Globe', 'Shield', 'Layers', 'Aperture', 'Lightbulb', 'Scissors']
     };
 
     // Fetch existing collections on mount
@@ -104,7 +114,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                 creditCost: template.creditCost || 1,
                 collectionId: template.collectionId || '',
                 collectionTitle: template.collectionTitle || '',
-                collectionIcon: template.collectionIcon || '✨',
+                collectionIcon: template.collectionIcon || 'lucide:Sparkles',
                 collectionColor: template.collectionColor || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 popular: template.popular || false
             });
@@ -132,9 +142,9 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         }
     };
 
-    const handleCollectionSelect = (e) => {
-        const value = e.target.value;
+    const handleCollectionSelect = (value) => {
         setSelectedCollection(value);
+        setCollectionDropdownOpen(false);
 
         if (value === '__new__') {
             setIsNewCollection(true);
@@ -142,7 +152,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                 ...prev,
                 collectionId: '',
                 collectionTitle: '',
-                collectionIcon: '✨',
+                collectionIcon: 'lucide:Sparkles',
                 collectionColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
             }));
         } else if (value) {
@@ -219,7 +229,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         <div className="admin-modal-overlay" onClick={onClose}>
             <div className="admin-modal admin-modal-large" onClick={e => e.stopPropagation()}>
                 <div className="admin-modal-header">
-                    <h2>{template ? '✏️ Edit Template' : '➕ Add New Template'}</h2>
+                    <h2>{template ? <><Pencil size={18} /> Edit Template</> : <><Plus size={18} /> Add New Template</>}</h2>
                     <button className="admin-modal-close" onClick={onClose}>×</button>
                 </div>
 
@@ -251,15 +261,48 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                         <div className="admin-form-row">
                             <div className="admin-form-group">
                                 <label>Collection *</label>
-                                <select value={selectedCollection} onChange={handleCollectionSelect}>
-                                    <option value="">Select a collection...</option>
-                                    {collections.map(col => (
-                                        <option key={col.id} value={col.id}>
-                                            {col.icon} {col.title}
-                                        </option>
-                                    ))}
-                                    <option value="__new__">➕ Create New Collection...</option>
-                                </select>
+                                <div className="custom-collection-dropdown" ref={dropdownRef}>
+                                    <div
+                                        className="custom-dropdown-trigger"
+                                        onClick={() => setCollectionDropdownOpen(!collectionDropdownOpen)}
+                                    >
+                                        {selectedCollection && selectedCollection !== '__new__' ? (
+                                            <span className="custom-dropdown-selected">
+                                                <IconRenderer value={formData.collectionIcon} size={18} />
+                                                <span>{formData.collectionTitle}</span>
+                                            </span>
+                                        ) : selectedCollection === '__new__' ? (
+                                            <span className="custom-dropdown-selected">
+                                                <Plus size={18} />
+                                                <span>Create New Collection...</span>
+                                            </span>
+                                        ) : (
+                                            <span className="custom-dropdown-placeholder">Select a collection...</span>
+                                        )}
+                                        <ChevronDown size={16} className={`dropdown-chevron ${collectionDropdownOpen ? 'open' : ''}`} />
+                                    </div>
+                                    {collectionDropdownOpen && (
+                                        <div className="custom-dropdown-menu">
+                                            {collections.map(col => (
+                                                <div
+                                                    key={col.id}
+                                                    className={`custom-dropdown-item ${selectedCollection === col.id ? 'active' : ''}`}
+                                                    onClick={() => handleCollectionSelect(col.id)}
+                                                >
+                                                    <IconRenderer value={col.icon} size={18} />
+                                                    <span>{col.title}</span>
+                                                </div>
+                                            ))}
+                                            <div
+                                                className="custom-dropdown-item custom-dropdown-create"
+                                                onClick={() => handleCollectionSelect('__new__')}
+                                            >
+                                                <Plus size={18} />
+                                                <span>Create New Collection...</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="admin-form-group">
@@ -306,20 +349,24 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                                 <div className="admin-form-group">
                                     <label>Collection Icon</label>
                                     <div className="icon-library">
-                                        {Object.entries(iconLibrary).map(([category, icons]) => (
+                                        {Object.entries(iconLibrary).map(([category, iconNames]) => (
                                             <div key={category} className="icon-category">
                                                 <span className="icon-category-label">{category}</span>
                                                 <div className="icon-grid">
-                                                    {icons.map(icon => (
-                                                        <button
-                                                            key={`${category}-${icon}`}
-                                                            type="button"
-                                                            onClick={() => setFormData(prev => ({ ...prev, collectionIcon: icon }))}
-                                                            className={`icon-btn ${formData.collectionIcon === icon ? 'selected' : ''}`}
-                                                        >
-                                                            {icon}
-                                                        </button>
-                                                    ))}
+                                                    {iconNames.map(name => {
+                                                        const val = `lucide:${name}`;
+                                                        return (
+                                                            <button
+                                                                key={`${category}-${name}`}
+                                                                type="button"
+                                                                onClick={() => setFormData(prev => ({ ...prev, collectionIcon: val }))}
+                                                                className={`icon-btn icon-btn-lucide ${formData.collectionIcon === val ? 'selected' : ''}`}
+                                                                title={name}
+                                                            >
+                                                                <IconRenderer value={val} size={20} />
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         ))}
@@ -376,7 +423,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                                     </div>
                                 ) : (
                                     <>
-                                        <span className="upload-icon">📷</span>
+                                        <span className="upload-icon"><Camera size={24} /></span>
                                         <span>Click to upload thumbnail</span>
                                         <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                             PNG, JPG up to 5MB
@@ -395,7 +442,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                                 className={`popular-toggle-btn ${formData.popular ? 'active' : ''}`}
                                 onClick={() => setFormData(prev => ({ ...prev, popular: !prev.popular }))}
                             >
-                                <span className="popular-icon">🔥</span>
+                                <span className="popular-icon"><Flame size={18} /></span>
                                 <span>{formData.popular ? 'Popular - Enabled' : 'Click to Mark as Popular'}</span>
                             </button>
                         </div>

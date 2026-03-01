@@ -36,9 +36,9 @@ const Collection = () => {
         } catch (error) {
             console.error('Error fetching collections:', error);
             setCollections([
-                { id: 'professional', title: 'Professional', icon: '💼', color: '#6c63ff', templateCount: 0 },
-                { id: 'creative', title: 'Creative', icon: '🎨', color: '#f72585', templateCount: 0 },
-                { id: 'seasonal', title: 'Seasonal', icon: '🌸', color: '#4cc9f0', templateCount: 0 },
+                { id: 'professional', title: 'Professional', icon: 'lucide:Briefcase', color: '#6c63ff', templateCount: 0 },
+                { id: 'creative', title: 'Creative', icon: 'lucide:Palette', color: '#f72585', templateCount: 0 },
+                { id: 'seasonal', title: 'Seasonal', icon: 'lucide:Flower2', color: '#4cc9f0', templateCount: 0 },
             ]);
         } finally {
             setLoading(false);

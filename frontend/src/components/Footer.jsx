@@ -66,8 +66,6 @@ const Footer = () => {
                                     support@imagineai.com
                                 </a>
                             </li>
-                            <li>Mon-Fri: 9AM - 6PM</li>
-                            <li>Response within 24 hours</li>
                         </ul>
                     </div>
                 </div>

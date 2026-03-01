@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AlertTriangle } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthSuccess from './pages/AuthSuccess';
 import Dashboard from './pages/Dashboard';
@@ -16,6 +17,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/LoadingScreen';
+import ScrollToTop from './components/ScrollToTop';
 
 // Public Pages
 import Home from './pages/Home';
@@ -30,17 +32,17 @@ import Signup from './pages/Signup';
 import AuthModal from './components/AuthModal';
 
 function App() {
-  // 👉 Step 1: Loader State
+  // Step 1: Loader State
   const [loading, setLoading] = useState(true);
   const [accountDisabled, setAccountDisabled] = useState(false);
 
-  // 👉 Step 2: Simulate loading for 1–2 sec
+  // Step 2: Simulate loading for 1–2 sec
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
-  // 👉 Detect account_disabled flag from URL
+  // Detect account_disabled flag from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('account_disabled') === 'true') {
@@ -50,7 +52,7 @@ function App() {
     }
   }, []);
 
-  // 👉 Step 3: Show loader BEFORE showing website
+  // Step 3: Show loader BEFORE showing website
   if (loading) {
     return <LoadingScreen />;
   }
@@ -58,6 +60,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <div className="app">
           {accountDisabled && (
             <div style={{
@@ -74,7 +77,7 @@ function App() {
               position: 'relative',
               zIndex: 10000
             }}>
-              <span>⚠️ Your account has been disabled by the admin. Please contact support for assistance.</span>
+              <span><AlertTriangle size={18} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> Your account has been disabled by the admin. Please contact support for assistance.</span>
               <button
                 onClick={() => setAccountDisabled(false)}
                 style={{

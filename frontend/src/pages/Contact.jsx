@@ -153,7 +153,7 @@ const Contact = () => {
                                         </div>
                                     </div>
 
-                                    <div className="contact-detail">
+                                    {/* <div className="contact-detail">
                                         <div className="contact-icon"><Clock size={22} /></div>
                                         <div>
                                             <h4>Response Time</h4>
@@ -167,7 +167,7 @@ const Contact = () => {
                                             <h4>Support Hours</h4>
                                             <p>Mon-Fri: 9AM - 6PM</p>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
 

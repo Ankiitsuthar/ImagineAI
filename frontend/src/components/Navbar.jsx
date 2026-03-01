@@ -90,6 +90,16 @@ const Navbar = () => {
 
                         {user ? (
                             <div className="user-menu" ref={dropdownRef}>
+                                {/* Credits Badge */}
+                                {!isAdmin && (
+                                    <Link to="/buy-credits" className="credits-badge" onClick={() => setDropdownOpen(false)}>
+                                        <span className="credits-badge-icon">
+                                            <Coins size={15} />
+                                        </span>
+                                        <span className="credits-badge-count">{user.credits || 0}</span>
+                                        <span className="credits-badge-label">Credits</span>
+                                    </Link>
+                                )}
                                 <div
                                     className={`user-profile ${dropdownOpen ? 'active' : ''}`}
                                     onClick={() => setDropdownOpen(!dropdownOpen)}

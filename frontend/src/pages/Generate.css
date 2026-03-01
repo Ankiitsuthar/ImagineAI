@@ -187,6 +187,49 @@
     }
 }
 
+@media (max-width: 480px) {
+    .generate-container {
+        padding: 1.5rem 0 3rem;
+    }
+
+    .generate-header h1 {
+        font-size: 1.65rem;
+    }
+
+    .upload-area {
+        padding: 2rem 1.25rem;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+    }
+
+    .upload-area h3 {
+        font-size: 1.25rem;
+    }
+
+    .template-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .template-option img {
+        height: 150px;
+    }
+
+    .result-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .generation-result {
+        padding: 1.5rem;
+    }
+}
+
 /* Generation Result Styles */
 .generation-result {
     max-width: 600px;
