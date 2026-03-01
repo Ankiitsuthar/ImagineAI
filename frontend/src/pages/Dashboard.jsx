@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userAPI, generationAPI } from '../services/api';
 import { Star, Palette, Rocket, Sparkles, CreditCard, Hand } from 'lucide-react';
+import LoadingScreen from '../components/LoadingScreen';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -40,11 +41,7 @@ const Dashboard = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex-center" style={{ minHeight: '80vh' }}>
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { generationAPI } from '../services/api';
 import { Palette, Inbox } from 'lucide-react';
+import LoadingScreen from '../components/LoadingScreen';
 import './History.css';
 
 const History = () => {
@@ -40,11 +41,7 @@ const History = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex-center" style={{ minHeight: '80vh' }}>
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

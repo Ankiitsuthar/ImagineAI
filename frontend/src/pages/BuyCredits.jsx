@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { orderAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Coins, Sparkles, Check, AlertTriangle, CreditCard, Star, Zap, Crown, CheckCircle, Lock } from 'lucide-react';
+import LoadingScreen from '../components/LoadingScreen';
 import './BuyCredits.css';
 
 // Main Buy Credits page
@@ -92,11 +93,7 @@ const BuyCredits = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex-center" style={{ minHeight: '80vh' }}>
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

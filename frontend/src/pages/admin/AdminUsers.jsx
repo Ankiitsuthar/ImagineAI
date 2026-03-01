@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { userAPI } from '../../services/api';
 import { Users, Search, CheckCircle, AlertTriangle, Crown, User, X, Coins, ChevronLeft, ChevronRight, Edit3, Save } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 import './Admin.css';
 
 const AdminUsers = () => {
@@ -97,11 +98,7 @@ const AdminUsers = () => {
     };
 
     if (loading && users.length === 0) {
-        return (
-            <div className="admin-loading">
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

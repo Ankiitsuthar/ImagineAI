@@ -3,6 +3,7 @@ import { templateAPI } from '../../services/api';
 import { Palette, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plus } from 'lucide-react';
 import TemplateFormModal from '../../components/admin/TemplateFormModal';
 import IconRenderer from '../../components/IconRenderer';
+import LoadingScreen from '../../components/LoadingScreen';
 import './Admin.css';
 
 const AdminTemplates = () => {
@@ -113,11 +114,7 @@ const AdminTemplates = () => {
     });
 
     if (loading) {
-        return (
-            <div className="admin-loading">
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

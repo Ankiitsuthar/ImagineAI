@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
 import { Sparkles, Upload, Wand2, Flame, FolderOpen, PartyPopper, ArrowRight } from 'lucide-react';
+import LoadingScreen from '../components/LoadingScreen';
 import './Templates.css';
 
 const Templates = () => {
@@ -149,13 +150,7 @@ const Templates = () => {
     };
 
     if (loading) {
-        return (
-            <div className="templates-page">
-                <div className="flex-center" style={{ minHeight: '60vh' }}>
-                    <div className="spinner"></div>
-                </div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { statsAPI } from '../../services/api';
 import { Crown, Users, Palette, Image, DollarSign, Package } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 import './Admin.css';
 import './AdminDashboard.css';
 
@@ -50,11 +51,7 @@ const AdminDashboard = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex-center" style={{ minHeight: '80vh' }}>
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

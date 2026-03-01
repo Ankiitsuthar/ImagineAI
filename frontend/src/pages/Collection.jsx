@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { templateAPI } from '../services/api';
 import { ArrowLeft, ArrowRight, Search, Flame, X, Layers, Star, Sparkles } from 'lucide-react';
 import IconRenderer from '../components/IconRenderer';
+import LoadingScreen from '../components/LoadingScreen';
 import './Collection.css';
 
 const Collection = () => {
@@ -84,11 +85,7 @@ const Collection = () => {
     );
 
     if (loading && !selectedCollection) {
-        return (
-            <div className="flex-center" style={{ minHeight: '80vh' }}>
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

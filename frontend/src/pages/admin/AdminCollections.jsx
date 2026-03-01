@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import IconRenderer from '../../components/IconRenderer';
 import CollectionFormModal from '../../components/admin/CollectionFormModal';
+import LoadingScreen from '../../components/LoadingScreen';
 import './Admin.css';
 
 const AdminCollections = () => {
@@ -111,11 +112,7 @@ const AdminCollections = () => {
     );
 
     if (loading) {
-        return (
-            <div className="admin-loading">
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

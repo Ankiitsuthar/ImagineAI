@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
 import { Sparkles, FolderOpen, PartyPopper } from 'lucide-react';
 import TemplateCard from '../components/TemplateCard';
+import LoadingScreen from '../components/LoadingScreen';
 import './Generate.css';
 
 const Generate = () => {
@@ -109,11 +110,7 @@ const Generate = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex-center" style={{ minHeight: '80vh' }}>
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

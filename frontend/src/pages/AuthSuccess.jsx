@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LoadingScreen from '../components/LoadingScreen';
 
 const AuthSuccess = () => {
     const [searchParams] = useSearchParams();
@@ -40,12 +41,7 @@ const AuthSuccess = () => {
         }
     }, [searchParams, loginWithToken]);
 
-    return (
-        <div className="flex-center" style={{ height: '100vh' }}>
-            <div className="spinner"></div>
-            <p style={{ marginLeft: '1rem' }}>Authenticating...</p>
-        </div>
-    );
+    return <LoadingScreen />;
 };
 
 export default AuthSuccess;

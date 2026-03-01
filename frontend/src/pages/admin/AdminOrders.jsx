@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { orderAPI, statsAPI } from '../../services/api';
 import { Package, CheckCircle, AlertTriangle, Clock, XCircle, RotateCcw, Coins, ChevronLeft, ChevronRight, DollarSign, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 import './Admin.css';
 
 const AdminOrders = () => {
@@ -101,11 +102,7 @@ const AdminOrders = () => {
     };
 
     if (loading && orders.length === 0) {
-        return (
-            <div className="admin-loading">
-                <div className="spinner"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (
