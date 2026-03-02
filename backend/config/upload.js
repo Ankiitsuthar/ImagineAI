@@ -62,7 +62,28 @@ const uploadTemplateThumbnail = multer({
     fileFilter: imageFilter
 });
 
+// Storage configuration for collection icons
+const collectionIconStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.join(__dirname, '../uploads/collection-icons');
+        ensureDirectoryExists(uploadPath);
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'collection-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+// Upload middleware for collection icons
+const uploadCollectionIcon = multer({
+    storage: collectionIconStorage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+    fileFilter: imageFilter
+});
+
 module.exports = {
     uploadUserImage,
-    uploadTemplateThumbnail
+    uploadTemplateThumbnail,
+    uploadCollectionIcon
 };

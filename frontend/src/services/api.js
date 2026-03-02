@@ -129,7 +129,10 @@ export const collectionAPI = {
     getAll: () => api.get('/collections'),
     create: (data) => api.post('/collections', data),
     update: (id, data) => api.put(`/collections/${id}`, data),
-    delete: (id) => api.delete(`/collections/${id}`)
+    delete: (id) => api.delete(`/collections/${id}`),
+    uploadIcon: (formData) => api.post('/collections/upload-icon', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    })
 };
 
 export default api;

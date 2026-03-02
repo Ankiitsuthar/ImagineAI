@@ -177,9 +177,26 @@ const deleteCollection = async (req, res) => {
     }
 };
 
+// @desc    Upload a collection icon image
+// @route   POST /api/collections/upload-icon
+// @access  Private/Admin
+const uploadCollectionIcon = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        const iconUrl = `/uploads/collection-icons/${req.file.filename}`;
+        res.json({ iconUrl });
+    } catch (error) {
+        console.error('Error uploading collection icon:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     getCollections,
     createCollection,
     updateCollection,
-    deleteCollection
+    deleteCollection,
+    uploadCollectionIcon
 };

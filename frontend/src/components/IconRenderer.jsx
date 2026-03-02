@@ -61,6 +61,19 @@ const IconRenderer = ({ value, size = 24, className = '' }) => {
         );
     }
 
+    // Relative server URL (e.g., /uploads/collection-icons/...)
+    if (value.startsWith('/uploads/')) {
+        const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        return (
+            <img
+                src={`${apiBase}${value}`}
+                alt="icon"
+                className={`icon-renderer-img ${className}`}
+                style={{ width: size, height: size, objectFit: 'cover', borderRadius: '4px' }}
+            />
+        );
+    }
+
     // Emoji / plain text fallback
     return <span className={className} style={{ fontSize: size * 0.8, lineHeight: 1 }}>{value}</span>;
 };

@@ -197,13 +197,20 @@ const getCollections = async (req, res) => {
         ]);
 
         if (Collection) {
-            // Merge with Collection model so empty collections also appear
+            // Get all explicit Collection records from the database
             const dbCollections = await Collection.find({}).lean();
             const aggMap = {};
             templateAgg.forEach(a => { aggMap[a.id] = a; });
 
             dbCollections.forEach(col => {
-                if (!aggMap[col.collectionId]) {
+                if (aggMap[col.collectionId]) {
+                    // Collection exists in template aggregation — overlay Collection model data
+                    // so admin-edited icon/color/title always takes precedence
+                    aggMap[col.collectionId].title = col.title;
+                    aggMap[col.collectionId].icon = col.icon;
+                    aggMap[col.collectionId].color = col.color;
+                } else {
+                    // Empty collection (no templates) — add it
                     templateAgg.push({
                         id: col.collectionId,
                         title: col.title,

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Shapes, ImagePlus, Search, Upload, X, FolderPlus, Pencil } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
+import { collectionAPI } from '../../services/api';
 import '../../pages/admin/Admin.css';
 
 // Curated Lucide icons organized by category
@@ -44,6 +45,7 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [iconTab, setIconTab] = useState('lucide'); // lucide | upload
     const [iconSearch, setIconSearch] = useState('');
     const fileInputRef = useRef(null);
@@ -107,22 +109,30 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
         }
     };
 
+    const uploadFileToServer = async (file) => {
+        const formData = new FormData();
+        formData.append('icon', file);
+        setUploading(true);
+        try {
+            const response = await collectionAPI.uploadIcon(formData);
+            setFormData(prev => ({ ...prev, collectionIcon: response.data.iconUrl }));
+        } catch (err) {
+            console.error('Error uploading icon:', err);
+            alert('Failed to upload icon image');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleImageUpload = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        // Validate
         if (!file.type.startsWith('image/')) return;
         if (file.size > 2 * 1024 * 1024) {
             alert('Image must be under 2MB');
             return;
         }
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            setFormData(prev => ({ ...prev, collectionIcon: reader.result }));
-        };
-        reader.readAsDataURL(file);
+        uploadFileToServer(file);
     };
 
     const handleDrop = (e) => {
@@ -134,11 +144,7 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
                 alert('Image must be under 2MB');
                 return;
             }
-            const reader = new FileReader();
-            reader.onload = () => {
-                setFormData(prev => ({ ...prev, collectionIcon: reader.result }));
-            };
-            reader.readAsDataURL(file);
+            uploadFileToServer(file);
         }
     };
 
@@ -320,9 +326,14 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
                                             onDrop={handleDrop}
                                             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                         >
-                                            {formData.collectionIcon?.startsWith('data:image/') ? (
+                                            {uploading ? (
+                                                <div className="icon-upload-placeholder">
+                                                    <Upload size={32} />
+                                                    <p><strong>Uploading...</strong></p>
+                                                </div>
+                                            ) : formData.collectionIcon?.startsWith('data:image/') || formData.collectionIcon?.startsWith('/uploads/') ? (
                                                 <div className="icon-upload-preview">
-                                                    <img src={formData.collectionIcon} alt="Uploaded icon" />
+                                                    <IconRenderer value={formData.collectionIcon} size={64} />
                                                     <button
                                                         type="button"
                                                         className="icon-upload-remove"
