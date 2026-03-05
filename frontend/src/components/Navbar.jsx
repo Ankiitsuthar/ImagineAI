@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ChevronDown, LayoutDashboard, Sparkles, History, LogOut, Star, Coins } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, Sparkles, History, LogOut, Coins } from 'lucide-react';
 import './Navbar.css';
 import logo from '../assets/logo.svg';
 
@@ -128,7 +128,7 @@ const Navbar = () => {
                                     <div className="dropdown-menu">
                                         <div className="dropdown-header">
                                             <span className="dropdown-user-name">{user.name}</span>
-                                            {!isAdmin && <span className="dropdown-credits"><Star size={14} /> {user.credits} credits</span>}
+                                            {!isAdmin && <span className="dropdown-credits"><Coins size={14} /> {user.credits} credits</span>}
                                         </div>
                                         <div className="dropdown-divider"></div>
                                         {dropdownLinks
@@ -228,7 +228,7 @@ const Navbar = () => {
                                     )}
                                     <div className="mobile-user-details">
                                         <span className="mobile-user-name">{user.name}</span>
-                                        {!isAdmin && <span className="mobile-credits"><Star size={14} /> {user.credits} credits</span>}
+                                        {!isAdmin && <span className="mobile-credits"><Coins size={14} /> {user.credits} credits</span>}
                                     </div>
                                 </div>
                                 <button onClick={handleLogout} className="btn btn-logout w-full">
