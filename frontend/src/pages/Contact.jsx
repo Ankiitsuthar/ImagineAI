@@ -170,7 +170,7 @@ const Contact = () => {
                                     </div> */}
                                 </div>
                             </div>
-
+                            <br />
                             <div className="contact-info-card card-glass mt-lg">
                                 <h3>Frequently Asked Questions</h3>
                                 <div className="faq-list">
