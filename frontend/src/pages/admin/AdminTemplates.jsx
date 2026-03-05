@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { templateAPI } from '../../services/api';
-import { Palette, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plus } from 'lucide-react';
+import { Palette, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plus, ChevronDown, FolderOpen } from 'lucide-react';
 import TemplateFormModal from '../../components/admin/TemplateFormModal';
 import IconRenderer from '../../components/IconRenderer';
 import LoadingScreen from '../../components/LoadingScreen';
@@ -15,12 +15,25 @@ const AdminTemplates = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState(null);
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
+    const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+    const filterDropdownRef = useRef(null);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     useEffect(() => {
         fetchTemplates();
         fetchCollections();
+    }, []);
+
+    // Close filter dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (filterDropdownRef.current && !filterDropdownRef.current.contains(e.target)) {
+                setFilterDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const fetchTemplates = async () => {
@@ -144,14 +157,46 @@ const AdminTemplates = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <select value={collectionFilter} onChange={(e) => setCollectionFilter(e.target.value)}>
-                    <option value="">All Collections</option>
-                    {collections.map(col => (
-                        <option key={col.id} value={col.id}>
-                            {col.icon} {col.title}
-                        </option>
-                    ))}
-                </select>
+                <div className="collection-filter-dropdown" ref={filterDropdownRef}>
+                    <button
+                        className="collection-filter-toggle"
+                        onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+                    >
+                        {collectionFilter ? (
+                            <span className="filter-selected">
+                                <IconRenderer value={collections.find(c => c.id === collectionFilter)?.icon} size={16} />
+                                {collections.find(c => c.id === collectionFilter)?.title}
+                            </span>
+                        ) : (
+                            <span className="filter-selected">
+                                <FolderOpen size={16} />
+                                All Collections
+                            </span>
+                        )}
+                        <ChevronDown size={16} className={`filter-chevron ${filterDropdownOpen ? 'open' : ''}`} />
+                    </button>
+                    {filterDropdownOpen && (
+                        <div className="collection-filter-menu">
+                            <div
+                                className={`collection-filter-option ${!collectionFilter ? 'active' : ''}`}
+                                onClick={() => { setCollectionFilter(''); setFilterDropdownOpen(false); }}
+                            >
+                                <FolderOpen size={16} />
+                                <span>All Collections</span>
+                            </div>
+                            {collections.map(col => (
+                                <div
+                                    key={col.id}
+                                    className={`collection-filter-option ${collectionFilter === col.id ? 'active' : ''}`}
+                                    onClick={() => { setCollectionFilter(col.id); setFilterDropdownOpen(false); }}
+                                >
+                                    <IconRenderer value={col.icon} size={16} />
+                                    <span>{col.title}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {filteredTemplates.length === 0 ? (
