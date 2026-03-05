@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
-import { Sparkles, Upload, Wand2, Flame, FolderOpen, PartyPopper, ArrowRight } from 'lucide-react';
+import { Sparkles, Upload, Wand2, Flame, FolderOpen, PartyPopper, ArrowRight, Coins } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
 import './Templates.css';
 
@@ -215,7 +215,12 @@ const Templates = () => {
 
                                             {/* Credit/Free badge - right side */}
                                             <div className={`template-badge ${template.creditCost > 0 ? 'badge-credits' : 'badge-free'}`}>
-                                                {template.creditCost > 0 ? template.creditCost : 'Free'}
+                                                <span className="badge-icon-circle">
+                                                    <Coins size={10} />
+                                                </span>
+                                                <span className="badge-text">
+                                                    {template.creditCost > 0 ? template.creditCost : 'Free'}
+                                                </span>
                                             </div>
 
                                             <div className="template-image-wrapper">

@@ -128,11 +128,11 @@ const Navbar = () => {
                                     <div className="dropdown-menu">
                                         <div className="dropdown-header">
                                             <span className="dropdown-user-name">{user.name}</span>
-                                            <span className="dropdown-credits"><Star size={14} /> {user.credits} credits</span>
+                                            {!isAdmin && <span className="dropdown-credits"><Star size={14} /> {user.credits} credits</span>}
                                         </div>
                                         <div className="dropdown-divider"></div>
                                         {dropdownLinks
-                                            .filter(link => !(isAdmin && link.path === '/buy-credits'))
+                                            .filter(link => !isAdmin)
                                             .map(link => (
                                                 <Link
                                                     key={link.path}
@@ -203,7 +203,7 @@ const Navbar = () => {
                             <>
                                 <div className="mobile-divider"></div>
                                 {dropdownLinks
-                                    .filter(link => !(isAdmin && link.path === '/buy-credits'))
+                                    .filter(link => !isAdmin)
                                     .map(link => (
                                         <Link
                                             key={link.path}
@@ -228,7 +228,7 @@ const Navbar = () => {
                                     )}
                                     <div className="mobile-user-details">
                                         <span className="mobile-user-name">{user.name}</span>
-                                        <span className="mobile-credits"><Star size={14} /> {user.credits} credits</span>
+                                        {!isAdmin && <span className="mobile-credits"><Star size={14} /> {user.credits} credits</span>}
                                     </div>
                                 </div>
                                 <button onClick={handleLogout} className="btn btn-logout w-full">

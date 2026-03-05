@@ -125,7 +125,7 @@ function App() {
               <Route
                 path="/generate"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute userOnly>
                     <Generate />
                   </ProtectedRoute>
                 }
@@ -133,7 +133,7 @@ function App() {
               <Route
                 path="/history"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute userOnly>
                     <History />
                   </ProtectedRoute>
                 }
@@ -141,7 +141,7 @@ function App() {
               <Route
                 path="/buy-credits"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute userOnly>
                     <BuyCredits />
                   </ProtectedRoute>
                 }
