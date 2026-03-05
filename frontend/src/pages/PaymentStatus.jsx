@@ -67,7 +67,7 @@ const PaymentStatus = () => {
                     <div className="status-actions">
                         {isSuccess ? (
                             <>
-                                <button className="buy-btn primary" onClick={() => navigate('/generate')}>
+                                <button className="buy-btn primary" onClick={() => navigate('/templates')}>
                                     Start Generating <ArrowRight size={18} />
                                 </button>
                                 <button className="buy-btn secondary" onClick={() => navigate('/buy-credits')}>
