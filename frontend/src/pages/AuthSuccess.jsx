@@ -23,10 +23,16 @@ const AuthSuccess = () => {
         if (token && !hasCalled.current) {
             hasCalled.current = true;
             loginWithToken(token)
-                .then(() => {
-                    // Check for stored redirect URL, default to templates page
+                .then((userData) => {
+                    // Admin users always go to admin dashboard
+                    if (userData?.role === 'admin') {
+                        localStorage.removeItem('authRedirect');
+                        window.location.href = '/admin';
+                        return;
+                    }
+                    // Regular users: check for stored redirect URL, default to templates page
                     const redirectUrl = localStorage.getItem('authRedirect') || '/templates';
-                    localStorage.removeItem('authRedirect'); // Clean up
+                    localStorage.removeItem('authRedirect');
                     window.location.href = redirectUrl;
                 })
                 .catch((err) => {
