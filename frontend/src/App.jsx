@@ -25,6 +25,9 @@ import Collection from './pages/Collection';
 import Templates from './pages/Templates';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import FAQ from './pages/FAQ';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -104,6 +107,9 @@ function App() {
               <Route path="/templates" element={<Templates />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/faq" element={<FAQ />} />
 
               {/* Auth Routes */}
               <Route path="/login" element={<Login />} />

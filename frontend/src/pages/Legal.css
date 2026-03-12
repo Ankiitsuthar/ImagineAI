@@ -1,0 +1,274 @@
+/* Legal.css - Shared styles for Privacy, Terms, and FAQ pages */
+.legal-page {
+    min-height: 100vh;
+    padding-bottom: 4rem;
+    background: var(--bg-primary);
+}
+
+.legal-hero {
+    padding: 6rem 0 4rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.legal-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.legal-hero p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.legal-content {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 2rem;
+}
+
+.legal-section {
+    margin-bottom: 3rem;
+}
+
+.legal-section h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legal-section h2 svg {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.legal-section p,
+.legal-section li {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.legal-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+}
+
+.legal-section ul li {
+    padding-left: 1.75rem;
+    position: relative;
+    margin-bottom: 0.6rem;
+}
+
+.legal-section ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.legal-section a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.legal-section a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.legal-highlight {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.06) 0%, rgba(59, 130, 246, 0.04) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem 2rem;
+    margin: 1.5rem 0;
+}
+
+.legal-highlight p {
+    margin: 0;
+    font-weight: 500;
+}
+
+/* FAQ Accordion */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.faq-item {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.faq-item:hover {
+    border-color: rgba(139, 92, 246, 0.2);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.08);
+}
+
+.faq-item.active {
+    border-color: rgba(139, 92, 246, 0.25);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.2s ease;
+    gap: 1rem;
+    font-family: inherit;
+}
+
+.faq-question:hover {
+    color: var(--primary);
+}
+
+.faq-question svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: var(--primary);
+}
+
+.faq-item.active .faq-question svg {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 400px;
+}
+
+.faq-answer-inner {
+    padding: 0 1.5rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
+
+.faq-answer-inner a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.faq-answer-inner a:hover {
+    text-decoration: underline;
+}
+
+/* Category filter for FAQ */
+.faq-categories {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.faq-category-btn {
+    padding: 0.5rem 1.1rem;
+    border-radius: 100px;
+    border: 1.5px solid rgba(139, 92, 246, 0.15);
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+}
+
+.faq-category-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.faq-category-btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .legal-hero h1 {
+        font-size: 2.25rem;
+    }
+    .legal-hero {
+        padding: 4rem 0 3rem;
+    }
+    .legal-content {
+        padding: 2.5rem 1rem 2rem;
+    }
+    .legal-section h2 {
+        font-size: 1.35rem;
+    }
+    .legal-section p,
+    .legal-section li {
+        font-size: 0.95rem;
+    }
+    .faq-question {
+        font-size: 0.95rem;
+        padding: 1rem 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .legal-hero h1 {
+        font-size: 1.85rem;
+    }
+    .legal-highlight {
+        padding: 1.25rem 1.25rem;
+    }
+    .faq-categories {
+        gap: 0.4rem;
+    }
+    .faq-category-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.9rem;
+    }
+}
