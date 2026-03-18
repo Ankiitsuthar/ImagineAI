@@ -1,10 +1,11 @@
 const { generateToken } = require('../middleware/auth');
 const User = require('../models/User');
+const { sendWelcomeEmail, sendNewUserNotificationToAdmin } = require('../utils/emailService');
 
 // @desc    Handle Google Auth Callback
 // @route   GET /api/auth/google/callback
 // @access  Public
-const googleCallback = (req, res) => {
+const googleCallback = async (req, res) => {
     try {
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
@@ -15,10 +16,25 @@ const googleCallback = (req, res) => {
 
         // req.user is populated by passport
         const token = generateToken(req.user._id);
+        const isNewUser = req.user.isNewUser === true;
 
         // Redirect to frontend with token (include newUser flag for welcome popup)
-        const newUserParam = req.user.isNewUser ? '&newUser=true' : '';
+        const newUserParam = isNewUser ? '&newUser=true' : '';
         res.redirect(`${frontendUrl}/auth/success?token=${token}${newUserParam}`);
+
+        // Send emails AFTER redirect (runs within same request lifecycle)
+        if (isNewUser) {
+            try {
+                await sendWelcomeEmail(req.user);
+            } catch (err) {
+                console.error('Welcome email error:', err.message);
+            }
+            try {
+                await sendNewUserNotificationToAdmin(req.user);
+            } catch (err) {
+                console.error('Admin notification error:', err.message);
+            }
+        }
     } catch (error) {
         console.error(error);
         res.redirect('/login?error=auth_failed');

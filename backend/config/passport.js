@@ -1,6 +1,5 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
-const { sendWelcomeEmail, sendNewUserNotificationToAdmin } = require('../utils/emailService');
 
 module.exports = function (passport) {
     passport.use(new GoogleStrategy({
@@ -24,11 +23,8 @@ module.exports = function (passport) {
                     user = await User.create(newUser);
 
                     // Mark as new user (transient flag, not saved to DB)
+                    // Emails are sent from authController after redirect is queued
                     user.isNewUser = true;
-
-                    // Send emails asynchronously (don't block auth flow)
-                    sendWelcomeEmail(user).catch(err => console.error('Welcome email error:', err));
-                    sendNewUserNotificationToAdmin(user).catch(err => console.error('Admin notification error:', err));
 
                     return done(null, user);
                 }
