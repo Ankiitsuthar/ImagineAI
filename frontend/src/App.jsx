@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/LoadingScreen';
 import ScrollToTop from './components/ScrollToTop';
+import WelcomeModal from './components/WelcomeModal';
 
 // Public Pages
 import Home from './pages/Home';
@@ -201,6 +202,7 @@ function App() {
           </main>
           <Footer />
           <AuthModal />
+          <WelcomeModal />
         </div>
       </Router>
     </AuthProvider>

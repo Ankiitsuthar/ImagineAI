@@ -11,6 +11,7 @@ const AuthSuccess = () => {
     useEffect(() => {
         const token = searchParams.get('token');
         const error = searchParams.get('error');
+        const isNewUser = searchParams.get('newUser') === 'true';
 
         // Handle deactivated account error from backend
         if (error === 'account_disabled') {
@@ -22,11 +23,18 @@ const AuthSuccess = () => {
 
         if (token && !hasCalled.current) {
             hasCalled.current = true;
+
+            // Store new user flag so WelcomeModal can show after redirect
+            if (isNewUser) {
+                sessionStorage.setItem('showWelcome', 'true');
+            }
+
             loginWithToken(token)
                 .then((userData) => {
                     // Admin users always go to admin dashboard
                     if (userData?.role === 'admin') {
                         localStorage.removeItem('authRedirect');
+                        sessionStorage.removeItem('showWelcome');
                         window.location.href = '/admin';
                         return;
                     }
@@ -37,6 +45,7 @@ const AuthSuccess = () => {
                 })
                 .catch((err) => {
                     console.error('Auth failed:', err);
+                    sessionStorage.removeItem('showWelcome');
                     // Clear any partial auth state before redirecting
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');

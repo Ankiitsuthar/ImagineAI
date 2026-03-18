@@ -16,8 +16,9 @@ const googleCallback = (req, res) => {
         // req.user is populated by passport
         const token = generateToken(req.user._id);
 
-        // Redirect to frontend with token
-        res.redirect(`${frontendUrl}/auth/success?token=${token}`);
+        // Redirect to frontend with token (include newUser flag for welcome popup)
+        const newUserParam = req.user.isNewUser ? '&newUser=true' : '';
+        res.redirect(`${frontendUrl}/auth/success?token=${token}${newUserParam}`);
     } catch (error) {
         console.error(error);
         res.redirect('/login?error=auth_failed');
