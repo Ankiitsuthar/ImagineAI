@@ -1,9 +1,6 @@
 const nodemailer = require('nodemailer');
+const net = require('net');
 
-/**
- * Create reusable transporter.
- * Returns null if SMTP is not configured so callers can bail out gracefully.
- */
 const createTransporter = () => {
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
 
@@ -13,23 +10,51 @@ const createTransporter = () => {
 
     const port = parseInt(SMTP_PORT) || 587;
 
-    return nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: port,
-        secure: port === 465,
+    // Use Gmail service shorthand for reliable connectivity
+    const isGmail = SMTP_HOST.includes('gmail');
+
+    const config = {
         auth: {
             user: SMTP_USER,
             pass: SMTP_PASS
         },
-        pool: true,
-        maxConnections: 3,
-        connectionTimeout: 30000,   // 30s – Render needs more time
-        greetingTimeout: 30000,     // 30s
-        socketTimeout: 60000,       // 60s
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 60000,
         tls: {
-            rejectUnauthorized: false  // Allow self-signed certs on cloud
+            rejectUnauthorized: false
+        },
+        // Force IPv4 — Render doesn't support outbound IPv6
+        dnsOptions: { family: 4 },
+        // Override socket creation to force IPv4
+        connection: undefined
+    };
+
+    if (isGmail) {
+        config.service = 'gmail';
+    } else {
+        config.host = SMTP_HOST;
+        config.port = port;
+        config.secure = port === 465;
+        config.pool = true;
+        config.maxConnections = 3;
+    }
+
+    // Create custom socket connect to force IPv4
+    const transport = nodemailer.createTransport(config);
+
+    // Override the socket connection to force IPv4
+    const originalGetSocket = transport.getSocket;
+    transport.getSocket = function(options, callback) {
+        if (options && !options.family) {
+            options.family = 4;
         }
-    });
+        if (originalGetSocket) {
+            return originalGetSocket.call(this, options, callback);
+        }
+    };
+
+    return transport;
 };
 
 /**

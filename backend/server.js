@@ -1,4 +1,9 @@
 require('dotenv').config();
+const dns = require('dns');
+// Force IPv4 — Render doesn't support outbound IPv6,
+// and Gmail SMTP resolves to IPv6 by default causing ENETUNREACH.
+dns.setDefaultResultOrder('ipv4first');
+
 const validateEnv = require('./config/validateEnv');
 const express = require('express');
 const cors = require('cors');
@@ -112,12 +117,21 @@ app.use((err, req, res, next) => {
 //     res.status(404).json({ message: 'Route not found' });
 // });
 
-// Serve frontend build (SPA Support)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
+// Serve frontend build only if the dist folder exists (local dev)
+// In production, frontend is on Vercel — skip this to avoid ENOENT errors
+const frontendPath = path.join(__dirname, '../frontend/dist');
+const fs = require('fs');
+if (fs.existsSync(frontendPath)) {
+    app.use(express.static(frontendPath));
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+} else {
+    // 404 for any non-API routes when no frontend build is present
+    app.use((req, res) => {
+        res.status(404).json({ message: 'Route not found' });
+    });
+}
 
 
 const PORT = process.env.PORT || 5000;
