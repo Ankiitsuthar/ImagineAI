@@ -11,20 +11,41 @@ const createTransporter = () => {
         return null;
     }
 
+    const port = parseInt(SMTP_PORT) || 587;
+
     return nodemailer.createTransport({
         host: SMTP_HOST,
-        port: parseInt(SMTP_PORT) || 587,
-        secure: (parseInt(SMTP_PORT) || 587) === 465,
+        port: port,
+        secure: port === 465,
         auth: {
             user: SMTP_USER,
             pass: SMTP_PASS
         },
         pool: true,
         maxConnections: 3,
-        connectionTimeout: 10000,  // 10s to establish connection
-        greetingTimeout: 10000,    // 10s for SMTP greeting
-        socketTimeout: 15000       // 15s for socket inactivity
+        connectionTimeout: 30000,   // 30s – Render needs more time
+        greetingTimeout: 30000,     // 30s
+        socketTimeout: 60000,       // 60s
+        tls: {
+            rejectUnauthorized: false  // Allow self-signed certs on cloud
+        }
     });
+};
+
+/**
+ * Send email with one retry on failure.
+ */
+const sendMailWithRetry = async (transporter, mailOptions, retries = 1) => {
+    try {
+        return await transporter.sendMail(mailOptions);
+    } catch (err) {
+        if (retries > 0) {
+            console.log('Email send failed, retrying in 3s...', err.message);
+            await new Promise(r => setTimeout(r, 3000));
+            return sendMailWithRetry(transporter, mailOptions, retries - 1);
+        }
+        throw err;
+    }
 };
 
 /**
@@ -100,7 +121,7 @@ const sendWelcomeEmail = async (user) => {
     </html>`;
 
     try {
-        await transporter.sendMail({
+        await sendMailWithRetry(transporter, {
             from: `"ImagineAI" <${process.env.SMTP_USER}>`,
             to: user.email,
             subject: '🎉 Welcome to ImagineAI — Your 5 Free Credits Await!',
@@ -193,7 +214,7 @@ const sendNewUserNotificationToAdmin = async (user) => {
     </html>`;
 
     try {
-        await transporter.sendMail({
+        await sendMailWithRetry(transporter, {
             from: `"ImagineAI" <${process.env.SMTP_USER}>`,
             to: adminEmail,
             subject: `📋 New User: ${user.name || user.email} registered on ImagineAI`,
@@ -273,7 +294,7 @@ const sendContactConfirmation = async ({ name, email }) => {
     </html>`;
 
     try {
-        await transporter.sendMail({
+        await sendMailWithRetry(transporter, {
             from: `"ImagineAI" <${process.env.SMTP_USER}>`,
             to: email,
             subject: '📩 We received your message — ImagineAI will contact you soon!',
@@ -376,7 +397,7 @@ const sendContactNotificationToAdmin = async ({ name, email, eventDate, message 
     </html>`;
 
     try {
-        await transporter.sendMail({
+        await sendMailWithRetry(transporter, {
             from: `"ImagineAI" <${process.env.SMTP_USER}>`,
             to: adminEmail,
             subject: `📬 New Contact: ${name} — ${email}`,
