@@ -1,6 +1,7 @@
-// Contact Form Controller for PreWedding AI
+// Contact Form Controller for ImagineAI
 
 const Contact = require('../models/Contact');
+const { sendContactConfirmation, sendContactNotificationToAdmin } = require('../utils/emailService');
 
 // @desc    Submit contact form
 // @route   POST /api/contact
@@ -35,20 +36,9 @@ const submitContactForm = async (req, res) => {
             status: 'pending'
         });
 
-        // TODO: Send email notification to admin
-        // This would require nodemailer or similar email service
-        // Example:
-        // await sendEmailNotification({
-        //     to: process.env.ADMIN_EMAIL,
-        //     subject: 'New Contact Form Submission',
-        //     html: `
-        //         <h2>New Contact Form Submission</h2>
-        //         <p><strong>Name:</strong> ${name}</p>
-        //         <p><strong>Email:</strong> ${email}</p>
-        //         <p><strong>Event Date:</strong> ${eventDate || 'Not provided'}</p>
-        //         <p><strong>Message:</strong> ${message}</p>
-        //     `
-        // });
+        // Send emails (non-blocking — don't hold up the response)
+        sendContactConfirmation({ name, email }).catch(() => {});
+        sendContactNotificationToAdmin({ name, email, eventDate, message }).catch(() => {});
 
         res.status(201).json({
             success: true,

@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, LayoutDashboard, Sparkles, History, LogOut, Coins } from 'lucide-react';
 import './Navbar.css';
-import logo from '../assets/logo.svg';
+
 
 const Navbar = () => {
     const { user, logout, isAdmin } = useAuth();
@@ -52,7 +52,8 @@ const Navbar = () => {
         { path: '/admin/templates', label: 'Templates' },
         { path: '/admin/collections', label: 'Collections' },
         { path: '/admin/users', label: 'Users' },
-        { path: '/admin/orders', label: 'Orders' }
+        { path: '/admin/orders', label: 'Orders' },
+        { path: '/admin/notifications', label: 'Notifications' }
     ];
 
     return (
@@ -60,7 +61,6 @@ const Navbar = () => {
             <div className="container">
                 <div className="navbar-content">
                     <Link to="/" className="navbar-brand">
-                        <img src={logo} alt="ImagineAI" className="brand-icon" />
                         <span className="brand-text">ImagineAI</span>
                     </Link>
 

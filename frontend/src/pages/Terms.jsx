@@ -42,7 +42,7 @@ const Terms = () => {
                     <ul>
                         <li>Credits are required to generate AI images using templates.</li>
                         <li>Each template specifies the number of credits required for one generation.</li>
-                        <li>Credits can be purchased through our platform via Stripe, a secure third-party payment processor.</li>
+                        <li>Credits can be purchased through our platform via PayU, a secure third-party payment processor.</li>
                         <li>All credit purchases are final. Credits are non-refundable unless required by applicable law.</li>
                         <li>Credits do not expire and remain in your account until used.</li>
                         <li>We reserve the right to modify credit pricing and package offerings at any time.</li>

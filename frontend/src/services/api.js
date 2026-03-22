@@ -111,11 +111,14 @@ export const userAPI = {
 export const orderAPI = {
     getPackages: () => api.get('/orders/packages'),
     createOrder: (packageType) => api.post('/orders/create', { packageType }),
+    createCustomOrder: (credits) => api.post('/orders/create-custom', { credits }),
     getUserOrders: (page = 1, limit = 20) => api.get(`/orders?page=${page}&limit=${limit}`),
     createTransaction: (data) => api.post('/transactions', data),
     getTransactions: () => api.get('/transactions'),
     getAllOrders: (page = 1, limit = 20, status = '') =>
-        api.get(`/orders/all?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`)
+        api.get(`/orders/all?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+    exportOrders: (status = '') =>
+        api.get(`/orders/export${status ? `?status=${status}` : ''}`, { responseType: 'blob' })
 };
 
 // Stats API (Admin)
@@ -133,6 +136,13 @@ export const collectionAPI = {
     uploadIcon: (formData) => api.post('/collections/upload-icon', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     })
+};
+
+// Contact API (Admin)
+export const contactAPI = {
+    getAll: (page = 1, limit = 20, status = '') =>
+        api.get(`/contact/all?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+    updateStatus: (id, status) => api.put(`/contact/${id}/status`, { status })
 };
 
 export default api;

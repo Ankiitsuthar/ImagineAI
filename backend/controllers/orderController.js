@@ -91,6 +91,67 @@ const createOrder = async (req, res) => {
     }
 };
 
+// Price per credit in INR
+const PRICE_PER_CREDIT = 10;
+
+// @desc    Create custom order with user-specified credits
+// @route   POST /api/orders/create-custom
+// @access  Private
+const createCustomOrder = async (req, res) => {
+    try {
+        const { credits } = req.body;
+        const creditCount = parseInt(credits);
+
+        if (!creditCount || creditCount < 1 || creditCount > 10000) {
+            return res.status(400).json({ message: 'Credits must be between 1 and 10,000' });
+        }
+
+        const amount = creditCount * PRICE_PER_CREDIT;
+        const txnid = `TXN_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+        // Create order record
+        const order = await Order.create({
+            user: req.user._id,
+            packageName: `${creditCount} Credits`,
+            credits: creditCount,
+            amount: amount,
+            currency: 'INR',
+            transactionId: txnid,
+            status: 'pending'
+        });
+
+        // PayU payment params
+        const payuParams = {
+            key: PAYU_MERCHANT_KEY,
+            txnid: txnid,
+            amount: amount.toFixed(2),
+            productinfo: `${creditCount} Credits - ImagineAI`,
+            firstname: req.user.name || 'User',
+            email: req.user.email,
+            phone: req.body.phone || '',
+            udf1: order._id.toString(),
+            udf2: creditCount.toString(),
+            udf3: '',
+            udf4: '',
+            udf5: '',
+            surl: `${BACKEND_URL}/api/orders/payment/success`,
+            furl: `${BACKEND_URL}/api/orders/payment/failure`,
+        };
+
+        // Generate hash
+        payuParams.hash = generateHash(payuParams);
+        payuParams.payuBaseUrl = PAYU_BASE_URL;
+
+        res.status(201).json({
+            payuParams,
+            orderId: order._id
+        });
+    } catch (error) {
+        console.error('Error creating custom order:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 // @desc    Handle PayU payment success callback
 // @route   POST /api/orders/payment/success
 // @access  Public (PayU callback)
@@ -247,11 +308,58 @@ const getCreditPackages = async (req, res) => {
     }
 };
 
+// @desc    Export orders as CSV
+// @route   GET /api/orders/export
+// @access  Private/Admin
+const exportOrders = async (req, res) => {
+    try {
+        const status = req.query.status;
+        const query = status ? { status } : {};
+
+        const orders = await Order.find(query)
+            .populate('user', 'name email')
+            .sort({ createdAt: -1 });
+
+        // CSV header
+        const csvRows = [
+            ['Order ID', 'Customer Name', 'Customer Email', 'Package', 'Amount (INR)', 'Credits', 'Status', 'Transaction ID', 'Date'].join(',')
+        ];
+
+        // CSV rows
+        orders.forEach(order => {
+            const row = [
+                order._id,
+                `"${(order.user?.name || 'Unknown').replace(/"/g, '""')}"`,
+                `"${(order.user?.email || 'N/A').replace(/"/g, '""')}"`,
+                `"${(order.packageName || 'N/A').replace(/"/g, '""')}"`,
+                order.amount || 0,
+                order.credits || 0,
+                order.status || 'pending',
+                order.transactionId || 'N/A',
+                order.createdAt ? new Date(order.createdAt).toISOString() : 'N/A'
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const csvContent = csvRows.join('\n');
+        const filename = `orders_report_${new Date().toISOString().slice(0, 10)}.csv`;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csvContent);
+    } catch (error) {
+        console.error('Export orders error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     createOrder,
+    createCustomOrder,
     handlePaymentSuccess,
     handlePaymentFailure,
     getUserOrders,
     getAllOrders,
-    getCreditPackages
+    getCreditPackages,
+    exportOrders
 };

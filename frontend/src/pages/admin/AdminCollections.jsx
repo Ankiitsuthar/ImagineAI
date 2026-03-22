@@ -7,7 +7,10 @@ import {
 import IconRenderer from '../../components/IconRenderer';
 import CollectionFormModal from '../../components/admin/CollectionFormModal';
 import LoadingScreen from '../../components/LoadingScreen';
+import Pagination from '../../components/Pagination';
 import './Admin.css';
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminCollections = () => {
     const [collections, setCollections] = useState([]);
@@ -107,9 +110,22 @@ const AdminCollections = () => {
         }
     };
 
+    const [currentPage, setCurrentPage] = useState(1);
+
     const filteredCollections = collections.filter(c =>
         c.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const totalPages = Math.ceil(filteredCollections.length / ITEMS_PER_PAGE);
+    const paginatedCollections = filteredCollections.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    // Reset page on search change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     if (loading) {
         return <LoadingScreen />;
@@ -166,7 +182,7 @@ const AdminCollections = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredCollections.map(collection => (
+                            {paginatedCollections.map(collection => (
                                 <tr key={collection._id || collection.id}>
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -222,6 +238,13 @@ const AdminCollections = () => {
                             ))}
                         </tbody>
                     </table>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        totalItems={filteredCollections.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                    />
                 </div>
             )}
 

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { userAPI } from '../../services/api';
-import { Users, Search, CheckCircle, AlertTriangle, Crown, User, X, Coins, ChevronLeft, ChevronRight, Edit3, Save } from 'lucide-react';
+import { Users, Search, CheckCircle, AlertTriangle, Crown, User, X, Coins, Edit3, Save } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
+import Pagination from '../../components/Pagination';
 import './Admin.css';
 
 const AdminUsers = () => {
@@ -236,25 +237,13 @@ const AdminUsers = () => {
                         </tbody>
                     </table>
 
-                    {totalPages > 1 && (
-                        <div className="admin-pagination">
-                            <button
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                disabled={currentPage === 1}
-                            >
-                                <ChevronLeft size={16} /> Previous
-                            </button>
-                            <span className="page-info">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    )}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        totalItems={total}
+                        itemsPerPage={20}
+                    />
                 </div>
             )}
 

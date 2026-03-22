@@ -12,6 +12,7 @@ import AdminTemplates from './pages/admin/AdminTemplates';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminCollections from './pages/admin/AdminCollections';
+import AdminNotifications from './pages/admin/AdminNotifications';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -28,6 +29,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
+import RefundPolicy from './pages/RefundPolicy';
 import FAQ from './pages/FAQ';
 
 // Auth Pages
@@ -110,6 +112,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/faq" element={<FAQ />} />
 
               {/* Auth Routes */}
@@ -192,6 +195,14 @@ function App() {
                 element={
                   <ProtectedRoute adminOnly>
                     <AdminCollections />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/notifications"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <AdminNotifications />
                   </ProtectedRoute>
                 }
               />

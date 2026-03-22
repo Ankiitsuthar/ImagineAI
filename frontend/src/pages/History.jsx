@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 import { generationAPI } from '../services/api';
 import { Palette, Inbox } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
+import Pagination from '../components/Pagination';
 import './History.css';
+
+const ITEMS_PER_PAGE = 12;
 
 const History = () => {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         fetchHistory();
@@ -40,6 +44,13 @@ const History = () => {
         }
     };
 
+    // Client-side pagination
+    const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
+    const paginatedImages = images.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
     if (loading) {
         return <LoadingScreen />;
     }
@@ -58,33 +69,42 @@ const History = () => {
                     <p>Start creating amazing AI images!</p>
                 </div>
             ) : (
-                <div className="history-grid grid grid-3">
-                    {images.map((img, index) => (
-                        <div key={img._id} className="history-card card">
-                            <div className="history-image">
-                                <img
-                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${img.generatedImagePath}`}
-                                    alt="Generated"
-                                />
-                            </div>
-                            <div className="history-info">
-                                <div className="history-meta">
-                                    <span className="template-name">{img.templateId?.name || 'Unknown Template'}</span>
-                                    <span className="badge badge-success">Completed</span>
+                <>
+                    <div className="history-grid grid grid-3">
+                        {paginatedImages.map((img, index) => (
+                            <div key={img._id} className="history-card card">
+                                <div className="history-image">
+                                    <img
+                                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${img.generatedImagePath}`}
+                                        alt="Generated"
+                                    />
                                 </div>
-                                <div className="history-footer">
-                                    <span className="text-muted">{new Date(img.createdAt).toLocaleDateString()}</span>
-                                    <button
-                                        onClick={() => handleDownload(img.generatedImagePath, index)}
-                                        className="btn btn-primary btn-sm"
-                                    >
-                                        Download
-                                    </button>
+                                <div className="history-info">
+                                    <div className="history-meta">
+                                        <span className="template-name">{img.templateId?.name || 'Unknown Template'}</span>
+                                        <span className="badge badge-success">Completed</span>
+                                    </div>
+                                    <div className="history-footer">
+                                        <span className="text-muted">{new Date(img.createdAt).toLocaleDateString()}</span>
+                                        <button
+                                            onClick={() => handleDownload(img.generatedImagePath, (currentPage - 1) * ITEMS_PER_PAGE + index)}
+                                            className="btn btn-primary btn-sm"
+                                        >
+                                            Download
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        totalItems={images.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                    />
+                </>
             )}
         </div>
     );

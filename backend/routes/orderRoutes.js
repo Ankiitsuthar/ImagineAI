@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const {
     createOrder,
+    createCustomOrder,
     handlePaymentSuccess,
     handlePaymentFailure,
     getUserOrders,
     getAllOrders,
-    getCreditPackages
+    getCreditPackages,
+    exportOrders
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middleware/auth');
 
@@ -19,9 +21,11 @@ router.post('/payment/failure', express.urlencoded({ extended: true }), handlePa
 
 // User routes
 router.post('/create', protect, createOrder);
+router.post('/create-custom', protect, createCustomOrder);
 router.get('/', protect, getUserOrders);
 
 // Admin routes
 router.get('/all', protect, admin, getAllOrders);
+router.get('/export', protect, admin, exportOrders);
 
 module.exports = router;

@@ -1,55 +1,48 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { orderAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Coins, Sparkles, Check, AlertTriangle, CreditCard, Star, Zap, Crown, CheckCircle, Lock } from 'lucide-react';
-import LoadingScreen from '../components/LoadingScreen';
+import { Coins, Sparkles, Minus, Plus, AlertTriangle, CreditCard, CheckCircle, Lock, Zap, ArrowRight } from 'lucide-react';
 import './BuyCredits.css';
 
-// Main Buy Credits page
+const PRICE_PER_CREDIT = 10; // ₹10 per credit
+const MIN_CREDITS = 1;
+const MAX_CREDITS = 500;
+const QUICK_PICKS = [5, 10, 25, 50, 100, 200];
+
 const BuyCredits = () => {
     const { user } = useAuth();
-    const [packages, setPackages] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [processingPkg, setProcessingPkg] = useState(null);
+    const [credits, setCredits] = useState(10);
+    const [processing, setProcessing] = useState(false);
     const [alert, setAlert] = useState(null);
-    const formRef = useRef(null);
 
-    useEffect(() => {
-        fetchPackages();
-    }, []);
+    const totalPrice = credits * PRICE_PER_CREDIT;
 
-    const fetchPackages = async () => {
-        try {
-            const { data } = await orderAPI.getPackages();
-            setPackages(data);
-        } catch (err) {
-            console.error('Failed to load packages:', err);
-            // Fallback packages if API fails
-            setPackages([
-                { type: 'starter', credits: 10, price: 199, priceDisplay: '₹199', name: 'Starter Pack' },
-                { type: 'popular', credits: 50, price: 999, priceDisplay: '₹999', name: 'Popular Pack' },
-                { type: 'premium', credits: 100, price: 1999, priceDisplay: '₹1999', name: 'Premium Pack' }
-            ]);
-        } finally {
-            setLoading(false);
-        }
+    const handleCreditChange = (value) => {
+        const num = Math.max(MIN_CREDITS, Math.min(MAX_CREDITS, parseInt(value) || MIN_CREDITS));
+        setCredits(num);
     };
 
-    const handleBuyClick = async (pkg) => {
-        setProcessingPkg(pkg.type);
+    const handleIncrement = (amount) => {
+        setCredits(prev => Math.min(MAX_CREDITS, prev + amount));
+    };
+
+    const handleDecrement = (amount) => {
+        setCredits(prev => Math.max(MIN_CREDITS, prev - amount));
+    };
+
+    const handleBuyClick = async () => {
+        setProcessing(true);
         setAlert(null);
 
         try {
-            // Call backend to create order and get PayU params
-            const { data } = await orderAPI.createOrder(pkg.type);
+            const { data } = await orderAPI.createCustomOrder(credits);
             const { payuParams } = data;
 
-            // Create a hidden form and submit to PayU
+            // Create hidden form and submit to PayU
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = payuParams.payuBaseUrl;
 
-            // Add all PayU params as hidden fields
             const fields = ['key', 'txnid', 'amount', 'productinfo', 'firstname', 'email', 'phone',
                 'surl', 'furl', 'hash', 'udf1', 'udf2', 'udf3', 'udf4', 'udf5'];
 
@@ -69,43 +62,20 @@ const BuyCredits = () => {
                 type: 'error',
                 message: err.response?.data?.message || 'Failed to initiate payment. Please try again.'
             });
-            setProcessingPkg(null);
+            setProcessing(false);
         }
     };
-
-    const getPackageIcon = (type) => {
-        switch (type) {
-            case 'starter': return <Zap size={30} />;
-            case 'popular': return <Star size={30} />;
-            case 'premium': return <Crown size={30} />;
-            default: return <Sparkles size={30} />;
-        }
-    };
-
-    const getPackageFeatures = (type) => {
-        const common = ['High-quality AI generation', 'All templates included', 'Download in HD'];
-        switch (type) {
-            case 'starter': return [...common, 'Perfect for trying out'];
-            case 'popular': return [...common, 'Best value for money', 'Priority generation'];
-            case 'premium': return [...common, 'Maximum savings', 'Priority generation', 'Premium support'];
-            default: return common;
-        }
-    };
-
-    if (loading) {
-        return <LoadingScreen />;
-    }
 
     return (
         <div className="buy-credits-page">
             {/* Header */}
             <div className="page-header">
-                <h1>Buy Credits</h1>
-                <p>Purchase credits to generate stunning AI images</p>
+                <h1><Sparkles size={32} /> Buy Credits</h1>
+                <p>Choose how many credits you want — pay only for what you need</p>
                 {user && (
                     <div className="current-credits">
                         <Coins size={20} />
-                        Current Balance: {user.credits} credits
+                        Current Balance: <strong>{user.credits}</strong> credits
                     </div>
                 )}
             </div>
@@ -118,51 +88,123 @@ const BuyCredits = () => {
                 </div>
             )}
 
-            {/* Packages */}
-            <div className="packages-grid">
-                {packages.map((pkg) => (
-                    <div
-                        key={pkg.type}
-                        className={`package-card ${pkg.type === 'popular' ? 'popular' : ''}`}
-                    >
-                        {pkg.type === 'popular' && <div className="popular-badge">Most Popular</div>}
-
-                        <div className="package-icon">
-                            {getPackageIcon(pkg.type)}
-                        </div>
-
-                        <h3 className="package-name">{pkg.name}</h3>
-
-                        <div className="package-credits">
-                            {pkg.credits} <span>credits</span>
-                        </div>
-
-                        <div className="package-price">
-                            {pkg.priceDisplay}
-                            <span className="per-credit">
-                                ₹{(pkg.price / pkg.credits).toFixed(2)} per credit
-                            </span>
-                        </div>
-
-                        <ul className="package-features">
-                            {getPackageFeatures(pkg.type).map((feature, i) => (
-                                <li key={i}><Check size={16} /> {feature}</li>
-                            ))}
-                        </ul>
-
-                        <button
-                            className="buy-btn primary"
-                            onClick={() => handleBuyClick(pkg)}
-                            disabled={processingPkg === pkg.type}
-                        >
-                            {processingPkg === pkg.type ? (
-                                <><span className="btn-spinner"></span> Redirecting...</>
-                            ) : (
-                                <><CreditCard size={18} /> Buy Now</>
-                            )}
-                        </button>
+            <div className="credits-purchase-layout">
+                {/* Credit Selector Card */}
+                <div className="credit-selector-card">
+                    <div className="selector-header">
+                        <h2>Select Credits</h2>
+                        <span className="price-tag">₹{PRICE_PER_CREDIT} per credit</span>
                     </div>
-                ))}
+
+                    {/* Quick Pick Buttons */}
+                    <div className="quick-picks">
+                        {QUICK_PICKS.map(amount => (
+                            <button
+                                key={amount}
+                                className={`quick-pick-btn ${credits === amount ? 'active' : ''}`}
+                                onClick={() => setCredits(amount)}
+                            >
+                                <Zap size={14} />
+                                {amount}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Custom Input */}
+                    <div className="credit-input-section">
+                        <label className="input-label">Or enter custom amount</label>
+                        <div className="credit-input-group">
+                            <button
+                                className="credit-adjust-btn"
+                                onClick={() => handleDecrement(1)}
+                                disabled={credits <= MIN_CREDITS}
+                            >
+                                <Minus size={18} />
+                            </button>
+                            <input
+                                type="number"
+                                className="credit-input"
+                                value={credits}
+                                onChange={(e) => handleCreditChange(e.target.value)}
+                                min={MIN_CREDITS}
+                                max={MAX_CREDITS}
+                            />
+                            <button
+                                className="credit-adjust-btn"
+                                onClick={() => handleIncrement(1)}
+                                disabled={credits >= MAX_CREDITS}
+                            >
+                                <Plus size={18} />
+                            </button>
+                        </div>
+                        <div className="credit-range">
+                            <span>Min: {MIN_CREDITS}</span>
+                            <span>Max: {MAX_CREDITS}</span>
+                        </div>
+                    </div>
+
+                    {/* Slider */}
+                    <div className="credit-slider-section">
+                        <input
+                            type="range"
+                            className="credit-slider"
+                            min={MIN_CREDITS}
+                            max={MAX_CREDITS}
+                            value={credits}
+                            onChange={(e) => setCredits(parseInt(e.target.value))}
+                        />
+                        <div className="slider-labels">
+                            <span>{MIN_CREDITS}</span>
+                            <span>{Math.round(MAX_CREDITS / 4)}</span>
+                            <span>{Math.round(MAX_CREDITS / 2)}</span>
+                            <span>{Math.round(MAX_CREDITS * 3 / 4)}</span>
+                            <span>{MAX_CREDITS}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Order Summary Card */}
+                <div className="order-summary-card">
+                    <h3>Order Summary</h3>
+
+                    <div className="summary-visual">
+                        <div className="credit-display">
+                            <span className="credit-number">{credits}</span>
+                            <span className="credit-label">Credits</span>
+                        </div>
+                    </div>
+
+                    <div className="summary-breakdown">
+                        <div className="summary-row">
+                            <span>Credits</span>
+                            <span>{credits} × ₹{PRICE_PER_CREDIT}</span>
+                        </div>
+                        <div className="summary-divider"></div>
+                        <div className="summary-row total">
+                            <span>Total</span>
+                            <span>₹{totalPrice.toLocaleString('en-IN')}</span>
+                        </div>
+                    </div>
+
+                    <button
+                        className="buy-btn primary"
+                        onClick={handleBuyClick}
+                        disabled={processing}
+                    >
+                        {processing ? (
+                            <><span className="btn-spinner"></span> Redirecting to PayU...</>
+                        ) : (
+                            <><CreditCard size={18} /> Pay ₹{totalPrice.toLocaleString('en-IN')} <ArrowRight size={16} /></>
+                        )}
+                    </button>
+
+                    <div className="summary-features">
+                        <p><CheckCircle size={14} /> Credits never expire</p>
+                        <p><CheckCircle size={14} /> All templates included</p>
+                        <p><CheckCircle size={14} /> HD quality downloads</p>
+                        <p><CheckCircle size={14} /> Instant credit delivery</p>
+                    </div>
+                </div>
             </div>
 
             {/* PayU badge */}

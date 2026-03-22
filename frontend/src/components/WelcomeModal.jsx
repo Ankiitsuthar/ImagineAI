@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 import './WelcomeModal.css';
 
 const WelcomeModal = () => {
     const [visible, setVisible] = useState(false);
+
+    useBodyScrollLock(visible);
 
     useEffect(() => {
         // Check if we should show the welcome modal

@@ -15,7 +15,7 @@ const Home = () => {
         {
             icon: <Sparkles size={28} />,
             title: 'AI-Powered',
-            description: 'Powered by Gemini Nano Banana for stunning, professional-quality results.'
+            description: 'Powered by AI for stunning, professional-quality results.'
         },
         {
             icon: <Zap size={28} />,
@@ -45,9 +45,11 @@ const Home = () => {
                                 photo, and let our AI generate perfect results.
                             </p>
 
-                            {!user && (
+                            {!user ? (
                                 <>
-
+                                    <button onClick={() => openModal('signup')} className="btn btn-primary btn-lg hero-cta-btn">
+                                        <Sparkles size={18} /> Get Started Free
+                                    </button>
 
                                     <div className="hero-badges">
                                         <div className="badge-item">
@@ -66,6 +68,10 @@ const Home = () => {
                                         </div>
                                     </div>
                                 </>
+                            ) : (
+                                <button onClick={() => navigate('/templates')} className="btn btn-primary btn-lg hero-cta-btn">
+                                    <Sparkles size={18} /> Start Creating
+                                </button>
                             )}
                         </div>
 

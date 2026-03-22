@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react';
 import { orderAPI, statsAPI } from '../../services/api';
-import { Package, CheckCircle, AlertTriangle, Clock, XCircle, RotateCcw, Coins, ChevronLeft, ChevronRight, DollarSign, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import {
+    Package, CheckCircle, AlertTriangle, Clock, XCircle, RotateCcw,
+    Coins, DollarSign, TrendingUp, Users,
+    BarChart3, Download, FileSpreadsheet
+} from 'lucide-react';
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 import LoadingScreen from '../../components/LoadingScreen';
+import Pagination from '../../components/Pagination';
 import './Admin.css';
+import './AdminDashboard.css';
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -15,6 +24,7 @@ const AdminOrders = () => {
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
     const [analytics, setAnalytics] = useState(null);
     const [analyticsLoading, setAnalyticsLoading] = useState(true);
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         fetchOrders();
@@ -62,6 +72,28 @@ const AdminOrders = () => {
         }
     };
 
+    const handleExport = async () => {
+        try {
+            setExporting(true);
+            const response = await orderAPI.exportOrders(statusFilter);
+            const blob = new Blob([response.data], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `orders_report_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            showAlertMsg('success', 'Report downloaded successfully!');
+        } catch (error) {
+            console.error('Error exporting orders:', error);
+            showAlertMsg('error', 'Failed to export orders');
+        } finally {
+            setExporting(false);
+        }
+    };
+
     const showAlertMsg = (type, message) => {
         setAlert({ show: true, type, message });
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
@@ -95,12 +127,6 @@ const AdminOrders = () => {
         }
     };
 
-    // Get max revenue for chart scaling
-    const getMaxRevenue = () => {
-        if (!analytics?.monthlyRevenue?.length) return 1;
-        return Math.max(...analytics.monthlyRevenue.map(m => m.revenue));
-    };
-
     if (loading && orders.length === 0) {
         return <LoadingScreen />;
     }
@@ -110,12 +136,18 @@ const AdminOrders = () => {
             <div className="admin-page-header">
                 <h1><Package size={28} /> Revenue & Orders</h1>
                 <div className="header-actions">
-                    <span style={{
-                        padding: '8px 16px',
-                        background: 'var(--primary-gradient)',
-                        borderRadius: '8px',
-                        fontWeight: '600'
-                    }}>
+                    <button
+                        className="btn btn-export"
+                        onClick={handleExport}
+                        disabled={exporting}
+                    >
+                        {exporting ? (
+                            <><Download size={16} className="spin" /> Exporting...</>
+                        ) : (
+                            <><FileSpreadsheet size={16} /> Download Report</>
+                        )}
+                    </button>
+                    <span className="revenue-total-badge">
                         Total Revenue: {formatCurrency(totalRevenue)}
                     </span>
                 </div>
@@ -131,242 +163,250 @@ const AdminOrders = () => {
             {!analyticsLoading && analytics && (
                 <>
                     {/* Revenue Stats Cards */}
-                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '2rem' }}>
-                        <div className="stat-card card-glass">
-                            <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.15)' }}><DollarSign size={24} /></div>
-                            <div className="stat-content">
-                                <h3>{formatCurrency(analytics.stats?.totalRevenue || 0)}</h3>
-                                <p>Total Revenue</p>
+                    <div className="admin-stats-grid">
+                        <div className="admin-stat-card">
+                            <div className="admin-stat-icon admin-stat-purple"><DollarSign size={20} /></div>
+                            <div className="admin-stat-body">
+                                <span className="admin-stat-value">{formatCurrency(analytics.stats?.totalRevenue || 0)}</span>
+                                <span className="admin-stat-label">Total Revenue</span>
                             </div>
                         </div>
-                        <div className="stat-card card-glass">
-                            <div className="stat-icon" style={{ background: 'rgba(99, 102, 241, 0.15)' }}><Package size={24} /></div>
-                            <div className="stat-content">
-                                <h3>{analytics.stats?.totalOrders || 0}</h3>
-                                <p>Total Orders</p>
+                        <div className="admin-stat-card">
+                            <div className="admin-stat-icon admin-stat-amber"><Package size={20} /></div>
+                            <div className="admin-stat-body">
+                                <span className="admin-stat-value">{analytics.stats?.totalOrders || 0}</span>
+                                <span className="admin-stat-label">Total Orders</span>
                             </div>
                         </div>
-                        <div className="stat-card card-glass">
-                            <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.15)' }}><Coins size={24} /></div>
-                            <div className="stat-content">
-                                <h3>{analytics.stats?.totalCreditsSold || 0}</h3>
-                                <p>Credits Sold</p>
+                        <div className="admin-stat-card">
+                            <div className="admin-stat-icon admin-stat-emerald"><Coins size={20} /></div>
+                            <div className="admin-stat-body">
+                                <span className="admin-stat-value">{analytics.stats?.totalCreditsSold || 0}</span>
+                                <span className="admin-stat-label">Credits Sold</span>
                             </div>
                         </div>
-                        <div className="stat-card card-glass">
-                            <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.15)' }}><TrendingUp size={24} /></div>
-                            <div className="stat-content">
-                                <h3>{formatCurrency(analytics.stats?.avgOrderValue || 0)}</h3>
-                                <p>Avg. Order Value</p>
+                        <div className="admin-stat-card">
+                            <div className="admin-stat-icon admin-stat-indigo"><TrendingUp size={20} /></div>
+                            <div className="admin-stat-body">
+                                <span className="admin-stat-value">{formatCurrency(analytics.stats?.avgOrderValue || 0)}</span>
+                                <span className="admin-stat-label">Avg. Order Value</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Monthly Revenue Chart + Top Purchasers */}
-                    <div className="revenue-analytics-grid">
-                        {/* Monthly Revenue Chart */}
-                        <div className="analytics-card card-glass">
-                            <h3 className="analytics-card-title"><BarChart3 size={20} /> Monthly Revenue</h3>
-                            {analytics.monthlyRevenue?.length > 0 ? (
-                                <div className="revenue-chart">
-                                    {analytics.monthlyRevenue.map((month, idx) => (
-                                        <div key={idx} className="chart-bar-container">
-                                            <div className="chart-bar-wrapper">
-                                                <div
-                                                    className="chart-bar"
-                                                    style={{
-                                                        height: `${Math.max(5, (month.revenue / getMaxRevenue()) * 100)}%`
-                                                    }}
-                                                >
-                                                    <span className="chart-bar-value">{formatCurrency(month.revenue)}</span>
-                                                </div>
-                                            </div>
-                                            <span className="chart-bar-label">{month.label}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="analytics-empty">
-                                    <p>No revenue data yet</p>
-                                </div>
-                            )}
+                    <div className="admin-charts-grid" style={{ marginBottom: '2rem' }}>
+                        {/* Monthly Revenue Chart — using Recharts */}
+                        <div className="admin-chart-card">
+                            <div className="admin-chart-header">
+                                <h3><BarChart3 size={18} /> Monthly Revenue</h3>
+                                <span className="admin-chart-badge">Last 6 months</span>
+                            </div>
+                            <div className="admin-chart-body">
+                                {analytics.monthlyRevenue?.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={260}>
+                                        <BarChart data={analytics.monthlyRevenue} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(139,92,246,0.08)" />
+                                            <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                                            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    background: 'rgba(255,255,255,0.95)',
+                                                    backdropFilter: 'blur(10px)',
+                                                    border: '1px solid rgba(139,92,246,0.15)',
+                                                    borderRadius: '12px',
+                                                    boxShadow: '0 8px 32px rgba(139,92,246,0.1)',
+                                                    padding: '10px 14px'
+                                                }}
+                                                formatter={(value) => [formatCurrency(value), 'Revenue']}
+                                                labelStyle={{ fontWeight: 600, color: '#1e293b' }}
+                                            />
+                                            <Bar
+                                                dataKey="revenue"
+                                                fill="#8b5cf6"
+                                                radius={[6, 6, 0, 0]}
+                                                barSize={36}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="admin-chart-empty">
+                                        <BarChart3 size={36} />
+                                        <p>No revenue data yet</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Top Purchasers */}
-                        <div className="analytics-card card-glass">
-                            <h3 className="analytics-card-title"><Users size={20} /> Top Purchasers</h3>
-                            {analytics.topPurchasers?.length > 0 ? (
-                                <div className="top-purchasers-list">
-                                    {analytics.topPurchasers.map((purchaser, idx) => (
-                                        <div key={purchaser._id} className="purchaser-item">
-                                            <div className="purchaser-rank">#{idx + 1}</div>
-                                            <div className="purchaser-info">
-                                                <span className="purchaser-name">{purchaser.user?.name || 'Unknown'}</span>
-                                                <span className="purchaser-email">{purchaser.user?.email || 'N/A'}</span>
+                        <div className="admin-chart-card">
+                            <div className="admin-chart-header">
+                                <h3><Users size={18} /> Top Purchasers</h3>
+                            </div>
+                            <div className="admin-chart-body" style={{ padding: '0.75rem 1.25rem 1.25rem' }}>
+                                {analytics.topPurchasers?.length > 0 ? (
+                                    <div className="top-purchasers-list">
+                                        {analytics.topPurchasers.map((purchaser, idx) => (
+                                            <div key={purchaser._id} className="purchaser-item">
+                                                <div className="purchaser-rank">#{idx + 1}</div>
+                                                <div className="purchaser-info">
+                                                    <span className="purchaser-name">{purchaser.user?.name || 'Unknown'}</span>
+                                                    <span className="purchaser-email">{purchaser.user?.email || 'N/A'}</span>
+                                                </div>
+                                                <div className="purchaser-stats">
+                                                    <span className="purchaser-spent">{formatCurrency(purchaser.totalSpent)}</span>
+                                                    <span className="purchaser-orders">{purchaser.totalOrders} orders · {purchaser.totalCredits} credits</span>
+                                                </div>
                                             </div>
-                                            <div className="purchaser-stats">
-                                                <span className="purchaser-spent">{formatCurrency(purchaser.totalSpent)}</span>
-                                                <span className="purchaser-orders">{purchaser.totalOrders} orders · {purchaser.totalCredits} credits</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="analytics-empty">
-                                    <p>No purchase data yet</p>
-                                </div>
-                            )}
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="admin-chart-empty">
+                                        <Users size={36} />
+                                        <p>No purchase data yet</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
                     {/* Package Breakdown */}
                     {analytics.packageBreakdown?.length > 0 && (
-                        <div className="analytics-card card-glass" style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
-                            <h3 className="analytics-card-title"><Package size={20} /> Package Breakdown</h3>
-                            <div className="admin-table-container">
-                                <table className="admin-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Package</th>
-                                            <th>Orders</th>
-                                            <th>Revenue</th>
-                                            <th>Credits Sold</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {analytics.packageBreakdown.map(pkg => (
-                                            <tr key={pkg._id}>
-                                                <td style={{ fontWeight: '600' }}>{pkg._id}</td>
-                                                <td>{pkg.count}</td>
-                                                <td style={{ fontWeight: '600', color: '#22c55e' }}>{formatCurrency(pkg.revenue)}</td>
-                                                <td><Coins size={14} style={{ marginRight: '4px' }} />{pkg.creditsSold}</td>
+                        <div className="admin-chart-card" style={{ marginBottom: '2rem' }}>
+                            <div className="admin-chart-header">
+                                <h3><Package size={18} /> Package Breakdown</h3>
+                            </div>
+                            <div style={{ padding: '0 1.25rem 1.25rem' }}>
+                                <div className="admin-table-container" style={{ border: 'none', boxShadow: 'none' }}>
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Package</th>
+                                                <th>Orders</th>
+                                                <th>Revenue</th>
+                                                <th>Credits Sold</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {analytics.packageBreakdown.map(pkg => (
+                                                <tr key={pkg._id}>
+                                                    <td style={{ fontWeight: '600' }}>{pkg._id}</td>
+                                                    <td>{pkg.count}</td>
+                                                    <td style={{ fontWeight: '600', color: '#22c55e' }}>{formatCurrency(pkg.revenue)}</td>
+                                                    <td><Coins size={14} style={{ marginRight: '4px' }} />{pkg.creditsSold}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     )}
                 </>
             )}
 
-            {/* Orders Filter */}
-            <h2 style={{ marginBottom: '1rem', fontSize: '1.3rem' }}>All Orders</h2>
-            <div className="admin-search-bar">
-                <select
-                    value={statusFilter}
-                    onChange={(e) => {
-                        setStatusFilter(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                >
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="failed">Failed</option>
-                    <option value="refunded">Refunded</option>
-                </select>
-                <span style={{ color: 'var(--text-muted)', marginLeft: 'auto' }}>
-                    Showing {orders.length} of {total} orders
-                </span>
-            </div>
-
-            {orders.length === 0 ? (
-                <div className="admin-empty-state card-glass">
-                    <div className="empty-icon"><Package size={32} /></div>
-                    <h3>No orders found</h3>
-                    <p>Orders will appear here once customers make purchases</p>
+            {/* Orders Table Section */}
+            <div className="orders-table-section">
+                <div className="orders-table-header">
+                    <h2>All Orders</h2>
+                    <div className="orders-table-controls">
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => {
+                                setStatusFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="orders-status-filter"
+                        >
+                            <option value="">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                            <option value="refunded">Refunded</option>
+                        </select>
+                        <span className="orders-count-text">
+                            Showing {orders.length} of {total} orders
+                        </span>
+                    </div>
                 </div>
-            ) : (
-                <div className="admin-table-container">
-                    <table className="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Package</th>
-                                <th>Amount</th>
-                                <th>Credits</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map(order => (
-                                <tr key={order._id}>
-                                    <td>
-                                        <span style={{
-                                            fontFamily: 'monospace',
-                                            fontSize: '0.85rem',
-                                            color: 'var(--text-muted)'
-                                        }}>
-                                            {order._id?.slice(-8) || 'N/A'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {order.user ? (
-                                            <div className="table-user-cell">
-                                                <div className="user-info">
-                                                    <span className="user-name">
-                                                        {order.user.name || 'N/A'}
-                                                    </span>
-                                                    <span className="user-email">
-                                                        {order.user.email || 'N/A'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <span style={{ color: 'var(--text-muted)' }}>Unknown</span>
-                                        )}
-                                    </td>
-                                    <td>{order.packageName || 'N/A'}</td>
-                                    <td style={{ fontWeight: '600' }}>
-                                        {formatCurrency(order.amount || 0)}
-                                    </td>
-                                    <td>
-                                        <span style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px'
-                                        }}>
-                                            <Coins size={14} /> {order.credits || order.creditsPurchased || 0}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge ${order.status || 'pending'}`}>
-                                            {getStatusIcon(order.status)}{' '}
-                                            {(order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1)}
-                                        </span>
-                                    </td>
-                                    <td style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                        {formatDate(order.createdAt)}
-                                    </td>
+
+                {orders.length === 0 ? (
+                    <div className="admin-empty-state card-glass">
+                        <div className="empty-icon"><Package size={32} /></div>
+                        <h3>No orders found</h3>
+                        <p>Orders will appear here once customers make purchases</p>
+                    </div>
+                ) : (
+                    <div className="admin-table-container">
+                        <table className="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Package</th>
+                                    <th>Amount</th>
+                                    <th>Credits</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {orders.map(order => (
+                                    <tr key={order._id}>
+                                        <td>
+                                            <span className="order-id-cell">
+                                                {order._id?.slice(-8) || 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {order.user ? (
+                                                <div className="table-user-cell">
+                                                    <div className="user-info">
+                                                        <span className="user-name">
+                                                            {order.user.name || 'N/A'}
+                                                        </span>
+                                                        <span className="user-email">
+                                                            {order.user.email || 'N/A'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: 'var(--text-muted)' }}>Unknown</span>
+                                            )}
+                                        </td>
+                                        <td>{order.packageName || 'N/A'}</td>
+                                        <td style={{ fontWeight: '600' }}>
+                                            {formatCurrency(order.amount || 0)}
+                                        </td>
+                                        <td>
+                                            <span className="credits-cell">
+                                                <Coins size={14} /> {order.credits || order.creditsPurchased || 0}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${order.status || 'pending'}`}>
+                                                {getStatusIcon(order.status)}{' '}
+                                                {(order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1)}
+                                            </span>
+                                        </td>
+                                        <td className="date-cell">
+                                            {formatDate(order.createdAt)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
 
-                    {totalPages > 1 && (
-                        <div className="admin-pagination">
-                            <button
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                disabled={currentPage === 1}
-                            >
-                                <ChevronLeft size={16} /> Previous
-                            </button>
-                            <span className="page-info">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            totalItems={total}
+                            itemsPerPage={20}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

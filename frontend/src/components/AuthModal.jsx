@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, X } from 'lucide-react';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 import './AuthModal.css';
 
 const AuthModal = () => {
     const { isModalOpen, closeModal, modalMode } = useAuth();
+
+    useBodyScrollLock(isModalOpen);
 
     // Close on Escape key
     useEffect(() => {

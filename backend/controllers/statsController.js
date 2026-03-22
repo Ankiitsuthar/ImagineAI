@@ -89,6 +89,8 @@ const getRevenueAnalytics = async (req, res) => {
         // 2. Monthly revenue for last 6 months
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        sixMonthsAgo.setDate(1);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
 
         const monthlyRevenue = await Order.aggregate([
             { $match: { status: 'completed', createdAt: { $gte: sixMonthsAgo } } },
@@ -106,16 +108,35 @@ const getRevenueAnalytics = async (req, res) => {
             { $sort: { '_id.year': 1, '_id.month': 1 } }
         ]);
 
-        // Format monthly data with month names
+        // Build a complete 6-month range, filling in zero for months with no orders
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const formattedMonthly = monthlyRevenue.map(item => ({
-            month: monthNames[item._id.month - 1],
-            year: item._id.year,
-            label: `${monthNames[item._id.month - 1]} ${item._id.year}`,
-            revenue: item.revenue,
-            orders: item.orders,
-            creditsSold: item.creditsSold
-        }));
+        const revenueMap = {};
+        monthlyRevenue.forEach(item => {
+            const key = `${item._id.year}-${item._id.month}`;
+            revenueMap[key] = {
+                revenue: item.revenue,
+                orders: item.orders,
+                creditsSold: item.creditsSold
+            };
+        });
+
+        const formattedMonthly = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const year = d.getFullYear();
+            const month = d.getMonth() + 1; // 1-indexed
+            const key = `${year}-${month}`;
+            const data = revenueMap[key] || { revenue: 0, orders: 0, creditsSold: 0 };
+            formattedMonthly.push({
+                month: monthNames[month - 1],
+                year,
+                label: `${monthNames[month - 1]} ${year}`,
+                revenue: data.revenue,
+                orders: data.orders,
+                creditsSold: data.creditsSold
+            });
+        }
 
         // 3. Top 5 purchasers
         const topPurchasers = await Order.aggregate([

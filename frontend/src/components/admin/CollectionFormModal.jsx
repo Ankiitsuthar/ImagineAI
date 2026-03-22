@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Shapes, ImagePlus, Search, Upload, X, FolderPlus, Pencil } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
 import { collectionAPI } from '../../services/api';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 import '../../pages/admin/Admin.css';
 
 // Curated Lucide icons organized by category
@@ -34,6 +35,7 @@ const LUCIDE_ICONS = {
 };
 
 const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
+    useBodyScrollLock(true);
     const isEditing = !!collection;
 
     const [formData, setFormData] = useState({

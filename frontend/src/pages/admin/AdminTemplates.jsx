@@ -4,7 +4,10 @@ import { Palette, Search, CheckCircle, AlertTriangle, Flame, Pencil, Trash2, Plu
 import TemplateFormModal from '../../components/admin/TemplateFormModal';
 import IconRenderer from '../../components/IconRenderer';
 import LoadingScreen from '../../components/LoadingScreen';
+import Pagination from '../../components/Pagination';
 import './Admin.css';
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminTemplates = () => {
     const [templates, setTemplates] = useState([]);
@@ -118,6 +121,8 @@ const AdminTemplates = () => {
 
 
 
+    const [currentPage, setCurrentPage] = useState(1);
+
     // Filter templates
     const filteredTemplates = templates.filter(template => {
         const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,6 +130,18 @@ const AdminTemplates = () => {
         const matchesCollection = !collectionFilter || template.collectionId === collectionFilter;
         return matchesSearch && matchesCollection;
     });
+
+    // Client-side pagination
+    const totalPages = Math.ceil(filteredTemplates.length / ITEMS_PER_PAGE);
+    const paginatedTemplates = filteredTemplates.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, collectionFilter]);
 
     if (loading) {
         return <LoadingScreen />;
@@ -218,7 +235,7 @@ const AdminTemplates = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredTemplates.map(template => (
+                            {paginatedTemplates.map(template => (
                                 <tr key={template._id}>
                                     <td>
                                         <div className="table-template-cell">
@@ -279,6 +296,13 @@ const AdminTemplates = () => {
                             ))}
                         </tbody>
                     </table>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        totalItems={filteredTemplates.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                    />
                 </div>
             )}
 

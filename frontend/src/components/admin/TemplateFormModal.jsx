@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { templateAPI } from '../../services/api';
 import { Pencil, Plus, Camera, Flame, ChevronDown } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 import '../../pages/admin/Admin.css';
 
 const TemplateFormModal = ({ template, onClose, onSubmit }) => {
+    useBodyScrollLock(true);
     const [formData, setFormData] = useState({
         name: '',
         basePrompt: '',

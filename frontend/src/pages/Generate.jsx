@@ -51,16 +51,61 @@ const Generate = () => {
         }
     };
 
+    const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
+        if (!file) return;
+
+        // Validate file type
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            setError('Unsupported file format. Please upload a PNG, JPG, or WEBP image.');
+            e.target.value = '';
+            return;
+        }
+
+        // Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            setError(`File is too large (${sizeMB}MB). Maximum allowed size is 10MB.`);
+            e.target.value = '';
+            return;
+        }
+
+        // Validate it's actually an image by trying to load it
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
             setSelectedFile(file);
+            setError('');
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreview(reader.result);
             };
             reader.readAsDataURL(file);
-        }
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            setError('The file appears to be corrupted or is not a valid image.');
+            e.target.value = '';
+        };
+        img.src = objectUrl;
+    };
+
+    const formatFileSize = (bytes) => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
+
+    const handleRemoveFile = () => {
+        setSelectedFile(null);
+        setPreview(null);
+        // Reset file input
+        const input = document.getElementById('file-input');
+        if (input) input.value = '';
     };
 
     const handleGenerate = async () => {
@@ -153,7 +198,7 @@ const Generate = () => {
                             <input
                                 type="file"
                                 id="file-input"
-                                accept="image/*"
+                                accept=".png,.jpg,.jpeg,.webp"
                                 onChange={handleFileChange}
                                 style={{ display: 'none' }}
                             />
@@ -163,11 +208,26 @@ const Generate = () => {
                                 ) : (
                                     <div className="upload-placeholder">
                                         <span className="upload-icon"><FolderOpen size={32} /></span>
-                                        <p>Click to upload or drag and drop</p>
-                                        <p className="text-muted">PNG, JPG, WEBP (max 10MB)</p>
+                                        <p><strong>Drop your image here</strong></p>
+                                        <p className="text-muted-sm">or click to browse</p>
+                                        <p className="upload-formats">Supports: PNG, JPG, WEBP (max 10MB)</p>
                                     </div>
                                 )}
                             </label>
+                            {selectedFile && (
+                                <div className="upload-file-info">
+                                    <span className="file-name">{selectedFile.name}</span>
+                                    <span className="file-size">{formatFileSize(selectedFile.size)}</span>
+                                    <button
+                                        type="button"
+                                        className="file-remove-btn"
+                                        onClick={handleRemoveFile}
+                                        title="Remove file"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
 

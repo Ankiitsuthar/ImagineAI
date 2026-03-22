@@ -9,7 +9,7 @@ const faqData = [
         questions: [
             {
                 q: 'What is ImagineAI?',
-                a: 'ImagineAI is an AI-powered image generation platform that lets you transform your photos into stunning art using professionally crafted templates. Simply choose a template, upload your image, and our AI creates a unique result for you.'
+                a: 'ImagineAI is an AI-powered image generation platform that lets you transform your photos into stunning art using professionally crafted templates. Simply upload your image, choose a template, and our AI creates a unique result for you.'
             },
             {
                 q: 'How does ImagineAI work?',
@@ -30,7 +30,7 @@ const faqData = [
             },
             {
                 q: 'How do I buy credits?',
-                a: 'You can purchase credits directly from the "Buy Credits" page. We offer multiple credit packages at different price points. All payments are processed securely through Stripe.'
+                a: 'You can purchase credits directly from the "Buy Credits" page. We offer multiple credit packages at different price points. All payments are processed securely through PayU.'
             },
             {
                 q: 'Do credits expire?',
@@ -89,11 +89,11 @@ const faqData = [
         questions: [
             {
                 q: 'What payment methods are accepted?',
-                a: 'We accept all major credit cards, debit cards, and UPI payments through Stripe — our secure payment processor. Stripe handles all payment information, so your financial data is never stored on our servers.'
+                a: 'We accept all major credit cards, debit cards, and UPI payments through PayU — our secure payment processor. PayU handles all payment information, so your financial data is never stored on our servers.'
             },
             {
                 q: 'Is my payment information secure?',
-                a: 'Absolutely. All payment processing is handled by Stripe, which is PCI DSS Level 1 certified — the highest level of security in the payments industry. We never store your card details on our servers.'
+                a: 'Absolutely. All payment processing is handled by PayU, which is PCI DSS Level 1 certified — the highest level of security in the payments industry. We never store your card details on our servers.'
             },
             {
                 q: 'Will I receive a receipt for my purchase?',
