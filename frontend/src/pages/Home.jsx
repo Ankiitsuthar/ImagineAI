@@ -68,11 +68,7 @@ const Home = () => {
                                         </div>
                                     </div>
                                 </>
-                            ) : (
-                                <button onClick={() => navigate('/templates')} className="btn btn-primary btn-lg hero-cta-btn">
-                                    <Sparkles size={18} /> Start Creating
-                                </button>
-                            )}
+                            ) : null}
                         </div>
 
                         <div className="hero-images fade-in-up" style={{ animationDelay: '0.2s' }}>
