@@ -13,7 +13,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminCollections from './pages/admin/AdminCollections';
 import AdminNotifications from './pages/admin/AdminNotifications';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -36,6 +36,15 @@ import FAQ from './pages/FAQ';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AuthModal from './components/AuthModal';
+
+// Wrapper: redirect admin users from "/" to "/admin"
+function HomeOrAdmin() {
+  const { isAuthenticated, isAdmin } = useAuth();
+  if (isAuthenticated && isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+  return <Home />;
+}
 
 function App() {
   // Step 1: Loader State
@@ -105,7 +114,7 @@ function App() {
           <main className="main-content">
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomeOrAdmin />} />
               <Route path="/collection" element={<Collection />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/about" element={<About />} />

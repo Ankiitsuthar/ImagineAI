@@ -1,4 +1,3 @@
-import { RotateCcw, AlertCircle, Clock, CreditCard, Mail, ShieldCheck, Ban, HelpCircle, Scale } from 'lucide-react';
 import './Legal.css';
 
 const RefundPolicy = () => {
@@ -6,7 +5,7 @@ const RefundPolicy = () => {
         <div className="legal-page">
             <div className="legal-hero">
                 <div className="container">
-                    <h1><RotateCcw size={32} /> Refund & Cancellation Policy</h1>
+                    <h1>Refund & Cancellation Policy</h1>
                     <p>Understand our policies regarding refunds, cancellations, and credit purchases on ImagineAI.</p>
                 </div>
             </div>
@@ -22,7 +21,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><CreditCard size={22} /> Credit Purchases</h2>
+                    <h2>Credit Purchases</h2>
                     <p>
                         ImagineAI operates on a credit-based system. Credits are purchased through our platform
                         and used to generate AI-transformed images. Please note the following:
@@ -36,7 +35,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><RotateCcw size={22} /> Refund Eligibility</h2>
+                    <h2>Refund Eligibility</h2>
                     <p>We offer refunds under the following circumstances:</p>
                     <ul>
                         <li><strong>Duplicate Charges:</strong> If you were charged multiple times for the same purchase, we will refund the duplicate amount.</li>
@@ -53,7 +52,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Ban size={22} /> Non-Refundable Scenarios</h2>
+                    <h2>Non-Refundable Scenarios</h2>
                     <p>Refunds will <strong>not</strong> be provided in the following cases:</p>
                     <ul>
                         <li><strong>Used Credits:</strong> Credits that have already been used to generate images cannot be refunded.</li>
@@ -65,7 +64,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Clock size={22} /> How to Request a Refund</h2>
+                    <h2>How to Request a Refund</h2>
                     <p>To request a refund, please follow these steps:</p>
                     <ul>
                         <li><strong>Step 1:</strong> Email us at <a href="mailto:support@imagineai.com">support@imagineai.com</a> with the subject line "Refund Request".</li>
@@ -76,7 +75,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><AlertCircle size={22} /> Cancellation Policy</h2>
+                    <h2>Cancellation Policy</h2>
                     <p>
                         ImagineAI does not currently offer subscription plans. All purchases are one-time credit
                         packages. Therefore, there are no recurring charges to cancel. However:
@@ -89,7 +88,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><ShieldCheck size={22} /> Chargebacks</h2>
+                    <h2>Chargebacks</h2>
                     <p>
                         If you initiate a chargeback or payment dispute with your bank or credit card company without
                         first contacting us, we reserve the right to suspend your account pending investigation.
@@ -99,7 +98,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Scale size={22} /> Changes to This Policy</h2>
+                    <h2>Changes to This Policy</h2>
                     <p>
                         We may update this Refund & Cancellation Policy from time to time. Any changes will be posted
                         on this page with a revised "Last updated" date. We encourage you to review this policy
@@ -108,7 +107,7 @@ const RefundPolicy = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Mail size={22} /> Contact Us</h2>
+                    <h2>Contact Us</h2>
                     <p>
                         If you have any questions about this policy or need assistance with a refund, please contact us at{' '}
                         <a href="mailto:support@imagineai.com">support@imagineai.com</a>. We're here to help!

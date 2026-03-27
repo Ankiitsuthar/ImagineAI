@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HelpCircle, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import './Legal.css';
 
 const faqData = [
@@ -123,7 +123,7 @@ const FAQ = () => {
         <div className="legal-page">
             <div className="legal-hero">
                 <div className="container">
-                    <h1><HelpCircle size={32} /> Frequently Asked Questions</h1>
+                    <h1>Frequently Asked Questions</h1>
                     <p>Find answers to common questions about ImagineAI's features, credits, and more.</p>
                 </div>
             </div>

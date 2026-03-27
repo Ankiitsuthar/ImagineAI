@@ -216,13 +216,11 @@ const AdminCollections = () => {
                                         </span>
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <div style={{
-                                                width: 20, height: 20, borderRadius: 4,
-                                                background: collection.color, border: '1px solid rgba(0,0,0,0.1)'
-                                            }} />
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{collection.color}</span>
-                                        </div>
+                                        <div style={{
+                                            width: 28, height: 28, borderRadius: 6,
+                                            background: collection.color, border: '1px solid rgba(0,0,0,0.1)',
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                                        }} />
                                     </td>
                                     <td>
                                         <div className="table-actions">

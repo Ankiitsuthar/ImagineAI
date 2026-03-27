@@ -230,7 +230,7 @@ const AdminNotifications = () => {
                                         </div>
                                         <div className="notif-actions">
                                             <a
-                                                href={`mailto:${query.email}?subject=Re: Your inquiry on ImagineAI`}
+                                                href={`https://mail.google.com/mail/?view=cm&to=${query.email}&su=Re: Your inquiry on ImagineAI`}
                                                 className="btn btn-primary btn-sm"
                                                 onClick={e => e.stopPropagation()}
                                             >

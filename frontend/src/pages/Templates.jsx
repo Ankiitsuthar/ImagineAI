@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { X, AlertTriangle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
-import { Sparkles, Upload, Wand2, Flame, FolderOpen, PartyPopper, ArrowRight, Coins } from 'lucide-react';
+import { Sparkles, Upload, Wand2, Flame, FolderOpen, PartyPopper, ArrowRight, Coins, } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
 import './Templates.css';
 
@@ -21,6 +22,7 @@ const Templates = () => {
     const [generating, setGenerating] = useState(false);
     const [error, setError] = useState('');
     const [generatedImage, setGeneratedImage] = useState(null);
+    const [fileSizeError, setFileSizeError] = useState(false);
 
     // Get pre-selected templateId from Collection page
     const preSelectedTemplateId = location.state?.templateId;
@@ -68,9 +70,16 @@ const Templates = () => {
         setStep(2);
     };
 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > MAX_FILE_SIZE) {
+                setFileSizeError(true);
+                e.target.value = '';
+                return;
+            }
             setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -95,6 +104,10 @@ const Templates = () => {
         e.currentTarget.classList.remove('drag-over');
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) {
+            if (file.size > MAX_FILE_SIZE) {
+                setFileSizeError(true);
+                return;
+            }
             setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -216,7 +229,7 @@ const Templates = () => {
                                             {/* Credit/Free badge - right side */}
                                             <div className={`template-badge ${template.creditCost > 0 ? 'badge-credits' : 'badge-free'}`}>
                                                 <span className="badge-icon-circle">
-                                                    <Coins size={10} />
+                                                    <Coins size={12} />
                                                 </span>
                                                 <span className="badge-text">
                                                     {template.creditCost > 0 ? template.creditCost : 'Free'}
@@ -356,6 +369,25 @@ const Templates = () => {
                     )}
                 </div>
             </section>
+
+            {/* File Size Error Popup */}
+            {fileSizeError && (
+                <div className="file-size-overlay" onClick={() => setFileSizeError(false)}>
+                    <div className="file-size-popup" onClick={(e) => e.stopPropagation()}>
+                        <button className="popup-close-btn" onClick={() => setFileSizeError(false)}>
+                            <X size={20} />
+                        </button>
+                        <div className="popup-icon">
+                            <AlertTriangle size={48} />
+                        </div>
+                        <h3>File Too Large</h3>
+                        <p>Your file size exceeds the 10MB limit. Please choose a smaller image and try again.</p>
+                        <button className="btn btn-primary" onClick={() => setFileSizeError(false)}>
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,4 +1,3 @@
-import { FileText, UserCheck, CreditCard, ImageIcon, AlertTriangle, Scale, ShieldAlert, Ban, RefreshCw, Mail, Globe } from 'lucide-react';
 import './Legal.css';
 
 const Terms = () => {
@@ -6,7 +5,7 @@ const Terms = () => {
         <div className="legal-page">
             <div className="legal-hero">
                 <div className="container">
-                    <h1><FileText size={32} /> Terms of Service</h1>
+                    <h1>Terms of Service</h1>
                     <p>Please read these terms carefully before using the ImagineAI platform.</p>
                 </div>
             </div>
@@ -22,7 +21,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><UserCheck size={22} /> Account Registration</h2>
+                    <h2>Account Registration</h2>
                     <p>To use ImagineAI, you must:</p>
                     <ul>
                         <li>Sign up using Google authentication. We rely on Google for secure identity verification.</li>
@@ -37,7 +36,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><CreditCard size={22} /> Credits & Payments</h2>
+                    <h2>Credits & Payments</h2>
                     <p>ImagineAI operates on a credit-based system:</p>
                     <ul>
                         <li>Credits are required to generate AI images using templates.</li>
@@ -57,7 +56,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><ImageIcon size={22} /> Content & Intellectual Property</h2>
+                    <h2>Content & Intellectual Property</h2>
                     <p>When using ImagineAI:</p>
                     <ul>
                         <li><strong>Your Uploads:</strong> You retain ownership of the original images you upload. By uploading, you grant ImagineAI a limited license to process the image through our AI pipeline.</li>
@@ -68,7 +67,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Ban size={22} /> Prohibited Uses</h2>
+                    <h2>Prohibited Uses</h2>
                     <p>You agree not to use ImagineAI to:</p>
                     <ul>
                         <li>Generate images that are illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable.</li>
@@ -85,7 +84,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><ShieldAlert size={22} /> Account Suspension & Termination</h2>
+                    <h2>Account Suspension & Termination</h2>
                     <p>We reserve the right to:</p>
                     <ul>
                         <li>Suspend or disable your account if we detect violations of these Terms.</li>
@@ -99,7 +98,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><AlertTriangle size={22} /> Disclaimers & Limitation of Liability</h2>
+                    <h2>Disclaimers & Limitation of Liability</h2>
                     <p>
                         ImagineAI is provided "as is" and "as available" without warranties of any kind, either express
                         or implied. We do not guarantee that:
@@ -116,7 +115,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Scale size={22} /> Governing Law</h2>
+                    <h2>Governing Law</h2>
                     <p>
                         These Terms shall be governed by and construed in accordance with the laws of India. Any disputes
                         arising under these Terms shall be resolved through binding arbitration or in the courts of
@@ -125,7 +124,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><RefreshCw size={22} /> Changes to These Terms</h2>
+                    <h2>Changes to These Terms</h2>
                     <p>
                         We may update these Terms from time to time. If we make material changes, we will notify you by
                         updating the "Last updated" date at the top of this page. Your continued use of ImagineAI after
@@ -134,7 +133,7 @@ const Terms = () => {
                 </div>
 
                 <div className="legal-section">
-                    <h2><Mail size={22} /> Contact Us</h2>
+                    <h2>Contact Us</h2>
                     <p>
                         If you have any questions about these Terms of Service, please reach out to us at{' '}
                         <a href="mailto:support@imagineai.com">support@imagineai.com</a>.

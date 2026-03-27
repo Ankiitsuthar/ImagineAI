@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { statsAPI } from '../../services/api';
-import { Crown, Users, Palette, Image, DollarSign, Package, ArrowRight, TrendingUp, BarChart3 } from 'lucide-react';
+import { Users, Palette, Image, DollarSign, Package, ArrowRight, TrendingUp, BarChart3 } from 'lucide-react';
 import {
     AreaChart, Area, BarChart, Bar, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -73,7 +73,7 @@ const AdminDashboard = () => {
     return (
         <div className="admin-page container">
             <div className="admin-header">
-                <h1>Admin Dashboard <Crown size={28} /></h1>
+                <h1>Admin Dashboard</h1>
                 <p className="text-muted">Manage your AI Image Generation platform</p>
             </div>
 

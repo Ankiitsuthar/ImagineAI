@@ -41,6 +41,7 @@
     gap: 4rem;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 1.5rem;
     align-items: start;
 }
 
@@ -90,12 +91,19 @@
     font-weight: 600;
 }
 
+.contact-info-section {
+    overflow: visible;
+}
+
 .contact-info-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 2.5rem;
     border-radius: var(--radius-xl);
-    border: 1px solid var(--border-light);
-    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    overflow: visible;
 }
 
 .contact-info-card h3 {
@@ -152,6 +160,13 @@
     margin-top: 2rem;
     border-top: 1px solid var(--border-light);
     padding-top: 2rem;
+}
+
+.faq-item {
+    padding: 1rem 1.25rem;
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
 }
 
 .faq-item h4 {
