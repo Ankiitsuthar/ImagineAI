@@ -31,7 +31,7 @@ const Terms = () => {
                     </ul>
                     <p>
                         You are responsible for all activity that occurs under your account. If you suspect unauthorized
-                        access, contact us immediately at <a href="mailto:support@imagineai.com">support@imagineai.com</a>.
+                        access, contact us immediately at <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>.
                     </p>
                 </div>
 
@@ -136,7 +136,7 @@ const Terms = () => {
                     <h2>Contact Us</h2>
                     <p>
                         If you have any questions about these Terms of Service, please reach out to us at{' '}
-                        <a href="mailto:support@imagineai.com">support@imagineai.com</a>.
+                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>.
                     </p>
                 </div>
             </div>

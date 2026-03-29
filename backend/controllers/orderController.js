@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const { sendPaymentSuccessEmail } = require('../utils/emailService');
 
 const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY;
 const PAYU_SALT = process.env.PAYU_SALT;
@@ -186,6 +187,14 @@ const handlePaymentSuccess = async (req, res) => {
             if (user) {
                 user.credits += order.credits;
                 await user.save();
+
+                // Send payment confirmation email (fire-and-forget)
+                sendPaymentSuccessEmail(user, {
+                    credits: order.credits,
+                    amount: order.amount,
+                    transactionId: payuResponse.txnid,
+                    newBalance: user.credits
+                }).catch(err => console.error('Email send error:', err.message));
             }
         }
 

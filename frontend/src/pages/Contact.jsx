@@ -149,7 +149,7 @@ const Contact = () => {
                                         <div className="contact-icon"><Mail size={22} /></div>
                                         <div>
                                             <h4>Email</h4>
-                                            <p><a href="mailto:support@imagineai.com">support@imagineai.com</a></p>
+                                            <p><a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a></p>
                                         </div>
                                     </div>
 
