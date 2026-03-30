@@ -67,7 +67,7 @@ const RefundPolicy = () => {
                     <h2>How to Request a Refund</h2>
                     <p>To request a refund, please follow these steps:</p>
                     <ul>
-                        <li><strong>Step 1:</strong> Email us at <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.open('mailto:support@imagineai.com', '_self'); }}>support@imagineai.com</a> with the subject line "Refund Request".</li>
+                        <li><strong>Step 1:</strong> Email us at <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a> with the subject line "Refund Request".</li>
                         <li><strong>Step 2:</strong> Include your registered email address, the transaction ID or payment receipt, and a brief description of the issue.</li>
                         <li><strong>Step 3:</strong> Our team will review your request and respond within <strong>3–5 business days</strong>.</li>
                         <li><strong>Step 4:</strong> If approved, the refund will be processed to your original payment method within <strong>5–10 business days</strong>.</li>
@@ -83,7 +83,7 @@ const RefundPolicy = () => {
                     <ul>
                         <li>You may stop using the platform at any time without any cancellation fees.</li>
                         <li>Unused credits will remain in your account indefinitely.</li>
-                        <li>If you wish to delete your account, please contact us at <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.open('mailto:support@imagineai.com', '_self'); }}>support@imagineai.com</a>. Note that account deletion is permanent and any unused credits will be forfeited.</li>
+                        <li>If you wish to delete your account, please contact us at <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>. Note that account deletion is permanent and any unused credits will be forfeited.</li>
                     </ul>
                 </div>
 
@@ -110,7 +110,7 @@ const RefundPolicy = () => {
                     <h2>Contact Us</h2>
                     <p>
                         If you have any questions about this policy or need assistance with a refund, please contact us at{' '}
-                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.open('mailto:support@imagineai.com', '_self'); }}>support@imagineai.com</a>. We're here to help!
+                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>. We're here to help!
                     </p>
                 </div>
             </div>

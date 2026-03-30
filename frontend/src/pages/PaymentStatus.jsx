@@ -1,175 +1,134 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { CheckCircle, XCircle, CreditCard, ArrowRight, RotateCcw, Coins, Clock, Mail, Sparkles } from 'lucide-react';
-import './BuyCredits.css';
+import { Shield, Eye, Database, Share2, Cookie, Lock, Mail, Bell, UserCheck, Globe } from 'lucide-react';
+import './Legal.css';
 
-const PaymentStatus = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { refreshUser } = useAuth();
-    const [countdown, setCountdown] = useState(5);
-    const [showModal, setShowModal] = useState(false);
-
-    const isSuccess = location.pathname === '/payment/success';
-    const params = new URLSearchParams(location.search);
-
-    // Success params
-    const txnid = params.get('txnid') || '';
-    const credits = params.get('credits') || '0';
-    const amount = params.get('amount') || '0';
-
-    // Failure params
-    const reason = params.get('reason') || 'payment_failed';
-
-    // Generate confetti particles once (success only)
-    const confettiPieces = useMemo(() => {
-        if (!isSuccess) return [];
-        return Array.from({ length: 40 }, (_, i) => ({
-            id: i,
-            left: Math.random() * 100,
-            delay: Math.random() * 2,
-            duration: 2 + Math.random() * 2,
-            size: 6 + Math.random() * 6,
-            color: ['#7c3aed', '#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4'][Math.floor(Math.random() * 6)]
-        }));
-    }, [isSuccess]);
-
-    // Refresh user data on success to update credit balance
-    useEffect(() => {
-        if (isSuccess) {
-            refreshUser();
-        }
-    }, [isSuccess]);
-
-    // Show modal with a slight delay for entrance animation
-    useEffect(() => {
-        const timer = setTimeout(() => setShowModal(true), 100);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Auto-redirect countdown
-    useEffect(() => {
-        if (countdown <= 0) {
-            if (isSuccess) {
-                navigate('/templates', { replace: true });
-            } else {
-                navigate('/buy-credits', { replace: true });
-            }
-            return;
-        }
-
-        const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
-        return () => clearTimeout(timer);
-    }, [countdown, isSuccess, navigate]);
-
-    const getFailureMessage = (reason) => {
-        const messages = {
-            hash_mismatch: 'Payment verification failed. If money was deducted, it will be refunded within 5-7 business days.',
-            order_not_found: 'We could not find your order. Please contact support if money was deducted.',
-            server_error: 'Something went wrong on our end. Please try again.',
-            payment_failed: 'Your payment could not be processed. Please try again with a different payment method.',
-            payment_cancelled: 'Payment was cancelled. No amount has been charged.'
-        };
-        return messages[reason] || messages.payment_failed;
-    };
-
+const PrivacyPolicy = () => {
     return (
-        <div className={`payment-popup-overlay ${showModal ? 'visible' : ''}`}>
-            {/* Confetti */}
-            {isSuccess && confettiPieces.map(piece => (
-                <div
-                    key={piece.id}
-                    className="confetti-piece"
-                    style={{
-                        left: `${piece.left}%`,
-                        animationDelay: `${piece.delay}s`,
-                        animationDuration: `${piece.duration}s`,
-                        width: `${piece.size}px`,
-                        height: `${piece.size}px`,
-                        backgroundColor: piece.color
-                    }}
-                />
-            ))}
+        <div className="legal-page">
+            <div className="legal-hero">
+                <div className="container">
+                    <h1><Shield size={32} /> Privacy Policy</h1>
+                    <p>Your privacy matters to us. Learn how ImagineAI collects, uses, and protects your personal information.</p>
+                </div>
+            </div>
 
-            <div className={`payment-popup-modal ${showModal ? 'visible' : ''} ${isSuccess ? 'success' : 'failure'}`}>
-                {/* Icon */}
-                <div className={`popup-status-icon ${isSuccess ? 'success' : 'failure'}`}>
-                    {isSuccess ? <CheckCircle size={52} /> : <XCircle size={52} />}
+            <div className="legal-content">
+                <div className="legal-section">
+                    <p>Last updated: March 13, 2026</p>
+                    <p>
+                        This Privacy Policy describes how ImagineAI ("we", "us", or "our") collects, uses, and shares
+                        your personal information when you use our AI image generation platform. By using ImagineAI,
+                        you agree to the collection and use of information in accordance with this policy.
+                    </p>
                 </div>
 
-                {/* Title */}
-                <h2 className="popup-title">
-                    {isSuccess ? (
-                        <><Sparkles size={24} /> Payment Successful!</>
-                    ) : (
-                        'Payment Failed'
-                    )}
-                </h2>
-
-                {/* Description */}
-                <p className="popup-description">
-                    {isSuccess
-                        ? `${credits} credits have been added to your account. You're all set to create amazing AI images!`
-                        : getFailureMessage(reason)
-                    }
-                </p>
-
-                {/* Success Details */}
-                {isSuccess && (
-                    <>
-                        <div className="popup-details">
-                            <div className="popup-detail-row">
-                                <span><Coins size={16} /> Credits Added</span>
-                                <strong>{credits}</strong>
-                            </div>
-                            <div className="popup-detail-row">
-                                <span><CreditCard size={16} /> Amount Paid</span>
-                                <strong>₹{parseInt(amount).toLocaleString('en-IN')}</strong>
-                            </div>
-                            {txnid && (
-                                <div className="popup-detail-row">
-                                    <span>Transaction ID</span>
-                                    <strong style={{ fontSize: '0.8rem', fontFamily: 'monospace' }}>{txnid}</strong>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Email Notice */}
-                        <div className="popup-email-notice">
-                            <Mail size={16} />
-                            <span>A confirmation email has been sent to your registered email address.</span>
-                        </div>
-                    </>
-                )}
-
-                {/* Actions */}
-                <div className="popup-actions">
-                    {isSuccess ? (
-                        <button
-                            className="buy-btn primary"
-                            onClick={() => navigate('/templates', { replace: true })}
-                        >
-                            Browse Templates <ArrowRight size={16} />
-                        </button>
-                    ) : (
-                        <button
-                            className="buy-btn primary"
-                            onClick={() => navigate('/buy-credits', { replace: true })}
-                        >
-                            <RotateCcw size={16} /> Try Again
-                        </button>
-                    )}
+                <div className="legal-section">
+                    <h2><Eye size={22} /> Information We Collect</h2>
+                    <p>We collect different types of information to provide and improve our services:</p>
+                    <ul>
+                        <li><strong>Account Information:</strong> Your name, email address, and profile picture when you sign up via Google authentication.</li>
+                        <li><strong>Usage Data:</strong> Information about how you interact with our platform, including pages visited, features used, templates selected, and images generated.</li>
+                        <li><strong>Uploaded Images:</strong> Original images you upload for AI transformation. These are stored securely on our servers to process your requests.</li>
+                        <li><strong>Generated Images:</strong> AI-generated images created through our platform are stored in your account history.</li>
+                        <li><strong>Payment Information:</strong> When you purchase credits, payment is processed securely through PayU. We do not store your full credit card details on our servers.</li>
+                        <li><strong>Device Information:</strong> Browser type, IP address, operating system, and device identifiers for security and analytics purposes.</li>
+                    </ul>
                 </div>
 
-                {/* Countdown */}
-                <p className="popup-countdown">
-                    <Clock size={14} />
-                    Redirecting in {countdown}s to {isSuccess ? 'Templates' : 'Buy Credits'}…
-                </p>
+                <div className="legal-section">
+                    <h2><Database size={22} /> How We Use Your Information</h2>
+                    <p>We use the collected information for the following purposes:</p>
+                    <ul>
+                        <li>To create and manage your account on ImagineAI.</li>
+                        <li>To process your AI image generation requests using uploaded photos and selected templates.</li>
+                        <li>To manage credits, process payments, and maintain transaction records.</li>
+                        <li>To improve our AI models, templates, and overall platform experience.</li>
+                        <li>To send important service updates, security alerts, and support communications.</li>
+                        <li>To detect and prevent fraud, abuse, and unauthorized access.</li>
+                        <li>To comply with legal obligations and enforce our terms of service.</li>
+                    </ul>
+                </div>
+
+                <div className="legal-section">
+                    <h2><Share2 size={22} /> How We Share Your Information</h2>
+                    <p>We do not sell your personal information. We may share your data in the following cases:</p>
+                    <ul>
+                        <li><strong>Payment Processors:</strong> We share necessary transaction details with PayU to process your credit purchases securely.</li>
+                        <li><strong>AI Service Providers:</strong> Your uploaded images are processed through our AI pipeline. We use industry-standard security measures to protect this data.</li>
+                        <li><strong>Legal Requirements:</strong> We may disclose your information if required by law, court order, or governmental authority.</li>
+                        <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of assets, your data may be transferred as part of the business.</li>
+                    </ul>
+                </div>
+
+                <div className="legal-section">
+                    <h2><Cookie size={22} /> Cookies & Tracking</h2>
+                    <p>
+                        ImagineAI uses cookies and similar technologies to maintain your login session, remember your
+                        preferences, and analyze platform usage. You can manage cookie preferences through your browser
+                        settings, but disabling cookies may affect platform functionality.
+                    </p>
+                </div>
+
+                <div className="legal-section">
+                    <h2><Lock size={22} /> Data Security</h2>
+                    <p>
+                        We implement industry-standard security measures to protect your personal information, including
+                        encrypted data transmission (HTTPS/TLS), secure server infrastructure, and access controls.
+                        However, no method of electronic transmission or storage is 100% secure, and we cannot guarantee
+                        absolute security.
+                    </p>
+                    <div className="legal-highlight">
+                        <p>
+                            Your uploaded images and generated content are stored securely and are only accessible by you
+                            through your authenticated account. Admin users may access generation data for platform
+                            management purposes.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="legal-section">
+                    <h2><UserCheck size={22} /> Your Rights</h2>
+                    <p>You have the right to:</p>
+                    <ul>
+                        <li>Access the personal data we hold about you.</li>
+                        <li>Request correction of inaccurate personal information.</li>
+                        <li>Request deletion of your account and associated data.</li>
+                        <li>Withdraw consent for data processing where applicable.</li>
+                        <li>Export your data in a portable format.</li>
+                    </ul>
+                    <p>
+                        To exercise any of these rights, please contact us at{' '}
+                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>.
+                    </p>
+                </div>
+
+                <div className="legal-section">
+                    <h2><Globe size={22} /> Data Retention</h2>
+                    <p>
+                        We retain your personal information for as long as your account is active or as needed to provide
+                        our services. Generated images are stored indefinitely in your history unless you request deletion.
+                        Transaction records are retained as required by applicable tax and financial regulations.
+                    </p>
+                </div>
+
+                <div className="legal-section">
+                    <h2><Bell size={22} /> Changes to This Policy</h2>
+                    <p>
+                        We may update this Privacy Policy from time to time. We will notify you of any significant changes
+                        by posting the updated policy on this page with a revised "Last updated" date. We encourage you
+                        to review this page periodically for the latest information.
+                    </p>
+                </div>
+
+                <div className="legal-section">
+                    <h2><Mail size={22} /> Contact Us</h2>
+                    <p>
+                        If you have any questions or concerns about this Privacy Policy, please contact us at{' '}
+                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>.
+                    </p>
+                </div>
             </div>
         </div>
     );
 };
 
-export default PaymentStatus;
+export default PrivacyPolicy;
