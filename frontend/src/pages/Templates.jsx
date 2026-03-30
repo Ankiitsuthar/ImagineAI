@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, XCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
@@ -216,7 +216,7 @@ const Templates = () => {
             {/* Content Section */}
             <section className="templates-content">
                 <div className="container">
-                    {error && <div className="alert alert-error">{error}</div>}
+
 
                     {/* Step 1: Templates */}
                     {step === 1 && (
@@ -344,14 +344,7 @@ const Templates = () => {
                                     onClick={handleGenerate}
                                     disabled={generating}
                                 >
-                                    {generating ? (
-                                        <>
-                                            <span className="spinner-small"></span>
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        <><Sparkles size={18} /> Generate Image</>
-                                    )}
+                                    <Sparkles size={18} /> Generate Image
                                 </button>
                             </div>
                         </div>
@@ -414,6 +407,43 @@ const Templates = () => {
                         <p>This file format is not supported. Please upload a PNG, JPG, or WEBP image only.</p>
                         <button className="btn btn-primary" onClick={() => setFileTypeError(false)}>
                             Got it
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Generating Loading Overlay */}
+            {generating && (
+                <div className="generating-overlay">
+                    <div className="generating-modal">
+                        <div className="generating-spinner-ring">
+                            <div className="generating-spinner-inner"></div>
+                            <Sparkles size={28} className="generating-sparkle-icon" />
+                        </div>
+                        <h3>Creating Your Masterpiece</h3>
+                        <p>Our AI is transforming your image with the <strong>{selectedTemplate?.name}</strong> style...</p>
+                        <div className="generating-progress-bar">
+                            <div className="generating-progress-fill"></div>
+                        </div>
+                        <span className="generating-hint">This may take a few moments</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Error Modal Popup */}
+            {error && (
+                <div className="file-size-overlay" onClick={() => setError('')}>
+                    <div className="file-size-popup error-modal-popup" onClick={(e) => e.stopPropagation()}>
+                        <button className="popup-close-btn" onClick={() => setError('')}>
+                            <X size={20} />
+                        </button>
+                        <div className="popup-icon error-popup-icon">
+                            <XCircle size={48} />
+                        </div>
+                        <h3>Generation Failed</h3>
+                        <p>{error}</p>
+                        <button className="btn btn-primary" onClick={() => setError('')}>
+                            Try Again
                         </button>
                     </div>
                 </div>

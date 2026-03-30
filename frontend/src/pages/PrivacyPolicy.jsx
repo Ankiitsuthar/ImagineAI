@@ -96,7 +96,7 @@ const PrivacyPolicy = () => {
                     </ul>
                     <p>
                         To exercise any of these rights, please contact us at{' '}
-                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>.
+                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.open('mailto:support@imagineai.com', '_self'); }}>support@imagineai.com</a>.
                     </p>
                 </div>
 
@@ -122,7 +122,7 @@ const PrivacyPolicy = () => {
                     <h2>Contact Us</h2>
                     <p>
                         If you have any questions or concerns about this Privacy Policy, please contact us at{' '}
-                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>support@imagineai.com</a>.
+                        <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.open('mailto:support@imagineai.com', '_self'); }}>support@imagineai.com</a>.
                     </p>
                 </div>
             </div>

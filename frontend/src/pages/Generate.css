@@ -377,3 +377,224 @@
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
 }
+
+/* ====== Shared Modal Overlay ====== */
+.file-size-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: genFadeIn 0.2s ease;
+}
+
+.file-size-popup {
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: 2.5rem 2rem 2rem;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: genPopupSlideIn 0.3s ease;
+}
+
+.file-size-popup h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.file-size-popup p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.file-size-popup .btn {
+    min-width: 140px;
+}
+
+.popup-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.popup-close-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.popup-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    color: #D97706;
+}
+
+/* ====== Generating Loading Overlay ====== */
+.generating-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 10, 40, 0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    animation: genFadeIn 0.3s ease;
+}
+
+.generating-modal {
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: 3rem 2.5rem 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 25px 80px rgba(139, 92, 246, 0.25), 0 0 0 1px rgba(139, 92, 246, 0.1);
+    animation: genPopupSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.generating-modal h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.generating-modal p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.generating-modal p strong {
+    color: var(--primary);
+}
+
+.generating-spinner-ring {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.generating-spinner-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-top-color: var(--primary);
+    border-right-color: rgba(139, 92, 246, 0.3);
+    animation: genSpinRing 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.generating-spinner-ring::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-bottom-color: #7c3aed;
+    border-left-color: rgba(124, 58, 237, 0.3);
+    animation: genSpinRing 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite reverse;
+}
+
+.generating-spinner-inner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(124, 58, 237, 0.06) 100%);
+}
+
+.generating-sparkle-icon {
+    position: absolute;
+    color: var(--primary);
+    animation: genSparkPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes genSpinRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes genSparkPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+.generating-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.generating-progress-fill {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, var(--primary), #a78bfa, var(--primary));
+    background-size: 200% 100%;
+    border-radius: 3px;
+    animation: genShimmerProgress 1.8s ease-in-out infinite;
+}
+
+@keyframes genShimmerProgress {
+    0% { width: 15%; margin-left: 0; background-position: 0% 50%; }
+    50% { width: 55%; margin-left: 20%; background-position: 100% 50%; }
+    100% { width: 15%; margin-left: 85%; background-position: 0% 50%; }
+}
+
+.generating-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+/* Error Modal */
+.error-modal-popup h3 {
+    color: #dc2626;
+}
+
+.error-popup-icon {
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
+    color: #dc2626 !important;
+}
+
+@keyframes genFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes genPopupSlideIn {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}

@@ -45,7 +45,11 @@ const Home = () => {
                                 photo, and let our AI generate perfect results.
                             </p>
 
-                            {!user ? (
+                            {user ? (
+                                <button onClick={() => navigate('/templates')} className="btn btn-primary btn-lg hero-cta-btn">
+                                    <Sparkles size={18} /> Create
+                                </button>
+                            ) : (
                                 <>
                                     <button onClick={() => openModal('signup')} className="btn btn-primary btn-lg hero-cta-btn">
                                         <Sparkles size={18} /> Get Started Free
@@ -68,7 +72,7 @@ const Home = () => {
                                         </div>
                                     </div>
                                 </>
-                            ) : null}
+                            )}
                         </div>
 
                         <div className="hero-images fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -121,7 +125,7 @@ const Home = () => {
                         <h2>Ready to Create Your Dream Photos?</h2>
                         <p>Join thousands of happy users who have transformed their memories</p>
                         <button onClick={() => user ? navigate('/templates') : openModal('signup')} className="btn btn-primary btn-lg">
-                            Get Started Free
+                            {user ? 'Create' : 'Get Started Free'}
                         </button>
                     </div>
                 </section>

@@ -63,7 +63,7 @@ const Footer = () => {
                         <h4 className="footer-heading">Contact</h4>
                         <ul className="footer-links">
                             <li>
-                                <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.location.href='mailto:support@imagineai.com'; }}>
+                                <a href="mailto:support@imagineai.com" onClick={(e) => { e.preventDefault(); window.open('mailto:support@imagineai.com', '_self'); }}>
                                     support@imagineai.com
                                 </a>
                             </li>
