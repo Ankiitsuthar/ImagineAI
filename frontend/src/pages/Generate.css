@@ -579,14 +579,66 @@
     letter-spacing: 0.02em;
 }
 
-/* Error Modal */
-.error-modal-popup h3 {
-    color: #dc2626;
+/* ====== Modern Error Modal ====== */
+.error-modal-modern {
+    padding: 2.5rem 2rem 2rem !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
 }
 
-.error-popup-icon {
-    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
-    color: #dc2626 !important;
+.error-icon-modern {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    animation: genErrIconBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+@keyframes genErrIconBounce {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.error-title-modern {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0;
+    animation: genErrTitleFade 0.4s ease 0.35s both;
+}
+
+@keyframes genErrTitleFade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.error-divider-modern {
+    width: 60px;
+    height: 3px;
+    border-radius: 2px;
+    margin: 1rem 0 1.25rem;
+    animation: genErrDividerGrow 0.4s ease 0.45s both;
+}
+
+@keyframes genErrDividerGrow {
+    from { width: 0; opacity: 0; }
+    to { width: 60px; opacity: 1; }
+}
+
+.error-btn-modern {
+    min-width: 150px;
+    animation: genErrBtnFade 0.3s ease 0.55s both;
+}
+
+@keyframes genErrBtnFade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes genFadeIn {

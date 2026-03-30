@@ -2,10 +2,42 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { templateAPI, generationAPI } from '../services/api';
-import { Sparkles, FolderOpen, PartyPopper, XCircle, X } from 'lucide-react';
+import { Sparkles, FolderOpen, PartyPopper, XCircle, X, ShieldAlert, CreditCard, ImageOff, ServerCrash, WifiOff } from 'lucide-react';
 import TemplateCard from '../components/TemplateCard';
 import LoadingScreen from '../components/LoadingScreen';
 import './Generate.css';
+
+const getErrorInfo = (error) => {
+    const lower = (error || '').toLowerCase();
+    if (lower.includes('insufficient credits') || lower.includes('credit')) {
+        return { title: 'Insufficient Credits', icon: CreditCard, color: '#f59e0b' };
+    }
+    if (lower.includes('template not found')) {
+        return { title: 'Template Not Found', icon: ImageOff, color: '#ef4444' };
+    }
+    if (lower.includes('no image') || lower.includes('file provided')) {
+        return { title: 'No Image Provided', icon: ImageOff, color: '#8b5cf6' };
+    }
+    if (lower.includes('unsupported') || lower.includes('file format')) {
+        return { title: 'Unsupported Format', icon: ShieldAlert, color: '#ef4444' };
+    }
+    if (lower.includes('too large') || lower.includes('file size') || lower.includes('10mb')) {
+        return { title: 'File Too Large', icon: ShieldAlert, color: '#f59e0b' };
+    }
+    if (lower.includes('corrupted') || lower.includes('not a valid image')) {
+        return { title: 'Invalid Image', icon: ImageOff, color: '#ef4444' };
+    }
+    if (lower.includes('network') || lower.includes('timeout') || lower.includes('connect')) {
+        return { title: 'Connection Error', icon: WifiOff, color: '#6366f1' };
+    }
+    if (lower.includes('server') || lower.includes('500')) {
+        return { title: 'Server Error', icon: ServerCrash, color: '#ef4444' };
+    }
+    if (lower.includes('select both') || lower.includes('please select')) {
+        return { title: 'Missing Selection', icon: ShieldAlert, color: '#f59e0b' };
+    }
+    return { title: 'Generation Failed', icon: XCircle, color: '#dc2626' };
+};
 
 const Generate = () => {
     const { user, updateUserCredits } = useAuth();
@@ -284,23 +316,27 @@ const Generate = () => {
             )}
 
             {/* Error Modal Popup */}
-            {error && (
-                <div className="file-size-overlay" onClick={() => setError('')}>
-                    <div className="file-size-popup error-modal-popup" onClick={(e) => e.stopPropagation()}>
-                        <button className="popup-close-btn" onClick={() => setError('')}>
-                            <X size={20} />
-                        </button>
-                        <div className="popup-icon error-popup-icon">
-                            <XCircle size={48} />
+            {error && (() => {
+                const errInfo = getErrorInfo(error);
+                const ErrIcon = errInfo.icon;
+                return (
+                    <div className="file-size-overlay" onClick={() => setError('')}>
+                        <div className="file-size-popup error-modal-modern" onClick={(e) => e.stopPropagation()}>
+                            <button className="popup-close-btn" onClick={() => setError('')}>
+                                <X size={20} />
+                            </button>
+                            <div className="error-icon-modern" style={{ background: `linear-gradient(135deg, ${errInfo.color}22 0%, ${errInfo.color}11 100%)`, border: `2px solid ${errInfo.color}33` }}>
+                                <ErrIcon size={36} style={{ color: errInfo.color }} />
+                            </div>
+                            <h3 className="error-title-modern" style={{ color: errInfo.color }}>{errInfo.title}</h3>
+                            <div className="error-divider-modern" style={{ background: `linear-gradient(90deg, transparent, ${errInfo.color}44, transparent)` }}></div>
+                            <button className="btn btn-primary error-btn-modern" onClick={() => setError('')}>
+                                Try Again
+                            </button>
                         </div>
-                        <h3>Generation Failed</h3>
-                        <p>{error}</p>
-                        <button className="btn btn-primary" onClick={() => setError('')}>
-                            Try Again
-                        </button>
                     </div>
-                </div>
-            )}
+                );
+            })()}
         </div>
     );
 };
