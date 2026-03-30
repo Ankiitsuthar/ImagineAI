@@ -8,12 +8,12 @@ const createTransporter = () => {
         return null;
     }
 
-    const port = parseInt(SMTP_PORT) || 587;
-
-    // Use Gmail service shorthand for reliable connectivity
-    const isGmail = SMTP_HOST.includes('gmail');
+    const port = parseInt(SMTP_PORT) || 465;
 
     const config = {
+        host: SMTP_HOST,
+        port: port,
+        secure: port === 465, // true for port 465 (SSL), false for other ports
         auth: {
             user: SMTP_USER,
             pass: SMTP_PASS
@@ -25,35 +25,10 @@ const createTransporter = () => {
             rejectUnauthorized: false
         },
         // Force IPv4 — Render doesn't support outbound IPv6
-        dnsOptions: { family: 4 },
-        // Override socket creation to force IPv4
-        connection: undefined
+        dnsOptions: { family: 4 }
     };
 
-    if (isGmail) {
-        config.service = 'gmail';
-    } else {
-        config.host = SMTP_HOST;
-        config.port = port;
-        config.secure = port === 465;
-        config.pool = true;
-        config.maxConnections = 3;
-    }
-
-    // Create custom socket connect to force IPv4
     const transport = nodemailer.createTransport(config);
-
-    // Override the socket connection to force IPv4
-    const originalGetSocket = transport.getSocket;
-    transport.getSocket = function(options, callback) {
-        if (options && !options.family) {
-            options.family = 4;
-        }
-        if (originalGetSocket) {
-            return originalGetSocket.call(this, options, callback);
-        }
-    };
-
     return transport;
 };
 

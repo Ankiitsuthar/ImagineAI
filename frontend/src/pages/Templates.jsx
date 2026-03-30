@@ -23,6 +23,7 @@ const Templates = () => {
     const [error, setError] = useState('');
     const [generatedImage, setGeneratedImage] = useState(null);
     const [fileSizeError, setFileSizeError] = useState(false);
+    const [fileTypeError, setFileTypeError] = useState(false);
 
     // Get pre-selected templateId from Collection page
     const preSelectedTemplateId = location.state?.templateId;
@@ -71,10 +72,16 @@ const Templates = () => {
     };
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                setFileTypeError(true);
+                e.target.value = '';
+                return;
+            }
             if (file.size > MAX_FILE_SIZE) {
                 setFileSizeError(true);
                 e.target.value = '';
@@ -103,7 +110,11 @@ const Templates = () => {
         e.preventDefault();
         e.currentTarget.classList.remove('drag-over');
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
+        if (file) {
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                setFileTypeError(true);
+                return;
+            }
             if (file.size > MAX_FILE_SIZE) {
                 setFileSizeError(true);
                 return;
@@ -284,7 +295,7 @@ const Templates = () => {
                                 <input
                                     type="file"
                                     id="file-input"
-                                    accept="image/*"
+                                    accept=".png,.jpg,.jpeg,.webp"
                                     onChange={handleFileChange}
                                     style={{ display: 'none' }}
                                 />
@@ -383,6 +394,25 @@ const Templates = () => {
                         <h3>File Too Large</h3>
                         <p>Your file size exceeds the 10MB limit. Please choose a smaller image and try again.</p>
                         <button className="btn btn-primary" onClick={() => setFileSizeError(false)}>
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* File Type Error Popup */}
+            {fileTypeError && (
+                <div className="file-size-overlay" onClick={() => setFileTypeError(false)}>
+                    <div className="file-size-popup" onClick={(e) => e.stopPropagation()}>
+                        <button className="popup-close-btn" onClick={() => setFileTypeError(false)}>
+                            <X size={20} />
+                        </button>
+                        <div className="popup-icon">
+                            <AlertTriangle size={48} />
+                        </div>
+                        <h3>Unsupported File Format</h3>
+                        <p>This file format is not supported. Please upload a PNG, JPG, or WEBP image only.</p>
+                        <button className="btn btn-primary" onClick={() => setFileTypeError(false)}>
                             Got it
                         </button>
                     </div>

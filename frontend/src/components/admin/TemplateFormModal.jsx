@@ -174,9 +174,22 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
         }
     };
 
+    const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    const MAX_THUMB_SIZE = 10 * 1024 * 1024; // 10MB
+
     const handleThumbnailChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                alert('Unsupported file format. Please upload a PNG, JPG, or WEBP image only.');
+                e.target.value = '';
+                return;
+            }
+            if (file.size > MAX_THUMB_SIZE) {
+                alert('File too large. Please choose an image under 10MB.');
+                e.target.value = '';
+                return;
+            }
             setThumbnailFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -413,7 +426,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                             <label className="thumbnail-upload-label">
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept=".png,.jpg,.jpeg,.webp"
                                     onChange={handleThumbnailChange}
                                 />
                                 {thumbnailPreview ? (
