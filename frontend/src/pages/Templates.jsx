@@ -295,43 +295,66 @@ const Templates = () => {
                     {/* Step 2: Upload */}
                     {step === 2 && (
                         <div className="upload-section fade-in">
-                            <div className="selected-template-preview">
-                                <div className="selected-template-thumb">
-                                    <img
-                                        src={selectedTemplate?.thumbnailUrl?.startsWith('http') ? selectedTemplate.thumbnailUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedTemplate?.thumbnailUrl}`}
-                                        alt={selectedTemplate?.name}
-                                        onError={(e) => {
-                                            e.target.src = 'https://picsum.photos/400/300?random=' + selectedTemplate?._id;
-                                        }}
-                                    />
+                            <div className="upload-layout">
+                                {/* Left: Selected Template Card */}
+                                <div className="upload-template-card">
+                                    <div className="upload-template-card-glow"></div>
+                                    <div className="upload-template-img-wrap">
+                                        <img
+                                            src={selectedTemplate?.thumbnailUrl?.startsWith('http') ? selectedTemplate.thumbnailUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedTemplate?.thumbnailUrl}`}
+                                            alt={selectedTemplate?.name}
+                                            onError={(e) => {
+                                                e.target.src = 'https://picsum.photos/400/300?random=' + selectedTemplate?._id;
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="upload-template-meta">
+                                        <span className="upload-template-badge-label">
+                                            <Sparkles size={12} /> Selected Style
+                                        </span>
+                                        <h3>{selectedTemplate?.name}</h3>
+                                        <div className="upload-template-cost-row">
+                                            <Coins size={14} />
+                                            <span>{selectedTemplate?.creditCost} {selectedTemplate?.creditCost === 1 ? 'Credit' : 'Credits'}</span>
+                                        </div>
+                                        <button className="upload-change-btn" onClick={() => setStep(1)}>
+                                            Change Style
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="selected-template-details">
-                                    <span className="selected-template-label">Selected Template</span>
-                                    <h3 className="selected-template-name">{selectedTemplate?.name}</h3>
-                                    <span className="selected-template-cost">{selectedTemplate?.creditCost} {selectedTemplate?.creditCost === 1 ? 'Credit' : 'Credits'}</span>
-                                    <button className="btn btn-link" onClick={() => setStep(1)}>Change template</button>
-                                </div>
-                            </div>
 
-                            <div
-                                className="upload-dropzone"
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
-                            >
-                                <input
-                                    type="file"
-                                    id="file-input"
-                                    accept=".png,.jpg,.jpeg,.webp"
-                                    onChange={handleFileChange}
-                                    style={{ display: 'none' }}
-                                />
-                                <label htmlFor="file-input" className="dropzone-label">
-                                    <div className="dropzone-icon"><FolderOpen size={32} /></div>
-                                    <h3>Drop your image here</h3>
-                                    <p>or click to browse</p>
-                                    <span className="dropzone-hint">Supports: PNG, JPG, WEBP (max 10MB)</span>
-                                </label>
+                                {/* Right: Upload Dropzone */}
+                                <div className="upload-dropzone-wrapper">
+                                    <div
+                                        className="upload-dropzone"
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
+                                        <input
+                                            type="file"
+                                            id="file-input"
+                                            accept=".png,.jpg,.jpeg,.webp"
+                                            onChange={handleFileChange}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <label htmlFor="file-input" className="dropzone-label">
+                                            <div className="dropzone-icon-modern">
+                                                <div className="dropzone-icon-ring"></div>
+                                                <Upload size={28} />
+                                            </div>
+                                            <h3>Upload Your Photo</h3>
+                                            <p>Drag & drop or <span className="dropzone-browse-link">browse files</span></p>
+                                            <div className="dropzone-formats">
+                                                <span className="format-tag">PNG</span>
+                                                <span className="format-tag">JPG</span>
+                                                <span className="format-tag">WEBP</span>
+                                                <span className="format-divider">•</span>
+                                                <span className="format-limit">Max 10MB</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -341,10 +364,10 @@ const Templates = () => {
                         <div className="generate-section fade-in">
                             <div className="generate-preview">
                                 <div className="preview-card">
-                                    <h4>Your Image</h4>
+                                    <h4>Your Photo</h4>
                                     <img src={preview} alt="Preview" className="preview-image" />
                                 </div>
-                                <div className="preview-arrow"><ArrowRight size={24} /></div>
+                                <div className="preview-arrow"><ArrowRight size={20} /></div>
                                 <div className="preview-card">
                                     <h4>Template Style</h4>
                                     <img
@@ -357,7 +380,7 @@ const Templates = () => {
                                     />
                                     <div className="template-style-info">
                                         <span className="style-name">{selectedTemplate?.name}</span>
-                                        <span className="style-cost">{selectedTemplate?.creditCost} credit</span>
+                                        <span className="style-cost">{selectedTemplate?.creditCost} {selectedTemplate?.creditCost === 1 ? 'credit' : 'credits'}</span>
                                     </div>
                                 </div>
                             </div>

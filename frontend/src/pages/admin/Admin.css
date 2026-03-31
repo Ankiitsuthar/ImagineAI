@@ -1978,6 +1978,20 @@
     white-space: pre-wrap;
 }
 
+.notif-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.notif-card-footer .btn-primary {
+    color: #fff;
+}
+
 .notif-actions {
     display: flex;
     justify-content: space-between;

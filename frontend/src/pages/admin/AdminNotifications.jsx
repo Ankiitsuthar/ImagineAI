@@ -228,43 +228,37 @@ const AdminNotifications = () => {
                                         <div className="notif-message-box">
                                             <p>{query.message}</p>
                                         </div>
-                                        <div className="notif-actions">
-                                            <a
-                                                href={`https://mail.google.com/mail/?view=cm&to=${query.email}&su=Re: Your inquiry on ImagineAI`}
-                                                className="btn btn-primary btn-sm"
-                                                onClick={e => e.stopPropagation()}
-                                            >
-                                                <Mail size={14} /> Reply via Email
-                                            </a>
-                                            <div className="notif-status-actions">
-                                                {query.status !== 'pending' && (
-                                                    <button
-                                                        className="notif-status-btn pending"
-                                                        onClick={() => handleStatusChange(query._id, 'pending')}
-                                                    >
-                                                        <Clock size={14} /> Pending
-                                                    </button>
-                                                )}
-                                                {query.status !== 'responded' && (
-                                                    <button
-                                                        className="notif-status-btn responded"
-                                                        onClick={() => handleStatusChange(query._id, 'responded')}
-                                                    >
-                                                        <MessageSquare size={14} /> Responded
-                                                    </button>
-                                                )}
-                                                {query.status !== 'resolved' && (
-                                                    <button
-                                                        className="notif-status-btn resolved"
-                                                        onClick={() => handleStatusChange(query._id, 'resolved')}
-                                                    >
-                                                        <CheckCircle size={14} /> Resolved
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
                                     </div>
                                 )}
+
+                                <div className="notif-card-footer" onClick={e => e.stopPropagation()}>
+                                    <a
+                                        href={`https://mail.google.com/mail/?view=cm&to=${query.email}&su=Re: Your inquiry on ImagineAI`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-primary btn-sm"
+                                    >
+                                        <Mail size={14} /> Reply via Email
+                                    </a>
+                                    <div className="notif-status-actions">
+                                        {query.status !== 'responded' && (
+                                            <button
+                                                className="notif-status-btn responded"
+                                                onClick={() => handleStatusChange(query._id, 'responded')}
+                                            >
+                                                <MessageSquare size={14} /> Responded
+                                            </button>
+                                        )}
+                                        {query.status !== 'resolved' && (
+                                            <button
+                                                className="notif-status-btn resolved"
+                                                onClick={() => handleStatusChange(query._id, 'resolved')}
+                                            >
+                                                <CheckCircle size={14} /> Resolved
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         );
                     })}

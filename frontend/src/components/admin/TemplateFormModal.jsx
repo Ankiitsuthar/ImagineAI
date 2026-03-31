@@ -274,7 +274,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                         </div>
 
                         <div className="admin-form-row">
-                            <div className="admin-form-group">
+                            <div className="admin-form-group" style={{ position: 'relative', zIndex: 50 }}>
                                 <label>Collection *</label>
                                 <div className="custom-collection-dropdown" ref={dropdownRef}>
                                     <div
