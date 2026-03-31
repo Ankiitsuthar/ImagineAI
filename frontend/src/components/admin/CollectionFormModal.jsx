@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Shapes, ImagePlus, Search, Upload, X, FolderPlus, Pencil } from 'lucide-react';
+import { Shapes, ImagePlus, Search, Upload, X, FolderPlus, Pencil, AlertTriangle, FileWarning } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
 import { collectionAPI } from '../../services/api';
 import useBodyScrollLock from '../../hooks/useBodyScrollLock';
@@ -50,6 +50,7 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
     const [uploading, setUploading] = useState(false);
     const [iconTab, setIconTab] = useState('lucide'); // lucide | upload
     const [iconSearch, setIconSearch] = useState('');
+    const [imageError, setImageError] = useState({ show: false, title: '', message: '', icon: null });
     const fileInputRef = useRef(null);
 
     const colorPresets = [
@@ -111,6 +112,13 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
         }
     };
 
+    const ALLOWED_ICON_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    const MAX_ICON_SIZE = 2 * 1024 * 1024; // 2MB
+
+    const showImageError = (title, message, icon = 'type') => {
+        setImageError({ show: true, title, message, icon });
+    };
+
     const uploadFileToServer = async (file) => {
         const formData = new FormData();
         formData.append('icon', file);
@@ -120,7 +128,11 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
             setFormData(prev => ({ ...prev, collectionIcon: response.data.iconUrl }));
         } catch (err) {
             console.error('Error uploading icon:', err);
-            alert('Failed to upload icon image');
+            showImageError(
+                'Upload Failed',
+                'Failed to upload the icon image. Please check your connection and try again.',
+                'type'
+            );
         } finally {
             setUploading(false);
         }
@@ -129,9 +141,23 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
     const handleImageUpload = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (!file.type.startsWith('image/')) return;
-        if (file.size > 2 * 1024 * 1024) {
-            alert('Image must be under 2MB');
+        if (!ALLOWED_ICON_TYPES.includes(file.type)) {
+            showImageError(
+                'Unsupported File Format',
+                `The file "${file.name}" is not a supported format. Please upload a PNG, JPG, or WEBP image only.`,
+                'type'
+            );
+            e.target.value = '';
+            return;
+        }
+        if (file.size > MAX_ICON_SIZE) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            showImageError(
+                'File Size Too Large',
+                `The file "${file.name}" is ${sizeMB}MB which exceeds the 2MB limit. Please choose a smaller image.`,
+                'size'
+            );
+            e.target.value = '';
             return;
         }
         uploadFileToServer(file);
@@ -141,13 +167,25 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
         e.preventDefault();
         e.stopPropagation();
         const file = e.dataTransfer?.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Image must be under 2MB');
-                return;
-            }
-            uploadFileToServer(file);
+        if (!file) return;
+        if (!ALLOWED_ICON_TYPES.includes(file.type)) {
+            showImageError(
+                'Unsupported File Format',
+                `The file "${file.name}" is not a supported format. Please upload a PNG, JPG, or WEBP image only.`,
+                'type'
+            );
+            return;
         }
+        if (file.size > MAX_ICON_SIZE) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            showImageError(
+                'File Size Too Large',
+                `The file "${file.name}" is ${sizeMB}MB which exceeds the 2MB limit. Please choose a smaller image.`,
+                'size'
+            );
+            return;
+        }
+        uploadFileToServer(file);
     };
 
     const validate = () => {
@@ -399,8 +437,31 @@ const CollectionFormModal = ({ collection, onClose, onSubmit }) => {
                         </button>
                     </div>
                 </form>
-            </div >
-        </div >
+
+                {/* Image Error Popup Modal */}
+                {imageError.show && (
+                    <div className="image-error-popup-overlay" onClick={() => setImageError({ show: false, title: '', message: '', icon: null })}>
+                        <div className="image-error-popup" onClick={e => e.stopPropagation()}>
+                            <div className="image-error-popup-icon">
+                                {imageError.icon === 'size' ? <FileWarning size={32} /> : <AlertTriangle size={32} />}
+                            </div>
+                            <h3 className="image-error-popup-title">{imageError.title}</h3>
+                            <p className="image-error-popup-message">{imageError.message}</p>
+                            <div className="image-error-popup-hints">
+                                <span>Accepted: <strong>PNG, JPG, WEBP</strong></span>
+                                <span>Max size: <strong>2MB</strong></span>
+                            </div>
+                            <button
+                                className="image-error-popup-btn"
+                                onClick={() => setImageError({ show: false, title: '', message: '', icon: null })}
+                            >
+                                <X size={16} /> Got It
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
     );
 };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { templateAPI } from '../../services/api';
-import { Pencil, Plus, Camera, Flame, ChevronDown } from 'lucide-react';
+import { Pencil, Plus, Camera, Flame, ChevronDown, AlertTriangle, X, FileWarning } from 'lucide-react';
 import IconRenderer from '../IconRenderer';
 import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 import '../../pages/admin/Admin.css';
@@ -21,6 +21,7 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
     const [thumbnailPreview, setThumbnailPreview] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [imageError, setImageError] = useState({ show: false, title: '', message: '', icon: null });
     const [collections, setCollections] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState('');
     const [isNewCollection, setIsNewCollection] = useState(false);
@@ -177,16 +178,29 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
     const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
     const MAX_THUMB_SIZE = 10 * 1024 * 1024; // 10MB
 
+    const showImageError = (title, message, icon = 'type') => {
+        setImageError({ show: true, title, message, icon });
+    };
+
     const handleThumbnailChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             if (!ALLOWED_TYPES.includes(file.type)) {
-                alert('Unsupported file format. Please upload a PNG, JPG, or WEBP image only.');
+                showImageError(
+                    'Unsupported File Format',
+                    `The file "${file.name}" is not a supported format. Please upload a PNG, JPG, or WEBP image only.`,
+                    'type'
+                );
                 e.target.value = '';
                 return;
             }
             if (file.size > MAX_THUMB_SIZE) {
-                alert('File too large. Please choose an image under 10MB.');
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                showImageError(
+                    'File Size Too Large',
+                    `The file "${file.name}" is ${sizeMB}MB which exceeds the 10MB limit. Please choose a smaller image.`,
+                    'size'
+                );
                 e.target.value = '';
                 return;
             }
@@ -472,6 +486,29 @@ const TemplateFormModal = ({ template, onClose, onSubmit }) => {
                         </button>
                     </div>
                 </form>
+
+                {/* Image Error Popup Modal */}
+                {imageError.show && (
+                    <div className="image-error-popup-overlay" onClick={() => setImageError({ show: false, title: '', message: '', icon: null })}>
+                        <div className="image-error-popup" onClick={e => e.stopPropagation()}>
+                            <div className="image-error-popup-icon">
+                                {imageError.icon === 'size' ? <FileWarning size={32} /> : <AlertTriangle size={32} />}
+                            </div>
+                            <h3 className="image-error-popup-title">{imageError.title}</h3>
+                            <p className="image-error-popup-message">{imageError.message}</p>
+                            <div className="image-error-popup-hints">
+                                <span>Accepted: <strong>PNG, JPG, WEBP</strong></span>
+                                <span>Max size: <strong>10MB</strong></span>
+                            </div>
+                            <button
+                                className="image-error-popup-btn"
+                                onClick={() => setImageError({ show: false, title: '', message: '', icon: null })}
+                            >
+                                <X size={16} /> Got It
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
