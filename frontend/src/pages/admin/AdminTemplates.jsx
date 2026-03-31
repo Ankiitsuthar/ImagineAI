@@ -150,7 +150,7 @@ const AdminTemplates = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1><Palette size={28} /> Manage Templates</h1>
+                <h1>Manage Templates</h1>
                 <div className="header-actions">
                     <button className="btn btn-primary" onClick={handleAddNew}>
                         <Plus size={16} /> Add Template

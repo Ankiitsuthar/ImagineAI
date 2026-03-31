@@ -134,7 +134,7 @@ const AdminCollections = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1><Layers size={28} /> Manage Collections</h1>
+                <h1>Manage Collections</h1>
                 <div className="header-actions">
                     <button className="btn btn-primary" onClick={handleAddNew}>
                         <FolderPlus size={16} /> Create Collection

@@ -134,7 +134,7 @@ const AdminOrders = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1><Package size={28} /> Revenue & Orders</h1>
+                <h1>Revenue & Orders</h1>
                 <div className="header-actions">
                     <button
                         className="btn btn-export"
@@ -274,14 +274,14 @@ const AdminOrders = () => {
                     {analytics.packageBreakdown?.length > 0 && (
                         <div className="admin-chart-card" style={{ marginBottom: '2rem' }}>
                             <div className="admin-chart-header">
-                                <h3><Package size={18} /> Package Breakdown</h3>
+                                <h3><Package size={18} /> Order Summary</h3>
                             </div>
                             <div style={{ padding: '0 1.25rem 1.25rem' }}>
                                 <div className="admin-table-container" style={{ border: 'none', boxShadow: 'none' }}>
                                     <table className="admin-table">
                                         <thead>
                                             <tr>
-                                                <th>Package</th>
+                                                <th>Summary</th>
                                                 <th>Orders</th>
                                                 <th>Revenue</th>
                                                 <th>Credits Sold</th>

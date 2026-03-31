@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { orderAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Coins, Sparkles, Minus, Plus, AlertTriangle, CreditCard, CheckCircle, Lock, Zap, ArrowRight } from 'lucide-react';
+import { Coins, Minus, Plus, AlertTriangle, CreditCard, CheckCircle, Lock, Zap, ArrowRight } from 'lucide-react';
 import './BuyCredits.css';
 
 const PRICE_PER_CREDIT = 10; // ₹10 per credit
@@ -70,7 +70,7 @@ const BuyCredits = () => {
         <div className="buy-credits-page">
             {/* Header */}
             <div className="page-header">
-                <h1><Sparkles size={32} /> Buy Credits</h1>
+                <h1>Buy Credits</h1>
                 <p>Choose how many credits you want — pay only for what you need</p>
                 {user && (
                     <div className="current-credits">

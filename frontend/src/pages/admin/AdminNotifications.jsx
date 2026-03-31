@@ -107,7 +107,7 @@ const AdminNotifications = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1><Bell size={28} /> Notifications & Queries</h1>
+                <h1>Notifications & Queries</h1>
                 <div className="header-actions">
                     <span style={{ color: 'var(--text-muted)' }}>
                         {stats.pending} pending

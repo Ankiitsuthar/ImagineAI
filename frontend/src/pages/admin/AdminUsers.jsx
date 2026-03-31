@@ -105,7 +105,7 @@ const AdminUsers = () => {
     return (
         <div className="admin-page container">
             <div className="admin-page-header">
-                <h1><Users size={28} /> Manage Users</h1>
+                <h1>Manage Users</h1>
                 <div className="header-actions">
                     <span style={{ color: 'var(--text-muted)' }}>
                         Total: {total} users
